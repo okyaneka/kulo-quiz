@@ -16,10 +16,13 @@
     "paths": {
       "~/*": ["src/*"]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": [
+      "element-plus/global",
+      "vite-plugin-pages/client",
+      "vite-plugin-vue-layouts/client"
+    ]
   },
-
-  "types": ["element-plus/global"],
 
   "references": [
     {

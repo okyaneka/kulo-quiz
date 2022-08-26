@@ -8,11 +8,13 @@ module.exports = {
     'eslint:recommended',
     '@vue/eslint-config-typescript/recommended',
     '@vue/eslint-config-prettier',
+    './.eslintrc-auto-import.json',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
   },
   rules: {
+    'vue/multi-word-component-names': 'off',
     semi: ['error', 'never'],
   },
 }
