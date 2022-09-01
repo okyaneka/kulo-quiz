@@ -1,16 +1,47 @@
+<route lang="yaml">
+meta:
+  noRequireAuth: true
+</route>
+
 <script setup lang="ts">
   import LOGO from '~/assets/images/logo-text.png'
   import { Hide, View } from '@element-plus/icons-vue'
+  import { login, type LoginPayload } from '~/apps/auth/auth.repository'
+  import { LoginScheme } from '~/apps/auth/auth.shceme'
+
+  const router = useRouter()
+
+  const { errors, validate, values } = useForm<LoginPayload>({
+    validationSchema: LoginScheme,
+  })
+  const { value: email } = useField<string>('email')
+  const { value: password } = useField<string>('password')
+
+  const { mutate, isLoading } = useMutation({
+    mutationFn: (payload: LoginPayload) => login(payload),
+    onSuccess: () => {
+      ElMessage.success('Login success.')
+      router.push('/home')
+    },
+  })
 
   const showPassword = ref<boolean>(false)
-  const showConfirmPassword = ref<boolean>(false)
-  const form = ref<any>({})
+
+  async function handleSubmit() {
+    if ((await validate()).valid) {
+      mutate(values)
+    }
+  }
 </script>
 
 <template>
-  <el-row align="middle" justify="center" style="min-height: 100vh">
-    <el-col :span="16" :xs="24">
-      <el-card>
+  <el-row
+    align="middle"
+    justify="center"
+    style="min-height: 100vh; padding: var(--el-main-padding) 0"
+  >
+    <el-col :span="24" :lg="16" :md="20">
+      <el-card v-loading="isLoading">
         <el-space :size="32" direction="vertical" fill>
           <el-space />
           <el-row justify="center">
@@ -21,14 +52,14 @@
 
           <h1 align="center">Hei, I miss you so much! Let's go back!</h1>
 
-          <el-form :model="form">
-            <el-form-item>
-              <el-input v-model="form.email" placeholder="Email" type="email" />
+          <el-form @submit.prevent="handleSubmit()">
+            <el-form-item :error="errors.email">
+              <el-input v-model="email" placeholder="Email" type="email" />
             </el-form-item>
 
-            <el-form-item>
+            <el-form-item :error="errors.password">
               <el-input
-                v-model="form.password"
+                v-model="password"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="Password"
               >
@@ -48,9 +79,14 @@
               direction="vertical"
               fill
               :fill-ratio="100"
-              style="width: 100%"
+              style="width: 100%; margin-top: 18px"
             >
               <el-button type="primary" native-type="submit">Login</el-button>
+              <p align="center">
+                <router-link to="/forgot-password">
+                  I forget my password
+                </router-link>
+              </p>
               <p
                 align="center"
                 style="

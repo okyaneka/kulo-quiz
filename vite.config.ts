@@ -27,8 +27,16 @@ export default defineConfig({
         /\.md$/, // .md
       ],
 
-      imports: ['vue', 'vue-router'],
-      dirs: [],
+      imports: [
+        'vue',
+        'vue-router',
+        {
+          'element-plus': ['ElMessage'],
+          'vee-validate': ['useField', 'useForm'],
+          // yup: ['*', 'yup'],
+        },
+      ],
+      dirs: ['src/composables/**'],
       eslintrc: { enabled: true },
       dts: 'src/autoimport.d.ts',
       resolvers: [ElementPlusResolver()],
@@ -42,6 +50,7 @@ export default defineConfig({
           importStyle: 'sass',
         }),
       ],
+      types: [{ from: 'vee-validate', names: ['Form', 'Field'] }],
     }),
     Pages(),
     Layouts({

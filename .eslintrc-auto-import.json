@@ -1,6 +1,7 @@
 {
   "globals": {
     "EffectScope": true,
+    "ElMessage": true,
     "computed": true,
     "createApp": true,
     "customRef": true,
@@ -46,6 +47,10 @@
     "useAttrs": true,
     "useCssModule": true,
     "useCssVars": true,
+    "useField": true,
+    "useForm": true,
+    "useMutation": true,
+    "useQuery": true,
     "useRoute": true,
     "useRouter": true,
     "useSlots": true,
