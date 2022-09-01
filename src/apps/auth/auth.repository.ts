@@ -1,4 +1,4 @@
-import { useApp } from '~/plugins/firebase'
+import { useAppStore } from '~/plugins/firebase'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -10,6 +10,7 @@ import {
   type UserCredential,
   updateProfile,
   sendPasswordResetEmail,
+  RecaptchaVerifier,
 } from 'firebase/auth'
 import { defineStore } from 'pinia'
 
@@ -37,7 +38,8 @@ export interface AuthObserverCallback {
 }
 
 export function useAuth() {
-  return getAuth(useApp())
+  const { app } = useAppStore()
+  return getAuth(app)
 }
 
 export function register(payload: RegisterPayload) {
@@ -52,14 +54,12 @@ export function register(payload: RegisterPayload) {
 }
 
 export function login(payload: LoginPayload) {
-  return signInWithEmailAndPassword(
-    useAuth(),
-    payload.email,
-    payload.password
-  ).then(async (userCredential: UserCredential) => {
-    await getAuthUser()
-    return userCredential
-  })
+  signInWithEmailAndPassword(useAuth(), payload.email, payload.password).then(
+    async (userCredential: UserCredential) => {
+      await getAuthUser()
+      return userCredential
+    }
+  )
 }
 
 export function guestLogin(payload: GuestLoginPayload) {
@@ -95,6 +95,28 @@ export function authObserver(callback: AuthObserverCallback) {
   return onAuthStateChanged(useAuth(), (user: User | null) => {
     callback(user)
   })
+}
+
+export function useRecaptchaVerifier(
+  ref: HTMLElement,
+  callback: () => any
+): RecaptchaVerifier {
+  return new RecaptchaVerifier(
+    ref,
+    {
+      callback: (res: any) => {
+        console.log('callback', res)
+        callback()
+      },
+      'expired-callback': (res: any) => {
+        console.log('expired-callback', res)
+      },
+      'error-callback': (res: any) => {
+        console.log('error-callback', res)
+      },
+    },
+    useAuth()
+  )
 }
 
 export const useAuthStore = defineStore('auth', () => {

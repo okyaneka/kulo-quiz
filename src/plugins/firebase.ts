@@ -1,6 +1,11 @@
-import { initializeApp } from 'firebase/app'
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
+import { initializeApp, type FirebaseApp } from 'firebase/app'
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+  type AppCheck,
+} from 'firebase/app-check'
 import type { FirebaseOptions } from 'firebase/app'
+import { defineStore } from 'pinia'
 
 export function useApp() {
   const config: FirebaseOptions = {
@@ -13,14 +18,30 @@ export function useApp() {
     measurementId: import.meta.env.VITE_MEASUREMENT_ID,
   }
 
-  return initializeApp(config)
+  const app = initializeApp(config)
+  const appStore = useAppStore()
+  appStore.app = app
+
+  return app
 }
 
 export function useAppCheck() {
   const _siteKey = import.meta.env.VITE_SITE_KEY
 
-  return initializeAppCheck(useApp(), {
+  const appStore = useAppStore()
+  const appCheck = initializeAppCheck(appStore.app, {
     provider: new ReCaptchaV3Provider(_siteKey),
     isTokenAutoRefreshEnabled: true,
   })
+
+  appStore.appCheck = appCheck
+
+  return appCheck
 }
+
+export const useAppStore = defineStore('app', () => {
+  const app = ref<FirebaseApp>()
+  const appCheck = ref<AppCheck>()
+
+  return { app, appCheck }
+})
