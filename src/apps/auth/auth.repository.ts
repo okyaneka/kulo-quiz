@@ -54,12 +54,14 @@ export function register(payload: RegisterPayload) {
 }
 
 export function login(payload: LoginPayload) {
-  signInWithEmailAndPassword(useAuth(), payload.email, payload.password).then(
-    async (userCredential: UserCredential) => {
-      await getAuthUser()
-      return userCredential
-    }
-  )
+  return signInWithEmailAndPassword(
+    useAuth(),
+    payload.email,
+    payload.password
+  ).then(async (userCredential: UserCredential) => {
+    await getAuthUser()
+    return userCredential
+  })
 }
 
 export function guestLogin(payload: GuestLoginPayload) {
