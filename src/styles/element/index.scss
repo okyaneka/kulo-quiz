@@ -25,7 +25,10 @@ $--colors: (
     'page': #ffffff,
     'overlay': #ffffff,
   ),
-  $colors: $--colors
+  $colors: $--colors,
+  $footer: (
+    'height': 58px,
+  )
 );
 
 @use './dark.scss';
