@@ -25,9 +25,19 @@ $--colors: (
     'page': #ffffff,
     'overlay': #ffffff,
   ),
+  $font-size: (
+    'extra-large': 24px,
+    'large': 20px,
+    'medium': 18px,
+    'base': 16px,
+    'small': 14px,
+  ),
   $colors: $--colors,
   $footer: (
-    'height': 58px,
+    'height': 56px,
+  ),
+  $main: (
+    'padding': 0 20px,
   )
 );
 
