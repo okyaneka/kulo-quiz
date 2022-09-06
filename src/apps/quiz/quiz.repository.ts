@@ -33,3 +33,15 @@ export interface QuizRateValue {
   users: number
   percentage: number
 }
+
+interface User {
+  uid: string
+  name: string
+  email: string
+}
+
+export interface QuizStandingData {
+  rank: number
+  user: User
+  score: number
+}

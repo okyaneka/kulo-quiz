@@ -126,10 +126,3 @@
     background-color: var(--el-fill-color-blank);
   }
 </style>
-
-<style>
-  .el-col:not(:last-child),
-  .el-row:not(:last-child) {
-    margin-bottom: 20px;
-  }
-</style>

@@ -229,7 +229,9 @@ meta:
     </el-col>
 
     <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 1">
-      <el-button type="primary" style="width: 100%">START QUIZ</el-button>
+      <router-link :to="{ name: 'quiz-play' }">
+        <el-button type="primary" style="width: 100%">START QUIZ</el-button>
+      </router-link>
     </el-col>
     <el-col>
       <el-button style="width: 100%">Do Later</el-button>

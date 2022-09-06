@@ -15,6 +15,7 @@ specifiers:
   eslint: ^8.21.0
   eslint-plugin-vue: ^9.3.0
   firebase: ^9.9.3
+  gsap: ^3.11.1
   npm-run-all: ^4.1.5
   pinia: ^2.0.21
   prettier: ^2.7.1
@@ -39,6 +40,7 @@ dependencies:
   '@vee-validate/zod': 4.6.7_7pwfop72ouzddjgiorsdelcgui
   element-plus: 2.2.14_vue@3.2.37
   firebase: 9.9.3
+  gsap: 3.11.1
   pinia: 2.0.21_j6bzmzd4ujpabbp5objtwxyjp4
   vee-validate: 4.6.6_vue@3.2.37
   vue: 3.2.37
@@ -2529,6 +2531,10 @@ packages:
   /grapheme-splitter/1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
     dev: true
+
+  /gsap/3.11.1:
+    resolution: {integrity: sha512-UKuJ0UPhntFHMwT6URFQ4cTQv88xc7Kd9Dhxt7qX9IPhC+d+/a5wKW5E5Vn33hZ53nBI1JfApcEbzKgXkcuPZw==}
+    dev: false
 
   /has-bigints/1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
