@@ -50,7 +50,6 @@ meta:
       <el-card>
         <el-space fill style="width: 100%">
           <h1 align="center">Your Score!</h1>
-
           <p align="center" style="font-size: 48px">
             <strong>{{ score }}</strong>
             <span style="font-size: 24px; color: var(--el-text-color-regular)"
