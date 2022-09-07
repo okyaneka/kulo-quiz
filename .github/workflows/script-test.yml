@@ -1,4 +1,4 @@
-name: Workflow
+name: Script Test
 on:
   push:
 jobs:
