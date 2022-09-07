@@ -15,7 +15,7 @@ meta:
 </script>
 
 <template>
-  <el-row :gutter="24">
+  <el-row :gutter="24" style="padding: 20px 0">
     <el-col :span="24">
       <el-card>
         <el-space :size="32" direction="vertical" fill style="width: 100%">
@@ -53,10 +53,6 @@ meta:
 </template>
 
 <style scoped>
-  .el-col:not(:last-child),
-  .el-row:not(:last-child) {
-    margin-bottom: 24px;
-  }
   .el-carousel__item h3 {
     color: #475669;
     opacity: 0.75;

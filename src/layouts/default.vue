@@ -22,7 +22,7 @@
 
 <template>
   <el-container :style="{ padding }">
-    <el-main style="padding-top: 0; padding-bottom: 0">
+    <el-main style="padding-top: 0; padding-bottom: 0; overflow: visible">
       <router-view />
     </el-main>
   </el-container>

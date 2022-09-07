@@ -11,8 +11,19 @@
 body {
   background-color: var(--el-bg-color);
   font-family: 'Lato', sans-serif;
+  color: var(--el-text-color-primary);
 }
 
 a {
   text-decoration: none;
+}
+
+.el-col ~ .el-col,
+.el-row ~ .el-row {
+  margin-top: 20px;
+}
+
+.el-button .el-icon {
+  width: 14px;
+  height: 14px;
 }

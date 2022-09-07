@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import { VueQueryPlugin } from 'vue-query'
 import { createPinia } from 'pinia'
+import VueSmoothScroll from 'vue3-smooth-scroll'
 
 import './styles/index.scss'
 
@@ -14,5 +15,6 @@ const pinia = createPinia()
 app.use(router)
 app.use(VueQueryPlugin)
 app.use(pinia)
+app.use(VueSmoothScroll)
 
 app.mount('#app')
