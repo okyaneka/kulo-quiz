@@ -5,6 +5,7 @@ import {
   type AppCheck,
 } from 'firebase/app-check'
 import type { FirebaseOptions } from 'firebase/app'
+import { getFirestore, type Firestore } from 'firebase/firestore'
 import { defineStore } from 'pinia'
 
 export function useApp() {
@@ -39,9 +40,19 @@ export function useAppCheck() {
   return appCheck
 }
 
+export function useFirestore() {
+  const appStore = useAppStore()
+  const firestore = getFirestore(useApp())
+
+  appStore.firestore = firestore
+
+  return firestore
+}
+
 export const useAppStore = defineStore('app', () => {
   const app = ref<FirebaseApp>()
   const appCheck = ref<AppCheck>()
+  const firestore = ref<Firestore>()
 
-  return { app, appCheck }
+  return { app, appCheck, firestore }
 })

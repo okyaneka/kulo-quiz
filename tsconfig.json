@@ -3,27 +3,15 @@
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "esnext",
-    "useDefineForClassFields": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "jsx": "preserve",
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "lib": ["esnext", "dom"],
     "paths": {
       "~/*": ["src/*"]
     },
-    "skipLibCheck": true,
     "types": [
       "element-plus/global",
       "vite-plugin-pages/client",
       "vite-plugin-vue-layouts/client"
     ]
   },
-
   "references": [
     {
       "path": "./tsconfig.config.json"

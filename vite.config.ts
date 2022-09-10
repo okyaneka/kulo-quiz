@@ -33,7 +33,6 @@ export default defineConfig({
         {
           'element-plus': ['ElMessage'],
           'vee-validate': ['useField', 'useForm'],
-          // yup: ['*', 'yup'],
         },
       ],
       dirs: ['src/composables/**'],

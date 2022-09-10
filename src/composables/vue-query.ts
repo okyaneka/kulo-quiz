@@ -1,17 +1,26 @@
+import type { QueryKey } from 'react-query/types/core'
 import {
   useQuery as useVueQuery,
   useMutation as useVueMutation,
   type UseMutationReturnType,
   type UseMutationOptions,
   type UseQueryOptions,
+  type UseQueryReturnType,
 } from 'vue-query'
 
 const onError = (error: unknown) => {
   ElMessage.error((error as Error).message)
 }
 
-const DefaultQueryOptions = (_ovveride: UseQueryOptions) => {
-  return { onError, ..._ovveride }
+const DefaultQueryOptions = <
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryKey extends QueryKey = QueryKey
+>(
+  _ovveride: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+): UseQueryOptions<TQueryFnData, TError, TData, TQueryKey> => {
+  return { onError, retry: false, ..._ovveride }
 }
 
 const DefaultMutationOptions = <
@@ -28,7 +37,14 @@ const DefaultMutationOptions = <
   }
 }
 
-export function useQuery(options: UseQueryOptions) {
+export const useQuery = <
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryKey extends QueryKey = QueryKey
+>(
+  options: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+): UseQueryReturnType<TData, TError> => {
   return useVueQuery(DefaultQueryOptions(options))
 }
 
