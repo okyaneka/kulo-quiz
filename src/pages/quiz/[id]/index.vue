@@ -10,7 +10,7 @@ meta:
   import type { TabsPaneContext } from 'element-plus'
   import { StarFilled } from '@element-plus/icons-vue'
   import type { SmoothScrollOptions } from 'vue3-smooth-scroll'
-  import type { QuizRateValue } from '~/apps/quiz/quiz.repository'
+  import type { QuizRateValue } from '~/apps/quiz/quiz.repositories'
 
   const router = useRouter()
   const smoothScroll: ((opt: SmoothScrollOptions) => void) | undefined =

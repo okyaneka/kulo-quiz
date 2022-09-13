@@ -42,7 +42,7 @@ meta:
       getTopics({
         page: page.value,
         per_page: per_page.value,
-        order: ['status', 'asc'],
+        orders: [['status', 'asc']],
       }),
   })
 
@@ -112,88 +112,88 @@ meta:
 <template>
   <el-row style="padding: 20px 0">
     <el-col>
+      <h1 align="center">Manage Topic</h1>
+    </el-col>
+
+    <el-col>
       <el-card>
-        <el-space fill :size="16" style="width: 100%; max-width: 100%">
-          <h1 align="center">Manage Topic</h1>
+        <el-table
+          :data="topicsData?.rows ?? []"
+          v-loading="getTopicsLoading || approvingLoading || rejectingLoading"
+          style="width: 100%; margin-bottom: 16px"
+        >
+          <el-table-column prop="title" label="Topic Title">
+            <template #default="{ row }">
+              <div>{{ row.title }}</div>
+              <div
+                style="
+                  font-size: var(--el-font-size-extra-small);
+                  color: var(--el-text-color-secondary);
+                "
+              >
+                Req at: {{ row.created_at?.toDate().toLocaleDateString() }}
+              </div>
+              <div
+                style="
+                  font-size: var(--el-font-size-extra-small);
+                  color: var(--el-text-color-secondary);
+                "
+              >
+                By:
+                <strong v-if="row.author?.displayName">{{
+                  row.author.displayName
+                }}</strong>
+                <strong v-else-if="row.author?.email">{{
+                  row.author.email
+                }}</strong>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="Status" align="center">
+            <template #default="{ row }">
+              <div>
+                <el-tag :type="getType(row.status)">{{
+                  getQuizTopicStatus(row.status)
+                }}</el-tag>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="Action" align="right" width="144">
+            <template #default="{ row }">
+              <el-button
+                type="info"
+                :icon="View"
+                circle
+                @click="handleDetail(row.id)"
+              />
 
-          <el-table
-            :data="topicsData?.rows ?? []"
-            v-loading="getTopicsLoading || approvingLoading || rejectingLoading"
-            style="width: 100%"
-          >
-            <el-table-column prop="title" label="Topic Title">
-              <template #default="{ row }">
-                <div>{{ row.title }}</div>
-                <div
-                  style="
-                    font-size: var(--el-font-size-extra-small);
-                    color: var(--el-text-color-secondary);
-                  "
-                >
-                  Req at: {{ row.created_at?.toDate().toLocaleDateString() }}
-                </div>
-                <div
-                  style="
-                    font-size: var(--el-font-size-extra-small);
-                    color: var(--el-text-color-secondary);
-                  "
-                >
-                  By:
-                  <strong v-if="row.author?.displayName">{{
-                    row.author.displayName
-                  }}</strong>
-                  <strong v-else-if="row.author?.email">{{
-                    row.author.email
-                  }}</strong>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="status" label="Status" align="center">
-              <template #default="{ row }">
-                <div>
-                  <el-tag :type="getType(row.status)">{{
-                    getQuizTopicStatus(row.status)
-                  }}</el-tag>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="Action" align="right" width="144">
-              <template #default="{ row }">
-                <el-button
-                  type="info"
-                  :icon="View"
-                  circle
-                  @click="handleDetail(row.id)"
-                />
+              <el-button
+                v-if="row.status != 2"
+                type="success"
+                :icon="Check"
+                circle
+                @click="handleApprove(row.id)"
+              />
 
-                <el-button
-                  v-if="row.status != 2"
-                  type="success"
-                  :icon="Check"
-                  circle
-                  @click="handleApprove(row.id)"
-                />
+              <el-popconfirm
+                v-if="row.status == 0"
+                title="Rejecting this?"
+                @confirm="handleReject(row.id)"
+              >
+                <template #reference>
+                  <el-button type="danger" :icon="Close" circle />
+                </template>
+              </el-popconfirm>
+            </template>
+          </el-table-column>
+        </el-table>
 
-                <el-popconfirm
-                  v-if="row.status == 0"
-                  title="Rejecting this?"
-                  @confirm="handleReject(row.id)"
-                >
-                  <template #reference>
-                    <el-button type="danger" :icon="Close" circle />
-                  </template>
-                </el-popconfirm>
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <el-pagination
-            v-model:currentPage="page"
-            layout="prev, pager, next"
-            :total="topicsData?.count"
-            :page-size="per_page"
-          />
-        </el-space>
+        <el-pagination
+          v-model:currentPage="page"
+          layout="prev, pager, next"
+          :total="topicsData?.count"
+          :page-size="per_page"
+        />
       </el-card>
     </el-col>
   </el-row>

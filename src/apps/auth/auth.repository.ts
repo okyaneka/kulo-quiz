@@ -121,6 +121,12 @@ export function useRecaptchaVerifier(
   )
 }
 
+export function useAuthUser(): User {
+  const { user } = useAuthStore()
+  if (user == null) throw new Error('Unauthorized.')
+  return user
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>()
   return { user }

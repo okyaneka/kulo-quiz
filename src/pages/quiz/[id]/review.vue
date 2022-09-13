@@ -9,7 +9,7 @@ meta:
   import { gsap } from 'gsap'
   import { Check, Close } from '@element-plus/icons-vue'
   import { useAuthStore } from '~/apps/auth/auth.repository'
-  import type { QuizStandingData } from '~/apps/quiz/quiz.repository'
+  import type { QuizStandingData } from '~/apps/quiz/quiz.repositories'
 
   const score = ref(0)
   const scoreInterval = ref<any>()

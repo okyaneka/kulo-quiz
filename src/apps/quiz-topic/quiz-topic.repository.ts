@@ -15,9 +15,10 @@ import {
   where,
   type OrderByDirection,
 } from 'firebase/firestore'
-import type { Author, ResponseRows } from '~/composables/interfaces'
+import type { Author, ResponseRows } from '~/composables/types/interfaces'
 import { useFirestore } from '~/plugins/firebase'
 import { useAuthStore } from '../auth/auth.repository'
+import { getLabel } from '../quiz/quiz.helpers'
 
 /**
  * Quiz Topic Status
@@ -66,12 +67,12 @@ export function useQuizTopicRef() {
 export async function getTopics({
   page,
   per_page,
-  order,
+  orders,
   filter,
 }: {
   page?: number
   per_page?: number
-  order?: [col1: 'title' | 'status' | 'created_at', col2?: OrderByDirection]
+  orders?: ['title' | 'status' | 'created_at' | 'parent', OrderByDirection][]
   filter?: Partial<Pick<QuizTopic, 'title' | 'status'>>
 }): Promise<ResponseRows<QuizTopic>> {
   page = page ?? 1
@@ -87,7 +88,11 @@ export async function getTopics({
 
   const { size: count } = await getDocs(q)
 
-  if (order) q = query(q, orderBy(order[0], order[1]))
+  if (orders) {
+    orders.forEach((order) => {
+      q = query(q, orderBy(order[0], order[1]))
+    })
+  }
   if (page > 1) {
     const prev = await getDocs(query(q, limit((page - 1) * per_page)))
     q = query(q, startAfter(prev.docs.slice(-1).pop()))

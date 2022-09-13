@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@element-plus/icons-vue': ^2.0.9
   '@rushstack/eslint-patch': ^1.1.4
+  '@tinymce/tinymce-vue': ^4
   '@types/node': ^16.11.47
   '@vee-validate/zod': ^4.6.7
   '@vitejs/plugin-vue': ^3.0.1
@@ -38,6 +39,7 @@ specifiers:
 
 dependencies:
   '@element-plus/icons-vue': 2.0.9_vue@3.2.38
+  '@tinymce/tinymce-vue': 4.0.7_vue@3.2.38
   '@vee-validate/zod': 4.6.7_cvdfhm7y3vogiaw7ee57ctrtqq
   element-plus: 2.2.16_vue@3.2.38
   firebase: 9.9.4
@@ -1071,6 +1073,15 @@ packages:
 
   /@sxzz/popperjs-es/2.11.7:
     resolution: {integrity: sha512-Ccy0NlLkzr0Ex2FKvh2X+OyERHXJ88XJ1MXtsI9y9fGexlaXaVTPzBCRBwIxFkORuOb+uBqeu+RqnpgYTEZRUQ==}
+    dev: false
+
+  /@tinymce/tinymce-vue/4.0.7_vue@3.2.38:
+    resolution: {integrity: sha512-1esB8wGWrjPCY+rK8vy3QB1cxwXo7HLJWuNrcyPl6LOVR+QJjub0OiV/C+TUEsLN6OpCtRv+QnIqMC5vXz783Q==}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      tinymce: 5.10.5
+      vue: 3.2.38
     dev: false
 
   /@types/debug/4.1.7:
@@ -3652,6 +3663,10 @@ packages:
   /text-table/0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
+
+  /tinymce/5.10.5:
+    resolution: {integrity: sha512-nFKtLhmoRtExBxUfv06JlkbQWux5D+d115vxSRAqUmccZdrtpFvOIYwZmikvulLdM9pfEpvO0B+RQ2qFV/+R7w==}
+    dev: false
 
   /tmp/0.2.1:
     resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}

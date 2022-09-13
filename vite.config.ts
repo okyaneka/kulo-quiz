@@ -49,7 +49,7 @@ export default defineConfig({
           importStyle: 'sass',
         }),
       ],
-      types: [{ from: 'vee-validate', names: ['Form', 'Field'] }],
+      dirs: ['src/composables/components'],
     }),
     Pages(),
     Layouts({

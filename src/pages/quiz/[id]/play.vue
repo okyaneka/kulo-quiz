@@ -234,7 +234,7 @@ meta:
             v-for="nav in navs"
             :key="nav.key"
             :span="24 / navs.length"
-            style="text-align: center; margin-top: 0"
+            style="text-align: center; margin-bottom: 0"
           >
             <el-tooltip placement="auto" :content="nav.title">
               <el-button

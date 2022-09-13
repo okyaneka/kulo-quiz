@@ -40,9 +40,9 @@
       const p = Math.ceil(
         (window.innerWidth - (window.innerHeight * 9) / 16) / 2
       )
-      padding.value = `0 ${p}px`
+      padding.value = `${p}px`
     } else {
-      padding.value = '0'
+      padding.value = '0px'
     }
   }
 
@@ -64,11 +64,17 @@
 </script>
 
 <template>
-  <el-container :style="{ padding, minHeight: '100vh' }">
+  <el-container
+    style="padding: 0 var(--global-layout-padding); min-height: 100vh"
+    :style="{
+      '--global-layout-padding': padding,
+      '--global-main-height': 'calc(100vh - 56px)',
+    }"
+  >
     <el-main style="overflow: visible; max-width: 100%">
       <router-view />
     </el-main>
-    <el-footer style="position: sticky; bottom: 0; padding: 0; z-index: 1">
+    <el-footer style="position: sticky; bottom: 0; padding: 0; z-index: 9999">
       <el-menu
         :ellipsis="false"
         :default-active="activeIndex"
