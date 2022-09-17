@@ -4,6 +4,13 @@ import type { OrderByDirection, Timestamp } from 'firebase/firestore'
 export type Author = Pick<User, 'uid' | 'email' | 'displayName'>
 
 /**
+ * Set id to object
+ */
+export interface useId {
+  id: string
+}
+
+/**
  * Set author to object
  */
 export interface useAuthor {
@@ -13,7 +20,7 @@ export interface useAuthor {
 /**
  * Set created at and updated at
  */
-export interface useTimestamp {
+export interface useTimestamps {
   created_at: Timestamp
   updated_at: Timestamp
 }
