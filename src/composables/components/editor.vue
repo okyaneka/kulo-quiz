@@ -32,7 +32,8 @@
         'h1{font-size:2em}h2{font-size:1.75em}h3{font-size:1.5em}h4{font-size:1.125em}h5{font-size:1em}h6{font-size:.875em}' +
         'h1,h2,h3,h4,h5,h6,li,p,ul{margin:0}',
       toolbar:
-        'undo redo | formatselect | bold italic underline | bullist numlist | fullscreen ',
+        'fullscreen | undo redo | formatselect | bold italic underline | bullist numlist',
     }"
+    style="width: 100%"
   />
 </template>

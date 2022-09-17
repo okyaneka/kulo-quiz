@@ -6,6 +6,8 @@
     "paths": {
       "~/*": ["src/*"]
     },
+    "isolatedModules": true,
+    "strict": true,
     "types": [
       "element-plus/global",
       "vite-plugin-pages/client",
