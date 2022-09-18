@@ -1,8 +1,12 @@
 import type { DocumentReference, CollectionReference } from 'firebase/firestore'
-import type { ResponseRows, ResponseRowsPayload } from './types/interfaces'
+import type {
+  ResponseRows,
+  ResponseRowsPayload,
+  useId,
+} from './types/interfaces'
 import { getAuthor, getTimestamps } from './helpers'
 
-export const getListDocument = async <T = unknown, F = unknown, O = unknown>(
+export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
   ref: CollectionReference<T>,
   payload: ResponseRowsPayload<F, O>
 ): Promise<ResponseRows<T>> => {
@@ -57,21 +61,23 @@ export const addDocument = async <T = unknown, P = unknown>(
 }
 
 export const getDocument = async <T = unknown>(
-  ref: DocumentReference<T>,
-  id: string
+  ref: DocumentReference<T>
 ): Promise<T> => {
-  const document = await getDoc(doc(ref, id))
+  const document = await getDoc(ref)
   if (!document.exists()) throw new Error('document_not_found')
   return { ...document.data(), id: document.id } as T
 }
 
-export const setDocument = async <T = unknown, P = unknown>(
+export const setDocument = async <T = unknown>(
   ref: DocumentReference<T>,
-  id: string,
-  payload: P
+  payload: Partial<T>
 ): Promise<T> => {
-  await getDocument(ref, id)
+  const doc = (await getDocument(ref)) as T & useId
   const document = { ...payload, updated_at: Timestamp.now() }
-  await setDoc(doc(ref, id), document, { merge: true })
-  return { id, ...document } as T
+  await setDoc(ref, document, { merge: true })
+  return { id: doc.id, ...document } as T
+}
+
+export const deleteDocument = async (ref: DocumentReference) => {
+  return await deleteDoc(ref)
 }
