@@ -5,7 +5,12 @@ import {
   type AppCheck,
 } from 'firebase/app-check'
 import type { FirebaseOptions } from 'firebase/app'
-import { getFirestore, type Firestore } from 'firebase/firestore'
+import {
+  CollectionReference,
+  DocumentReference,
+  getFirestore,
+  type Firestore,
+} from 'firebase/firestore'
 import { defineStore } from 'pinia'
 
 export function useApp() {
@@ -48,6 +53,12 @@ export function useFirestore() {
 
   return firestore
 }
+
+export const useColRef = <T = unknown>(_collection: string) =>
+  collection(useFirestore(), _collection) as CollectionReference<T>
+
+export const useDocRef = <T = unknown>(_collection: string, id: string) =>
+  doc(useFirestore(), _collection, id) as DocumentReference<T>
 
 export const useAppStore = defineStore('app', () => {
   const app = ref<FirebaseApp>()
