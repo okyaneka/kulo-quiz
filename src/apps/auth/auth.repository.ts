@@ -13,6 +13,7 @@ import {
   RecaptchaVerifier,
 } from 'firebase/auth'
 import { defineStore } from 'pinia'
+import type { Author } from '~/composables/types/interfaces'
 
 export interface RegisterPayload {
   email: string
@@ -75,11 +76,15 @@ export function guestLogin(payload: GuestLoginPayload) {
 }
 
 export async function getAuthUser(): Promise<User | null> {
-  return new Promise((res) => {
+  return new Promise((res, rej) => {
     const unsubscribe = authObserver((user: User | null) => {
       unsubscribe()
+      if (user == null) {
+        logout()
+        rej('user_is_null')
+      }
       const store = useAuthStore()
-      store.user = user
+      store.user = user as User
       res(user)
     })
   })
@@ -128,6 +133,16 @@ export function useAuthUser(): User {
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>()
-  return { user }
+  const user = ref<User>()
+
+  const useAuthor = (): Author => {
+    if (user.value == undefined) throw new Error('user_undefined')
+    return {
+      email: user.value.email,
+      uid: user.value.uid,
+      displayName: user.value.displayName,
+    }
+  }
+
+  return { user, useAuthor }
 })
