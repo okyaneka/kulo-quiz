@@ -6,20 +6,13 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import {
-    View,
-    Check,
-    Close,
-    ArrowLeft,
-    ArrowRight,
-  } from '@element-plus/icons-vue'
+  import { View, Check, Close, ArrowLeft } from '@element-plus/icons-vue'
   import {
     getTopic,
-    getTopics,
+    getTopicList,
     setTopic,
-    getQuizTopicStatus,
-    type QuizTopicStatusCode,
-  } from '~/apps/quiz-topic/quiz-topic.repository'
+  } from '~/apps/topic/topic.repository'
+  import { TopicStatus } from '~/apps/topic/topic.scheme'
 
   const page = ref<number>(1)
   const per_page = ref<number>(10)
@@ -39,7 +32,7 @@ meta:
     queryKey: ['topics', page, per_page],
     keepPreviousData: true,
     queryFn: () =>
-      getTopics({
+      getTopicList({
         page: page.value,
         per_page: per_page.value,
         orders: [['status', 'asc']],
@@ -59,7 +52,7 @@ meta:
   const { isLoading: approvingLoading, mutate: handleApprove } = useMutation({
     mutationFn: async (id: string) => {
       topicId.value = id
-      return await setTopic(id, { status: 2 })
+      return await setTopic(id, { status: TopicStatus.approved })
     },
     onSuccess: () => {
       ElMessage.success('Quiz topic approved.')
@@ -73,7 +66,7 @@ meta:
   const { isLoading: rejectingLoading, mutate: handleReject } = useMutation({
     mutationFn: async (id: string) => {
       topicId.value = id
-      return await setTopic(id, { status: 1 })
+      return await setTopic(id, { status: TopicStatus.rejected })
     },
     onSuccess: () => {
       ElMessage.success('Quiz topic rejected.')
@@ -84,28 +77,21 @@ meta:
     },
   })
 
-  function handleDetail(id: string, push?: boolean) {
-    if (push) history.value.push(id)
-    else history.value = [id]
+  function handleDetail(id: string, is_back?: boolean) {
+    if (!is_back) history.value.push(id)
     isShowTopicDetail.value = true
     topicId.value = id
     getTopicData.value()
   }
 
-  function handleBack() {
-    history.value.pop()
-    handleDetail(history.value[history.value.length - 1])
+  function handleCloseDetail() {
+    topicId.value = undefined
+    history.value = []
   }
 
-  function getType(code: QuizTopicStatusCode) {
-    switch (code) {
-      case 0:
-        return 'info'
-      case 1:
-        return 'danger'
-      case 2:
-        return 'success'
-    }
+  function handleBack() {
+    history.value.pop()
+    handleDetail(history.value[history.value.length - 1], true)
   }
 </script>
 
@@ -152,16 +138,14 @@ meta:
           <el-table-column prop="status" label="Status" align="center">
             <template #default="{ row }">
               <div>
-                <el-tag :type="getType(row.status)">{{
-                  getQuizTopicStatus(row.status)
-                }}</el-tag>
+                <el-tag>{{ TopicStatus[row.status] }}</el-tag>
               </div>
             </template>
           </el-table-column>
           <el-table-column label="Action" align="right" width="144">
             <template #default="{ row }">
               <el-button
-                type="info"
+                type="warning"
                 :icon="View"
                 circle
                 @click="handleDetail(row.id)"
@@ -201,7 +185,7 @@ meta:
   <el-dialog
     v-model="isShowTopicDetail"
     :width="480"
-    @close="topicId = undefined"
+    @close="handleCloseDetail"
     title="Topic Detail"
   >
     <template #header>
@@ -229,15 +213,15 @@ meta:
         <template v-if="topic?.parent">
           <router-link
             to="#"
-            @click="handleDetail(topic?.parent?.id as string, true)"
+            @click="handleDetail(topic?.parent?.id as string)"
             >{{ topic.parent.title }}</router-link
           >
         </template>
       </el-col>
       <el-col :span="8" style="margin: 0 0 20px">Status</el-col>
       <el-col :span="16" style="margin: 0 0 20px">
-        <el-tag v-if="topic?.status != undefined" :type="getType(topic.status)">
-          {{ getQuizTopicStatus(topic.status) }}
+        <el-tag v-if="topic?.status != undefined">
+          {{ TopicStatus[topic.status] }}
         </el-tag>
       </el-col>
       <el-col :span="8" style="margin: 0 0 20px">Author</el-col>

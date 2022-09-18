@@ -7,37 +7,40 @@ meta:
 
 <script setup lang="ts">
   import type { OptionType } from 'element-plus/es/components/select-v2/src/select.types'
-  import { QuizTopicScheme } from '~/apps/quiz-topic/quiz-topic.scheme'
+  import { addTopic, getTopicList } from '~/apps/topic/topic.repository'
   import {
-    getTopics,
-    addTopic,
-    type QuizTopic,
-    type CreateQuizTopicPayload,
-  } from '~/apps/quiz-topic/quiz-topic.repository'
+    TopicStatus,
+    TopicScheme,
+    TopicValidator,
+  } from '~/apps/topic/topic.scheme'
+  import type { Topic, TopicPayload } from '~/apps/topic/topic.types'
 
   const route = useRoute()
 
   const isShowDrawer = ref<boolean>(false)
 
-  const { data: parentTopics, isLoading: parentTopicLoading } = useQuery({
+  const options = computed<OptionType[]>(() => {
+    return parentOptions.value?.rows
+      ? parentOptions.value.rows.map((topic) => ({
+          value: topic.id,
+          label: topic.fulltitle,
+        }))
+      : []
+  })
+
+  const { data: parentOptions, isFetching: parentOptionsLoading } = useQuery({
     retry: false,
     queryKey: ['quiz-topics'],
     queryFn: async () =>
-      await getTopics({
+      await getTopicList({
         per_page: 0,
-        filter: { status: 2 },
-        orders: [
-          ['parent', 'desc'],
-          ['title', 'asc'],
-        ],
+        filter: { status: TopicStatus.approved },
+        orders: [['fulltitle', 'asc']],
       }),
-    onSuccess(data) {
-      setTopicOptions('', data.rows)
-    },
   })
 
   const { mutate, isLoading: addTopicLoading } = useMutation({
-    mutationFn: (payload: CreateQuizTopicPayload) => addTopic(payload),
+    mutationFn: (payload: TopicPayload) => addTopic(payload),
     onSuccess: () => {
       isShowDrawer.value = true
       parent.value = undefined
@@ -45,43 +48,29 @@ meta:
     },
   })
 
-  const { validate, values, errors, resetForm } =
-    useForm<CreateQuizTopicPayload>({
-      validationSchema: QuizTopicScheme,
-      initialValues: {
-        parent: null,
-        title: '',
-      },
-    })
-  useField<string>('title')
-  useField<QuizTopic['parent']>('parent')
+  const { validate, values, errors, resetForm } = useForm<TopicPayload>({
+    validationSchema: TopicValidator,
+    initialValues: {
+      title: '',
+      parent: null,
+      description: null,
+      status: TopicStatus.requesting,
+    },
+  })
+  useField<Topic['title']>('title')
+  useField<Topic['description']>('description')
+  useField<Topic['parent']>('parent')
 
   const parent = ref<string>()
-  const options = ref<OptionType[]>([])
 
   function handleChangeParent(id: string) {
-    const topic = parentTopics.value?.rows.find((topic) => topic.id == id)
+    const topic = parentOptions.value?.rows.find((topic) => topic.id == id)
     values.parent = topic ? { id: topic.id, title: topic.title } : null
-    setTopicOptions()
-  }
-
-  function setTopicOptions(query?: string, __options?: QuizTopic[]) {
-    __options = __options ?? parentTopics.value?.rows ?? []
-    options.value = __options
-      .filter((value) => {
-        return value.title.toLowerCase().includes((query ?? '').toLowerCase())
-      })
-      .map((v) => {
-        let label = v.title
-        if (v.parent != null) label = v.parent.title + ' / ' + label
-        return { label, value: v.id }
-      })
-      .sort((a, b) => (a.label > b.label ? 1 : -1))
   }
 
   async function handleSubmit() {
     if ((await validate()).valid) {
-      mutate(values)
+      mutate(TopicScheme.parse(values))
     }
   }
 
@@ -115,17 +104,22 @@ meta:
             <el-select-v2
               v-model="parent"
               :disabled="!options.length"
-              v-loading="parentTopicLoading"
+              :loading="parentOptionsLoading"
               :options="options"
               filterable
-              remote
               clearable
-              :remote-method="setTopicOptions"
               @clear="values.parent = null"
               @change="handleChangeParent"
               style="width: 100%"
             >
             </el-select-v2>
+          </el-form-item>
+
+          <el-form-item
+            :error="errors.description"
+            label="Description (reason why this topic should be exists)"
+          >
+            <el-input v-model="values.description" type="textarea"></el-input>
           </el-form-item>
 
           <el-form-item style="margin-bottom: 0">

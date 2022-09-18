@@ -74,7 +74,7 @@
     <el-main style="overflow: visible; max-width: 100%">
       <router-view />
     </el-main>
-    <el-footer style="position: sticky; bottom: 0; padding: 0; z-index: 9999">
+    <el-footer style="position: sticky; bottom: 0; padding: 0; z-index: 999">
       <el-menu
         :ellipsis="false"
         :default-active="activeIndex"
