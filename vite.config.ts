@@ -13,6 +13,10 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Pages from 'vite-plugin-pages'
 import Layouts from 'vite-plugin-vue-layouts'
 
+// svg icon
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import path from 'path'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -73,6 +77,9 @@ export default defineConfig({
     Pages(),
     Layouts({
       defaultLayout: 'default',
+    }),
+    createSvgIconsPlugin({
+      iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
     }),
   ],
   resolve: {

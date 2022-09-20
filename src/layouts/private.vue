@@ -8,6 +8,7 @@
     User,
   } from '@element-plus/icons-vue'
   import { onBeforeRouteLeave } from 'vue-router'
+  import SvgIcon from '~/composables/components/svg-icon.vue'
 
   interface MenuItem {
     title: string
@@ -23,13 +24,21 @@
     {
       title: 'Home',
       slug: 'home',
-      icon: House,
+      icon: () => h(SvgIcon, { name: 'home' }),
       style: { position: 'sticky', left: 0, zIndex: 1 },
     },
-    { title: 'Quiz', slug: 'quiz', icon: Collection },
-    { title: 'Add', slug: 'create-quiz', icon: CirclePlus },
-    { title: 'My Quiz', slug: 'my-quiz', icon: Document },
-    { title: 'Profile', slug: 'profile', icon: User },
+    {
+      title: 'Search',
+      slug: 'quiz',
+      icon: () => h(SvgIcon, { name: 'search-status' }),
+    },
+    {
+      title: 'Add',
+      slug: 'create-quiz',
+      icon: () => h(SvgIcon, { name: 'add' }),
+    },
+    { title: 'Profile', slug: 'profile', icon: () => h(User) },
+    // { title: 'My Quiz', slug: 'my-quiz', icon: Document },
   ])
 
   function setMinWidth() {
@@ -103,9 +112,9 @@
                   direction="vertical"
                   style="margin-bottom: 4px"
                 >
-                  <el-icon style="margin: 0"
-                    ><component :is="menu.icon"
-                  /></el-icon>
+                  <el-icon style="margin: 0">
+                    <component :is="menu.icon" />
+                  </el-icon>
                   <div
                     style="
                       line-height: 1;

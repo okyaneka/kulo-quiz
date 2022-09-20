@@ -60,6 +60,7 @@ declare module '@vue/runtime-core' {
     QuizProductThumbnail: typeof import('./components/quiz/quiz-product-thumbnail.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SvgIcon: typeof import('./composables/components/svg-icon.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

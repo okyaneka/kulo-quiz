@@ -11,7 +11,8 @@
     "types": [
       "element-plus/global",
       "vite-plugin-pages/client",
-      "vite-plugin-vue-layouts/client"
+      "vite-plugin-vue-layouts/client",
+      "vite-plugin-svg-icons/client"
     ]
   },
   "references": [
