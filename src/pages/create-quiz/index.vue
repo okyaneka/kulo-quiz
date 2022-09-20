@@ -6,47 +6,39 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import QuizForm from '../../components/quiz/quiz-form.vue'
   import { addQuiz } from '~/apps/quiz/quiz.repositories'
-  import type { CreateQuizPayload } from '~/apps/quiz/quiz.types'
+  import { QuizStatus } from '~/apps/quiz/quiz.schemes'
+  import type { QuizPayload } from '~/apps/quiz/quiz.types'
+  import QuizForm from '../../components/quiz/quiz-form.vue'
 
   const router = useRouter()
 
-  const form = ref<CreateQuizPayload>()
-
-  const { mutate, isLoading: addQuizLoading } = useMutation({
-    mutationFn: (payload: CreateQuizPayload) => addQuiz(payload),
+  const { mutate, isLoading } = useMutation({
+    mutationFn: (payload: QuizPayload) => addQuiz(payload),
     onSuccess: (data) => {
-      router.push({
-        name: 'edit-quiz-detail',
-        params: { id: data.id },
-        query: { new: 1 },
-      })
+      router.push({ name: 'edit-quiz', params: { id: data.id } })
     },
   })
 
-  function handleSubmit(payload: CreateQuizPayload) {
-    mutate(payload)
+  const quiz = ref<Partial<QuizPayload>>({
+    status: QuizStatus.Draft,
+  })
+
+  function handleSubmit() {
+    mutate(quiz.value as QuizPayload)
   }
 </script>
 
 <template>
-  <el-row style="padding: 20px 0">
+  <el-row style="padding: 20px">
     <el-col>
-      <h1 align="center">Create Your Quiz</h1>
+      <h1 align="center">Create Your Own Quiz</h1>
     </el-col>
 
     <el-col>
-      <el-card v-loading="addQuizLoading">
-        <el-space fill style="margin-bottom: 1rem; width: 100%">
-          <h3>Quiz Information</h3>
-          <p style="color: var(--el-text-color-secondary)">
-            Used to help people find what they really need.
-          </p>
-        </el-space>
-
+      <el-card v-loading="isLoading">
         <quiz-form
-          v-model:data="form"
+          v-model:data="quiz"
           submit-text="Next"
           @submit="handleSubmit"
         />
