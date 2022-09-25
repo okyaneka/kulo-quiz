@@ -10,11 +10,11 @@ import type {
 
 const QUIZ_TOPICS = 'quiz_topics'
 
-export function useTopicColRef() {
+function useTopicColRef() {
   return useColRef<Topic>(QUIZ_TOPICS)
 }
 
-export function useTopicDocRef(id: string) {
+function useTopicDocRef(id: string) {
   return useDocRef<Topic>(QUIZ_TOPICS, id)
 }
 

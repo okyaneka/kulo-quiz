@@ -28,16 +28,16 @@
 
   const topic = ref<string>()
   const topicQuery = ref<string>('')
-  const form = ref<QuizPayloadData>({})
 
-  const modelData = computed<QuizPayloadData>({
-    get() {
-      return props.data ?? form.value
-    },
-    set(value) {
-      emit('update:data', value)
-    },
-  })
+  // const modelData = computed<QuizPayloadData>({
+  //   get() {
+  //     return props.data ?? form.value
+  //   },
+  //   set(value) {
+  //     emit('update:data', value)
+  //   },
+  // })
+
   const topicOptions = computed<OptionType[]>(() => {
     return (
       topics.value?.rows
@@ -87,6 +87,7 @@
 
   onMounted(() => {
     setValues(props.data)
+    topic.value = props.data.topic?.id
   })
 </script>
 

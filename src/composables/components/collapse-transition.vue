@@ -11,7 +11,7 @@
     }
   )
 
-  const isExpand = ref<boolean>(true)
+  const isExpand = ref<boolean>(false)
   const height = ref<string>('')
   const lastHeight = ref<string>('')
   const expandedWrapper = ref<HTMLElement>()

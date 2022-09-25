@@ -16,7 +16,11 @@ meta:
   const { mutate, isLoading } = useMutation({
     mutationFn: (payload: QuizPayload) => addQuiz(payload),
     onSuccess: (data) => {
-      router.push({ name: 'edit-quiz', params: { id: data.id } })
+      router.push({
+        name: 'edit-quiz',
+        params: { id: data.id },
+        query: { new: 1 },
+      })
     },
   })
 

@@ -1,12 +1,5 @@
 <script lang="ts" setup>
   import type { Component, CSSProperties } from 'vue'
-  import {
-    House,
-    Collection,
-    CirclePlus,
-    Document,
-    User,
-  } from '@element-plus/icons-vue'
   import { onBeforeRouteLeave } from 'vue-router'
   import SvgIcon from '~/composables/components/svg-icon.vue'
 
@@ -37,7 +30,11 @@
       slug: 'create-quiz',
       icon: () => h(SvgIcon, { name: 'add' }),
     },
-    { title: 'Profile', slug: 'profile', icon: () => h(User) },
+    {
+      title: 'Profile',
+      slug: 'profile',
+      icon: () => h(SvgIcon, { name: 'profile-circle' }),
+    },
     // { title: 'My Quiz', slug: 'my-quiz', icon: Document },
   ])
 

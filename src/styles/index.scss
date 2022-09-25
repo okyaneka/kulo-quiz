@@ -62,3 +62,26 @@ a {
 .el-select-v2__wrapper.is-disabled .el-select-v2__placeholder {
   color: var(--el-text-color-placeholder) !important;
 }
+
+.el-message__content {
+  white-space: pre-line;
+}
+
+.custom-header .el-collapse-item {
+  position: relative;
+}
+
+.custom-header .el-collapse-item__header {
+  padding-right: 1.5rem;
+}
+
+.custom-header .el-icon.el-collapse-item__arrow {
+  position: absolute;
+  right: -0.5rem;
+}
+
+.el-popconfirm__main,
+.el-popconfirm__action {
+  text-align: center !important;
+  word-break: initial !important;
+}

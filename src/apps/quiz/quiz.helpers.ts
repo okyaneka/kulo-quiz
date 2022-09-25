@@ -1,7 +1,7 @@
-import type { QuizTopic } from '../quiz-topic/quiz-topic.repository'
-import type { QuizGrade, QuizStatus, QuizLevel } from './quiz.types'
+import type { Topic } from '../topic/topic.types'
+import type { QuizGrade, QuizStatus, QuizLevel } from './quiz.schemes'
 
-export function getLabel(topic: QuizTopic, __options: QuizTopic[]): string {
+export function getLabel(topic: Topic, __options: Topic[]): string {
   if (topic.parent != null) {
     const parent = __options.find((v) => v.id == topic.parent?.id)
     if (parent != undefined) {
@@ -17,6 +17,8 @@ export function getStatus(code: QuizStatus): string {
       return 'draft'
     case 1:
       return 'published'
+    default:
+      return ''
   }
 }
 
@@ -34,6 +36,8 @@ export function getGrade(code: QuizGrade): string {
       return 'college'
     case 5:
       return 'master'
+    default:
+      return ''
   }
 }
 
@@ -49,5 +53,7 @@ export function getLevel(code: QuizLevel): string {
       return 'hard'
     case 4:
       return 'very hard'
+    default:
+      return ''
   }
 }

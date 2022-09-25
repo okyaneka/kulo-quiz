@@ -18,13 +18,13 @@ export interface QuizPayload extends useTopic {
 export interface Quiz extends QuizPayload, QuizExtends {}
 
 export type QuizFilterable = Pick<Quiz, 'grade' | 'level' | 'status'> & {
-  'author.id': string
+  'author.uid': string
 }
 
 export type QuizOrderable =
   | keyof Pick<Quiz, 'title' | 'grade' | 'created_at' | 'level' | 'status'>
   | 'topic.title'
 
-export type useQuiz = {
+export interface useQuiz {
   quiz: Pick<Quiz, 'id' | 'title'>
 }

@@ -1,185 +1,172 @@
 <route lang="yaml">
-name: edit-quiz-config
+name: edit-config
 meta:
   layout: private
   requireAuth: true
 </route>
 
 <script setup lang="ts">
+  import { ConfigValidator } from '~/apps/config/config.scheme'
   import {
-    getQuizConfig,
-    setQuizConfig,
-  } from '~/apps/quiz-config/quiz-config.repositories'
-  import { QuizConfigScheme } from '~/apps/quiz-config/quiz-config.scheme'
-  import type { QuizConfigPayload } from '~/apps/quiz-config/quiz-config.types'
+    QuestionMode,
+    QuizMode,
+    TimerMode,
+    Units,
+    type ConfigPayload,
+  } from '~/apps/config/config.types'
+  import { useQuizStore } from '~/apps/quiz/quiz.repositories'
 
-  const route = useRoute()
+  const props = defineProps<{ validate?: boolean }>()
+  const emit = defineEmits<{
+    (e: 'update:validate', value: boolean): void
+  }>()
 
-  const quizId = route.params.id as string
-
-  const autosaveInterval = ref()
-
-  const { values, errors, setFieldValue, setValues, validate } =
-    useForm<QuizConfigPayload>({
-      validationSchema: QuizConfigScheme,
-    })
-  useField<QuizConfigPayload['autosave']>('autosave')
-  useField<QuizConfigPayload['description']>('description')
-  useField<QuizConfigPayload['user_guide']>('user_guide')
-  useField<QuizConfigPayload['question_displayed']>('question_displayed')
-  useField<QuizConfigPayload['question_mode']>('question_mode')
-  useField<QuizConfigPayload['quiz_mode']>('quiz_mode')
-  useField<QuizConfigPayload['timer_mode']>('timer_mode')
-  useField<QuizConfigPayload['timer']>('timer')
-  useField<QuizConfigPayload['timer_units']>('timer_units')
-  useField<QuizConfigPayload['break']>('break')
-  useField<QuizConfigPayload['break_units']>('break_units')
-
-  const { refetch: getQuizConfigData } = useQuery({
-    enabled: false,
-    queryKey: ['quiz-config'],
-    queryFn: () => getQuizConfig(quizId),
-    onSuccess: (data) => {
-      setValues({ ...(data as QuizConfigPayload) })
-      if (values.autosave == undefined) setFieldValue('autosave', true)
-      setAutosave(values.autosave)
+  const isValidate = computed({
+    get: () => {
+      return props.validate ?? false
+    },
+    set: (value: boolean) => {
+      emit('update:validate', value)
     },
   })
 
-  const { mutate: autosave } = useMutation({
-    mutationFn: (payload: QuizConfigPayload) => setQuizConfig(quizId, payload),
-    onMutate: () => {
-      ElMessage.info('Saving')
-    },
+  const { config, questions } = storeToRefs(useQuizStore())
+
+  const { values, errors, validate } = useForm<Partial<ConfigPayload>>({
+    validationSchema: ConfigValidator(questions.value.length),
+    initialValues: config.value,
+  })
+  useField('description', undefined, { initialValue: '' })
+  useField('user_guide', undefined, { initialValue: '' })
+  useField('question_displayed', undefined, { initialValue: null })
+  useField('question_mode', undefined, { initialValue: null })
+  useField('quiz_mode', undefined, { initialValue: null })
+  useField('timer_mode', undefined, { initialValue: null })
+  useField('timer', undefined, { initialValue: null })
+  useField('timer_units', undefined, { initialValue: null })
+  useField('break', undefined, { initialValue: null })
+  useField('break_units', undefined, { initialValue: null })
+
+  watch(values, (value) => {
+    config.value = { ...config.value, ...value }
   })
 
-  const { mutate, isLoading: saveConfigLoading } = useMutation({
-    mutationFn: (payload: QuizConfigPayload) => setQuizConfig(quizId, payload),
-  })
-
-  function setAutosave(isActive: boolean) {
-    if (isActive) {
-      autosaveInterval.value = setInterval(() => {
-        autosave(values)
-      }, 1000 * 60 * 5)
-    } else {
-      clearInterval(autosaveInterval.value)
-      autosaveInterval.value = undefined
-    }
-  }
-
-  async function handleSaveConfig() {
-    if ((await validate()).valid) {
-      mutate(values)
-    }
-  }
-
-  onMounted(() => {
-    getQuizConfigData.value()
+  watch(isValidate, (value) => {
+    if (value)
+      validate().then(() => {
+        isValidate.value = false
+      })
   })
 </script>
 
 <template>
-  <el-row>
-    <el-col>
-      <el-card v-loading="saveConfigLoading">
-        <el-row
-          justify="space-between"
-          align="middle"
-          style="margin-bottom: 16px"
-        >
-          <h3>Config</h3>
-          <span>
-            Autosave:
-            <el-switch
-              v-model="values.autosave"
-              @change="(val) => setAutosave(val as boolean)"
-            />
-          </span>
-        </el-row>
+  <el-card>
+    <el-row justify="space-between" align="middle" style="margin-bottom: 16px">
+      <h3>Config</h3>
+    </el-row>
 
-        <el-form
-          v-model="values"
-          label-position="top"
-          @submit.prevent="handleSaveConfig"
-        >
-          <el-form-item :error="errors.description" label="Description">
-            <editor v-model="values.description" style="width: 100%" />
-          </el-form-item>
+    <el-form v-model="values" label-position="top">
+      <el-form-item :error="errors.description" label="Description">
+        <editor v-model="values.description" style="width: 100%" />
+      </el-form-item>
 
-          <el-form-item :error="errors.user_guide" label="User guide">
-            <editor v-model="values.user_guide" style="width: 100%" />
-          </el-form-item>
+      <el-form-item :error="errors.user_guide" label="User guide">
+        <editor v-model="values.user_guide" style="width: 100%" />
+      </el-form-item>
 
-          <el-form-item
-            :error="errors.question_displayed"
-            label="Question displayed"
+      <el-form-item
+        :error="errors.question_displayed"
+        label="Question displayed"
+      >
+        <el-input-number v-model="values.question_displayed" />
+      </el-form-item>
+
+      <el-form-item :error="errors.question_mode" label="Question mode">
+        <el-select v-model="values.question_mode" style="width: 100%">
+          <template
+            v-for="(mode, index) in QuestionMode"
+            :key="`question-${index}`"
           >
-            <el-input-number v-model="values.question_displayed" />
-          </el-form-item>
+            <el-option
+              v-if="isNaN(mode)"
+              :value="QuestionMode[mode]"
+              :label="mode"
+            />
+          </template>
+        </el-select>
+      </el-form-item>
 
-          <el-form-item :error="errors.question_mode" label="Question mode">
-            <el-select v-model="values.question_mode" style="width: 100%">
-              <el-option :value="0" label="Random" />
-              <el-option :value="1" label="Custom" />
-            </el-select>
-          </el-form-item>
+      <el-form-item :error="errors.quiz_mode" label="Quiz mode">
+        <el-select v-model="values.quiz_mode" style="width: 100%">
+          <template v-for="(mode, index) in QuizMode" :key="`quiz-${index}`">
+            <el-option
+              v-if="isNaN(mode)"
+              :value="QuizMode[mode]"
+              :label="mode"
+            />
+          </template>
+        </el-select>
+      </el-form-item>
 
-          <el-form-item :error="errors.quiz_mode" label="Quiz mode">
-            <el-select v-model="values.quiz_mode" style="width: 100%">
-              <el-option :value="0" label="Classic" />
-            </el-select>
-          </el-form-item>
+      <el-form-item :error="errors.timer_mode" label="Timer mode">
+        <el-select v-model="values.timer_mode" style="width: 100%">
+          <template v-for="(mode, index) in TimerMode" :key="`quiz-${index}`">
+            <el-option
+              v-if="isNaN(mode)"
+              :value="TimerMode[mode]"
+              :label="mode"
+            />
+          </template>
+        </el-select>
+      </el-form-item>
 
-          <el-form-item :error="errors.timer_mode" label="Timer mode">
-            <el-select v-model="values.timer_mode" style="width: 100%">
-              <el-option :value="0" label="Quiz timer" />
-              <el-option :value="1" label="Question timer" />
-              <el-option :value="2" label="Combination timer" />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item :error="errors.timer" label="Timer">
-            <el-input
-              v-model.number="values.timer"
-              type="number"
-              :disabled="![0, 2].includes(values.timer_mode)"
+      <el-form-item :error="errors.timer && errors.timer_units" label="Timer">
+        <el-input
+          v-model.number="values.timer"
+          type="number"
+          :disabled="![0, 2].includes(values.timer_mode as number)"
+        >
+          <template #append>
+            <el-select
+              :disabled="![0, 2].includes(values.timer_mode as number)"
+              v-model="values.timer_units"
+              placeholder="Units"
+              style="width: 7rem"
             >
-              <template #append>
-                <el-select
-                  v-model="values.timer_units"
-                  placeholder="Units"
-                  style="width: 7rem"
-                >
-                  <el-option label="Seconds" :value="1" />
-                  <el-option label="Minutes" :value="2" />
-                  <el-option label="Hour" :value="3" />
-                </el-select>
+              <template v-for="(unit, index) in Units" :key="`unit-${index}`">
+                <el-option
+                  v-if="isNaN(unit)"
+                  :value="Units[unit]"
+                  :label="unit"
+                />
               </template>
-            </el-input>
-          </el-form-item>
+            </el-select>
+          </template>
+        </el-input>
+      </el-form-item>
 
-          <el-form-item :error="errors.break" label="Break duration">
-            <el-input v-model.number="values.break" type="number">
-              <template #append>
-                <el-select
-                  v-model="values.break_units"
-                  placeholder="Units"
-                  style="width: 7rem"
-                >
-                  <el-option label="Seconds" :value="1" />
-                  <el-option label="Minutes" :value="2" />
-                  <el-option label="Hour" :value="3" />
-                </el-select>
+      <el-form-item
+        :error="errors.break ?? errors.break_units"
+        label="Break duration"
+      >
+        <el-input v-model.number="values.break" type="number">
+          <template #append>
+            <el-select
+              v-model="values.break_units"
+              placeholder="Units"
+              style="width: 7rem"
+            >
+              <template v-for="(unit, index) in Units" :key="`unit-${index}`">
+                <el-option
+                  v-if="isNaN(unit)"
+                  :value="Units[unit]"
+                  :label="unit"
+                />
               </template>
-            </el-input>
-          </el-form-item>
-
-          <el-space :size="16">
-            <el-button type="primary" native-type="submit">Save</el-button>
-          </el-space>
-        </el-form>
-      </el-card>
-    </el-col>
-  </el-row>
+            </el-select>
+          </template>
+        </el-input>
+      </el-form-item>
+    </el-form>
+  </el-card>
 </template>

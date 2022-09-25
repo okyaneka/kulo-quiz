@@ -1,24 +1,14 @@
-import type { DocumentReference, DocumentSnapshot } from 'firebase/firestore'
 import { defineStore } from 'pinia'
-import type {
-  ResponseRows,
-  ResponseRowsPayload,
-} from '~/composables/types/interfaces'
-import { useColRef, useDocRef, useFirestore } from '~/plugins/firebase'
-import { useAuthUser } from '../auth/auth.repository'
-import type {
-  AllQuestion,
-  QuestionPayloadData,
-} from '../question/question.types'
-import type {
-  QuizConfig,
-  QuizConfigPayloadData,
-} from '../quiz-config/quiz-config.types'
+import type { ResponseRowsPayload } from '~/composables/types/interfaces'
+import { useColRef, useDocRef } from '~/plugins/firebase'
+import type { Config } from '../config/config.types'
+import type { Questions } from '../question/question.types'
 import type {
   QuizPayload,
   Quiz,
   QuizFilterable,
   QuizOrderable,
+  useQuiz,
 } from './quiz.types'
 
 export interface SearchPayload {
@@ -81,23 +71,44 @@ const useQuizDocRef = (id: string) => {
   return useDocRef<Quiz>(QUIZS, id)
 }
 
-export const addQuiz = async (payload: QuizPayload) => {
+export async function addQuiz(payload: QuizPayload) {
   return await addDocument<Quiz, QuizPayload>(useQuizColRef(), payload)
 }
 
-export const getQuizList = async (
-  payload: ResponseRowsPayload<QuizFilterable, QuizOrderable>
-) => {
+export async function getQuizList(
+  payload?: ResponseRowsPayload<QuizFilterable, QuizOrderable>
+) {
   return await getDocumentList(useQuizColRef(), payload)
 }
 
-// export const useQuizStore = defineStore('quiz', () => {
-//   const quiz = ref<Quiz>()
-//   const config = ref<QuizConfig | QuizConfigPayloadData>()
-//   const questions = ref<(AllQuestion | QuestionPayloadData)[]>([])
+export async function getQuiz(id: string) {
+  const quiz = await getDocument(useQuizDocRef(id))
+  const quizStore = useQuizStore()
+  quizStore.quiz = quiz
+  return quiz
+}
 
-//   return { quiz, config, questions }
-// })
+export async function setQuiz(id: string, payload: Partial<QuizPayload>) {
+  return await setDocument(useQuizDocRef(id), payload)
+}
+
+export const useQuizStore = defineStore('quiz', () => {
+  const quiz = ref<Quiz>()
+  const config = ref<Partial<Config>>()
+  const questions = ref<Partial<Questions>[]>([])
+
+  function getQuiz(): useQuiz {
+    if (quiz.value == undefined) throw new Error('quiz_undefined')
+    return {
+      quiz: {
+        id: quiz.value.id,
+        title: quiz.value.title,
+      },
+    }
+  }
+
+  return { quiz, config, questions, getQuiz }
+})
 
 // export function useQuizRef() {
 //   return collection(useFirestore(), QUIZS)

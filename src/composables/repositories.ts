@@ -8,12 +8,12 @@ import { getAuthor, getTimestamps } from './helpers'
 
 export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
   ref: CollectionReference<T>,
-  payload: ResponseRowsPayload<F, O>
+  payload?: ResponseRowsPayload<F, O>
 ): Promise<ResponseRows<T>> => {
-  const page = payload.page ?? 1
-  const per_page = payload.per_page ?? 10
-  const filter = payload.filter
-  const orders = payload.orders
+  const page = payload?.page ?? 1
+  const per_page = payload?.per_page ?? 10
+  const filter = payload?.filter
+  const orders = payload?.orders
 
   let q = query(ref)
 
@@ -26,7 +26,8 @@ export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
 
   if (orders)
     orders.forEach(
-      (order) => (q = query(q, orderBy(order[0] as string, order[1])))
+      (order) =>
+        (q = query(q, orderBy(order[0] as unknown as string, order[1])))
     )
 
   if (page > 1) {
@@ -57,7 +58,7 @@ export const addDocument = async <T = unknown, P = unknown>(
     ...payload,
   }
   const doc = await addDoc(ref, document as never)
-  return { ...document, id: doc.id } as T
+  return { ...document, id: doc.id } as unknown as T
 }
 
 export const getDocument = async <T = unknown>(
@@ -65,17 +66,17 @@ export const getDocument = async <T = unknown>(
 ): Promise<T> => {
   const document = await getDoc(ref)
   if (!document.exists()) throw new Error('document_not_found')
-  return { ...document.data(), id: document.id } as T
+  return { ...document.data(), id: document.id } as unknown as T
 }
 
 export const setDocument = async <T = unknown>(
   ref: DocumentReference<T>,
   payload: Partial<T>
 ): Promise<T> => {
-  const doc = (await getDocument(ref)) as T & useId
+  const doc = (await getDocument(ref)) as unknown as T & useId
   const document = { ...payload, updated_at: Timestamp.now() }
   await setDoc(ref, document, { merge: true })
-  return { id: doc.id, ...document } as T
+  return { id: doc.id, ...document } as unknown as T
 }
 
 export const deleteDocument = async (ref: DocumentReference) => {

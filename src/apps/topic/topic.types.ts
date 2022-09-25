@@ -11,7 +11,7 @@ type TopicExtends = useId & useAuthor & useTimestamps
 
 export interface TopicPayload extends useStatus {
   title: string
-  parent: Pick<Topic, 'id' | 'title'> | null
+  parent: useTopic['topic'] | null
   description: string | null
 }
 
@@ -26,3 +26,7 @@ export type TopicOrderable =
   | 'status'
   | 'fulltitle'
   | keyof useTimestamps
+
+export interface useTopic {
+  topic: Pick<Topic, 'id' | 'title'>
+}

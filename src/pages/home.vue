@@ -7,7 +7,7 @@ meta:
 <script setup lang="ts">
   import { useAuthStore } from '~/apps/auth/auth.repository'
   import LOGO from '~/assets/images/logo-text.png'
-  import { Collection, Document } from '@element-plus/icons-vue'
+  import { Collection } from '@element-plus/icons-vue'
 
   const authStore = useAuthStore()
 
@@ -15,7 +15,7 @@ meta:
 </script>
 
 <template>
-  <el-row :gutter="24" style="padding: 20px 0">
+  <el-row :gutter="24" style="padding: 20px">
     <el-col :span="24">
       <el-card>
         <el-space :size="32" direction="vertical" fill style="width: 100%">
