@@ -4,7 +4,7 @@ import {
   QuizMode,
   TimerMode,
   Units,
-  type ConfigPayload,
+  type Config,
 } from './config.types'
 
 const ObjectScheme = (maxQuestion: number) => {
@@ -28,7 +28,7 @@ const ObjectScheme = (maxQuestion: number) => {
 }
 
 export const ConfigScheme = (maxQuestion: number) =>
-  ObjectScheme(maxQuestion) as unknown as z.ZodType<Partial<ConfigPayload>>
+  ObjectScheme(maxQuestion) as unknown as z.ZodType<Partial<Config>>
 
 export const ConfigValidator = (maxQuestion: number) =>
   toFormValidator(ObjectScheme(maxQuestion))

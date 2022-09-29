@@ -1,40 +1,124 @@
-import { toFormValidator } from '@vee-validate/zod'
-import * as z from 'zod'
-import { QuestionMode, type QuestionsPayload } from './question.types'
+import { z } from 'zod'
+import {
+  QuestionMode,
+  type QuestionPayload,
+  type ChoicesQuestionPayload,
+  type Choice,
+  type Question,
+} from './question.types'
 
-const ObjectScheme = (mode?: QuestionMode) => {
-  const ObjectMode: any = {}
+const QuestionPayloadShape = z.object({
+  point: z.number().min(1),
+  mode: z.nativeEnum(QuestionMode),
+  seq: z.number().min(0),
+  guide: z.string().nullable(),
+  image_url: z.string().nullable(),
+  timer: z.number().nullable(),
+})
 
-  switch (mode) {
-    case QuestionMode.Choices:
-      ObjectMode.question = z.string().min(1, 'Required')
-      ObjectMode.choices = z
-        .object({
-          text: z.string().min(1, 'Required'),
-          is_true: z.boolean(),
-          image_url: z.string().nullable(),
-        })
-        .array()
-        .nonempty()
-      break
-    default:
-      break
-  }
+const QuestionPayloadScheme: z.ZodType<
+  QuestionPayload,
+  z.ZodObjectDef<typeof QuestionPayloadShape.shape>
+> = QuestionPayloadShape
 
-  return z.object({
-    point: z.number().min(1, 'Required'),
-    mode: z.nativeEnum(QuestionMode, { invalid_type_error: 'invalid' }),
-    seq: z.number().min(0),
-    guide: z.string().nullable(),
-    image_url: z.string().nullable(),
-    timer: z.number().min(1),
-    ...ObjectMode,
-  })
+const ChoiceShape = z.object({
+  text: z.string().min(1),
+  is_true: z.boolean(),
+  image_url: z.string().nullable(),
+})
+
+const ChoiceScheme: z.ZodType<
+  Choice,
+  z.ZodObjectDef<typeof ChoiceShape.shape>
+> = ChoiceShape
+
+const ChoicesQuestionPayloadShape = z.object({
+  ...QuestionPayloadScheme._def.shape(),
+  question: z.string().min(1),
+  choices: z.preprocess((arg) => {
+    const choices = arg as Choice[]
+    if (choices.some((choice) => choice.is_true)) return choices
+    else return false
+  }, z.array(z.object(ChoiceScheme._def.shape()), { invalid_type_error: 'must_have_correct_answer' }).min(1)),
+})
+
+const ChoicesQuestionPayloadScheme: z.ZodType<
+  ChoicesQuestionPayload,
+  z.ZodObjectDef<typeof ChoicesQuestionPayloadShape.shape>
+> = ChoicesQuestionPayloadShape
+
+const QuestionPayloadSchemes = z.array(ChoicesQuestionPayloadScheme)
+
+export {
+  QuestionPayloadScheme,
+  QuestionPayloadSchemes,
+  ChoiceScheme,
+  ChoicesQuestionPayloadScheme,
 }
+// const ObjectScheme = (mode?: QuestionMode) => {
+//   const ObjectMode: any = {}
 
-export const QuestionScheme = (mode?: QuestionMode) => {
-  return ObjectScheme(mode) as unknown as z.ZodType<QuestionsPayload>
-}
+//   switch (mode) {
+//     case QuestionMode.Choices:
+//       ObjectMode.question = z.string().min(1, 'Required')
+//       ObjectMode.choices = z
+//         .object({
+//           text: z.string().min(1, 'Required'),
+//           is_true: z.boolean(),
+//           image_url: z.string().nullable(),
+//         })
+//         .array()
+//         .min(1)
+//       break
+//     default:
+//       break
+//   }
 
-export const QuestionValidator = (mode?: QuestionMode) =>
-  toFormValidator(ObjectScheme(mode))
+//   return z.object({
+//     point: z.number().min(1, 'Required'),
+//     mode: z.nativeEnum(QuestionMode, { invalid_type_error: 'invalid' }),
+//     seq: z.number().min(0),
+//     guide: z.string().nullable(),
+//     image_url: z.string().nullable(),
+//     timer: z.number().min(1, 'Required'),
+//     ...ObjectMode,
+//   })
+// }
+
+// const answerChoicesScheme: z.ZodType<AnswerChoices> = z.object({
+//   text: z.string(),
+//   is_true: z.boolean(),
+//   image_url: z.string().nullable(),
+// })
+
+// const answerChoicesS = z.object({
+//   text: z.string(),
+//   is_true: z.boolean(),
+//   image_url: z.string().nullable(),
+// })
+
+// const pshceme = answerChoicesScheme._def as z.ZodObjectDef
+
+// export const validator = toFormValidator(z.object(pshceme.shape()))
+
+// export const newObjectScheme = z.preprocess(val => {
+
+// })
+
+// object({
+//   point: z.number(),
+//   mode: z.nativeEnum(QuestionMode),
+//   seq: z.number(),
+//   guide: z.string().nullable(),
+//   image_url: z.string().nullable(),
+//   timer: z.number().nullable(),
+//   question: z.string().optional(),
+//   choices: z.array(answerChoicesScheme).optional(),
+// })
+
+// export const QuestionScheme = (mode?: QuestionMode) => {
+//   return ObjectScheme(mode) as unknown as z.ZodType<QuestionsPayload>
+// }
+
+// export const QuestionValidator = (mode?: QuestionMode) =>
+//   toFormValidator(ObjectScheme(mode))

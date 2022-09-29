@@ -1,6 +1,6 @@
 import { useDocRef } from '~/plugins/firebase'
 import { useQuizStore } from '../quiz/quiz.repositories'
-import type { Config, ConfigPayload } from './config.types'
+import type { Config } from './config.types'
 
 const CONFIGS = 'configs'
 
@@ -8,21 +8,21 @@ function useConfigDocRef(id: string) {
   return useDocRef<Config>(CONFIGS, id)
 }
 
-export async function getConfig(id: string): Promise<Partial<Config>> {
-  const doc = await getDoc(useConfigDocRef(id))
+// export async function getConfig(id: string): Promise<Partial<Config>> {
+//   const doc = await getDoc(useConfigDocRef(id))
 
-  if (!doc.exists()) {
-    await setDoc(useConfigDocRef(id), getTimestamps())
-    return await getConfig(id)
-  }
+//   if (!doc.exists()) {
+//     await setDoc(useConfigDocRef(id), getTimestamps())
+//     return await getConfig(id)
+//   }
 
-  const { config } = storeToRefs(useQuizStore())
-  config.value = await getDocument(useConfigDocRef(id))
+//   const { config } = storeToRefs(useQuizStore())
+//   config.value = await getDocument(useConfigDocRef(id))
 
-  return config.value
-}
+//   return config.value
+// }
 
-export async function setConfig(id: string, payload: Partial<ConfigPayload>) {
+export async function setConfig(id: string, payload: Partial<Config>) {
   return await setDocument(useConfigDocRef(id), payload)
 }
 

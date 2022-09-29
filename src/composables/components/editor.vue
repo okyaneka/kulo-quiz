@@ -29,8 +29,8 @@
       content_style:
         '@import url(\'https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap\');' +
         'body{font-size:16px;font-family:\'Lato\',sans-serif}' +
-        'h1{font-size:2em}h2{font-size:1.75em}h3{font-size:1.5em}h4{font-size:1.125em}h5{font-size:1em}h6{font-size:.875em}' +
-        'h1,h2,h3,h4,h5,h6,li,p,ul{margin:0}',
+        'h1{font-size:2em}h2{font-size:1.75em}h3{font-size:1.5em}h4{font-size:1.125em}h5{font-size:1em}h6{font-size:.875em}p{font-size:1em}' +
+        'h1,h2,h3,h4,h5,h6,li,p,ul{margin:0.5em}',
       toolbar:
         'fullscreen | undo redo | formatselect | bold italic underline | bullist numlist',
     }"

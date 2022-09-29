@@ -25,62 +25,94 @@ meta:
 
 <template>
   <el-row v-loading="isLoading" style="min-height: 256px">
-    <el-col v-for="i in quizData" :key="i.id" :span="12" style="margin: 0">
-      <el-card
-        class="quiz-card"
-        shadow="never"
-        :style="{
-          borderRadius: '0',
-          position: 'relative',
-          width: '100%',
-          paddingTop: '133%',
-        }"
-        :body-style="{
-          position: 'absolute',
-          display: 'flex',
-          alignItems: 'center',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
-        }"
-      >
-        <el-space direction="vertical" style="width: 100%">
-          <h3>{{ i.title }}</h3>
-          <p>
-            <el-tag>
-              {{ QuizStatus[i.status] }}
-            </el-tag>
-          </p>
-          <p>{{ QuizGrade[i.grade] }}</p>
-          <p>{{ QuizLevel[i.level] }}</p>
-          <div>
-            <el-space :wrap="false">
-              <router-link
-                :to="{ name: 'edit-questions', params: { id: i.id } }"
+    <template v-if="!isLoading">
+      <el-col v-if="quizData.length == 0" :span="24">
+        <el-empty description="Let's add some quiz!">
+          <router-link :to="{ name: 'create-quiz' }">
+            <el-button type="primary">Add Quiz</el-button>
+          </router-link>
+        </el-empty>
+      </el-col>
+      <template v-else>
+        <el-col
+          v-for="quiz in quizData"
+          :key="quiz.id"
+          :span="12"
+          style="margin: 0"
+        >
+          <el-card
+            class="quiz-card"
+            shadow="never"
+            :style="{
+              borderRadius: '0',
+              position: 'relative',
+              width: '100%',
+              paddingTop: '133%',
+            }"
+            :body-style="{
+              position: 'absolute',
+              display: 'flex',
+              alignItems: 'center',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+            }"
+          >
+            <el-space direction="vertical" style="width: 100%">
+              <div
+                :title="quiz.title"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  display: -webkit-box;
+                  -webkit-line-clamp: 2;
+                  line-clamp: 2;
+                  -webkit-box-orient: vertical;
+                "
               >
-                <el-button circle>
-                  <template #icon>
-                    <svg-icon name="edit" />
-                  </template>
-                </el-button>
-              </router-link>
+                <h3 align="center">
+                  {{ quiz.title }}
+                </h3>
+              </div>
+              <p>
+                <el-tag>
+                  {{ QuizStatus[quiz.status] }}
+                </el-tag>
+              </p>
+              <p>{{ QuizGrade[quiz.grade] }}</p>
+              <p>{{ QuizLevel[quiz.level] }}</p>
+              <div>
+                <el-space :wrap="false">
+                  <el-tooltip content="Continue Edit Quiz">
+                    <router-link
+                      :to="{ name: 'edit-questions', params: { id: quiz.id } }"
+                    >
+                      <el-button circle>
+                        <template #icon>
+                          <svg-icon name="edit" />
+                        </template>
+                      </el-button>
+                    </router-link>
+                  </el-tooltip>
 
-              <el-button circle>
-                <template #icon>
-                  <svg-icon name="clipboard-tick" />
-                </template>
-              </el-button>
-              <el-button circle>
-                <template #icon>
-                  <svg-icon name="chart-square" />
-                </template>
-              </el-button>
+                  <el-button circle>
+                    <template #icon>
+                      <svg-icon name="clipboard-tick" />
+                    </template>
+                  </el-button>
+                  <el-button circle>
+                    <template #icon>
+                      <svg-icon name="chart-square" />
+                    </template>
+                  </el-button>
+                </el-space>
+              </div>
             </el-space>
-          </div>
-        </el-space>
-      </el-card>
-    </el-col>
+          </el-card>
+        </el-col>
+      </template>
+    </template>
   </el-row>
 </template>
 

@@ -12,6 +12,7 @@ import {
   type Firestore,
 } from 'firebase/firestore'
 import { defineStore } from 'pinia'
+import { getStorage, type FirebaseStorage } from 'firebase/storage'
 
 export function useApp() {
   const config: FirebaseOptions = {
@@ -54,6 +55,15 @@ export function useFirestore() {
   return firestore
 }
 
+export function useStorage() {
+  const appStore = useAppStore()
+  const storage = getStorage(useApp())
+
+  appStore.storage = storage
+
+  return storage
+}
+
 export const useColRef = <T = unknown>(_collection: string) =>
   collection(useFirestore(), _collection) as CollectionReference<T>
 
@@ -64,6 +74,7 @@ export const useAppStore = defineStore('app', () => {
   const app = ref<FirebaseApp>()
   const appCheck = ref<AppCheck>()
   const firestore = ref<Firestore>()
+  const storage = ref<FirebaseStorage>()
 
-  return { app, appCheck, firestore }
+  return { app, appCheck, firestore, storage }
 })

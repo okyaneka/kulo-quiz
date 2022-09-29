@@ -17,6 +17,9 @@ $--colors: (
   'info': (
     'base': #909399,
   ),
+  'saya': (
+    'base': #f0f124,
+  ),
 );
 
 @forward 'element-plus/theme-chalk/src/common/var.scss' with (

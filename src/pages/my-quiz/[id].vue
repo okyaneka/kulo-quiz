@@ -7,26 +7,24 @@ meta:
 <script setup lang="ts">
   import { MoreFilled } from '@element-plus/icons-vue'
   import { getQuestionByQuiz } from '~/apps/question/question.repositories'
-  import {
-    QuestionMode,
-    type ChoicesQuestionPayload,
-    type Questions,
+  // QuestionMode,
+  import type {
+    Questions,
+    ChoicesQuestionPayload,
   } from '~/apps/question/question.types'
   import {
     getQuiz,
     setQuiz as _setQuiz,
     useQuizStore,
+    setConfig as _setConfig,
   } from '~/apps/quiz/quiz.repositories'
   import { setQuestions as _setQuestions } from '~/apps/question/question.repositories'
   import type { QuizPayload } from '~/apps/quiz/quiz.types'
   import { QuizScheme } from '~/apps/quiz/quiz.schemes'
-  import { QuestionScheme } from '~/apps/question/question.schemes'
-  import {
-    getConfig,
-    setConfig as _setConfig,
-  } from '~/apps/config/config.repositories'
+  // import { QuestionScheme } from '~/apps/question/question.schemes'
   import type { Config } from '~/apps/config/config.types'
   import { ConfigScheme } from '~/apps/config/config.scheme'
+  import { QuestionPayloadSchemes } from '~/apps/question/question.schemes'
 
   const { quiz, questions, config } = storeToRefs(useQuizStore())
   const route = useRoute()
@@ -46,18 +44,8 @@ meta:
 
   const pageLoading = computed<boolean>(() => {
     return (
-      getQuizLoading.value ||
-      setQuizLoading.value ||
-      getQuestionsLoading.value ||
-      getConfigLoading.value
+      getQuizLoading.value || setQuizLoading.value || getQuestionsLoading.value
     )
-  })
-
-  const isLoadQuestion = computed<boolean>(() => {
-    return ['edit-questions', 'edit-config'].includes(route.name as string)
-  })
-  const isLoadConfig = computed<boolean>(() => {
-    return route.name == 'edit-config'
   })
 
   // get quiz
@@ -68,33 +56,23 @@ meta:
     refetchOnMount: true,
   })
 
-  // set quiz
-  const { mutateAsync: setQuiz, isLoading: setQuizLoading } = useMutation({
-    mutationFn: (payload: QuizPayload) =>
-      _setQuiz(route.params.id as string, payload),
-  })
-
   // get questions
   const { isFetching: getQuestionsLoading } = useQuery({
     queryKey: ['question', routePath],
     queryFn: () => getQuestionByQuiz(route.params.id as string),
     refetchOnWindowFocus: false,
     refetchOnMount: true,
-    enabled: isLoadQuestion,
+  })
+
+  // set quiz
+  const { mutateAsync: setQuiz, isLoading: setQuizLoading } = useMutation({
+    mutationFn: (payload: QuizPayload) =>
+      _setQuiz(route.params.id as string, payload),
   })
 
   // set questions
   const { mutateAsync: setQuestions } = useMutation({
     mutationFn: (payload: Partial<Questions>[]) => _setQuestions(payload),
-  })
-
-  // get config
-  const { isFetching: getConfigLoading } = useQuery({
-    queryKey: ['config'],
-    queryFn: () => getConfig(route.params.id as string),
-    refetchOnWindowFocus: false,
-    refetchOnMount: true,
-    enabled: isLoadConfig,
   })
 
   // set config
@@ -109,72 +87,33 @@ meta:
 
   async function handleSaveDraft() {
     isShowOption.value = false
-
-    if (route.name == 'edit-quiz' && quiz.value != undefined)
-      await setQuiz(quiz.value)
-    if (route.name == 'edit-questions' && questions.value != undefined)
-      await setQuestions(questions.value)
-    if (route.name == 'edit-config' && config.value != undefined)
-      await setConfig(config.value)
+    setQuiz(quiz.value as QuizPayload)
+    setQuestions(questions.value)
+    setConfig(config.value)
     ElMessage.success('Saved to draft.')
+  }
+
+  async function handlePreview() {
+    if (!parseQuiz().success) return ElMessage.error('quiz_is_not_valid')
+    if (!parseQuestions().success)
+      return ElMessage.error('questions_is_not_valid')
+    if (!parseConfig().success) return ElMessage.error('config_is_not_valid')
+    await handleSaveDraft()
+
+    const anchor = document.createElement('a')
+    anchor.href = router.resolve({
+      name: 'preview-quiz',
+      params: { id: route.params.id },
+    }).href
+    anchor.target = '_blank'
+    anchor.click()
+    document.removeChild(anchor)
   }
 
   function goTo(name: string) {
     isShowDrawer.value = false
     router.push({ name })
     active.value = name
-  }
-
-  async function handleNextFrom(step?: string) {
-    let result
-    isValidate.value = true
-    isShowOption.value = false
-
-    switch (step ?? route.name) {
-      case 'edit-quiz':
-        if (
-          QuizScheme.safeParse(quiz.value).success &&
-          quiz.value != undefined
-        ) {
-          await setQuiz(quiz.value)
-          router.push({ name: 'edit-questions' })
-          active.value = 'edit-questions'
-        }
-        break
-      case 'edit-questions':
-        for (let i = 0; i < questions.value.length; i++) {
-          if (!questions.value[i].image_url) questions.value[i].image_url = null
-          result = QuestionScheme(questions.value[i].mode).safeParse(
-            questions.value[i]
-          )
-          if (!result.success) return ElMessage.error('some_questions_invalid')
-
-          let question
-          switch (result.data.mode) {
-            case QuestionMode.Choices:
-              question = result.data as ChoicesQuestionPayload
-              if (!question.choices.some((v) => v.is_true))
-                return ElMessage.error('options_at_least_hase_one_true')
-              break
-            default:
-              break
-          }
-        }
-
-        await setQuestions(questions.value)
-        router.push({ name: 'edit-config' })
-        active.value = 'edit-config'
-        break
-      case 'edit-config':
-        result = ConfigScheme(questions.value.length).safeParse(config.value)
-        if (!result.success) return ElMessage.error('some_configs_invalid')
-        await setConfig(result.data)
-        ElMessage.success('Quiz published.')
-
-        break
-      default:
-        break
-    }
   }
 
   function onscroll() {
@@ -188,6 +127,61 @@ meta:
       isShowNav.value = false
     }
     lastScrollPos.value = currentScrollPos
+  }
+
+  function parseQuiz() {
+    return QuizScheme.safeParse(quiz.value)
+  }
+
+  function parseQuestions() {
+    return QuestionPayloadSchemes.safeParse(questions.value)
+  }
+
+  function parseConfig() {
+    return ConfigScheme(questions.value.length).safeParse(config.value)
+  }
+
+  async function handleNextFrom(step?: string) {
+    isValidate.value = true
+    isShowOption.value = false
+    let parsed, successCallback, failedCallback
+
+    if (step == 'edit-quiz') {
+      parsed = () => parseQuiz()
+      successCallback = async (data: unknown) => {
+        await setQuiz(data as QuizPayload)
+        router.push({ name: 'edit-questions' })
+        active.value = 'edit-questions'
+      }
+      failedCallback = () => ElMessage.error('quiz_is_not_valid')
+    } else if (step == 'edit-questions') {
+      parsed = () => parseQuestions()
+      successCallback = async (data: unknown) => {
+        await setQuestions(data as Questions[])
+        router.push({ name: 'edit-config' })
+        active.value = 'edit-config'
+      }
+      failedCallback = () => ElMessage.error('questions_is_not_valid')
+    } else if (step == 'edit-config') {
+      parsed = () => parseConfig()
+      successCallback = async (data: unknown) => {
+        await setConfig(data as Config)
+        router.push({ name: 'edit-config' })
+        active.value = 'edit-config'
+        ElMessage.success('Quiz published.')
+      }
+      failedCallback = () => ElMessage.error('config_is_not_valid')
+    }
+    if (
+      parsed == undefined ||
+      successCallback == undefined ||
+      failedCallback == undefined
+    )
+      return ElMessage.error('some_data_is_not_valid')
+
+    const data = parsed()
+    if (data.success) await successCallback(data.data)
+    else failedCallback()
   }
 
   onMounted(() => {
@@ -243,14 +237,19 @@ meta:
           transform: rotate(90deg);
           transition: bottom 0.3s ease-in;
         "
-      />
+      ></el-button>
     </template>
     <el-space direction="vertical" fill>
       <el-button style="width: 100%" @click="handleSaveDraft()"
         >Simpan draft</el-button
       >
-      <el-button style="width: 100%">Preview</el-button>
-      <el-button style="width: 100%" type="primary" @click="handleNextFrom()"
+      <el-button style="width: 100%" @click="handlePreview()"
+        >Preview</el-button
+      >
+      <el-button
+        style="width: 100%"
+        type="primary"
+        @click="handleNextFrom(route.name as string)"
         >Selanjutnya</el-button
       >
     </el-space>

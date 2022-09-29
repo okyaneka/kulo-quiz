@@ -36,11 +36,6 @@ meta:
     { name: 'time_limit_to_repeat', value: 10 },
   ]
 
-  // el
-  const description = ref<HTMLElement>()
-  const userGuide = ref<HTMLElement>()
-  const spesification = ref<HTMLElement>()
-
   const ratings = ref<QuizRateValue[]>([
     { star: 5, users: 368, percentage: 64 },
     { star: 4, users: 121, percentage: 21 },
@@ -49,6 +44,10 @@ meta:
     { star: 1, users: 23, percentage: 4 },
   ])
 
+  // el
+  const description = ref<HTMLElement>()
+  const userGuide = ref<HTMLElement>()
+  const spesification = ref<HTMLElement>()
   const index = ref<number>()
   const active = ref<'description' | 'userGuide' | 'spesification'>()
   const isShowPreview = ref<boolean>(false)

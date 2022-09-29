@@ -12,9 +12,10 @@ meta:
     QuizMode,
     TimerMode,
     Units,
-    type ConfigPayload,
+    type Config,
   } from '~/apps/config/config.types'
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
+  // import { getFile, uploadFile } from '~/composables/repositories'
 
   const props = defineProps<{ validate?: boolean }>()
   const emit = defineEmits<{
@@ -32,7 +33,7 @@ meta:
 
   const { config, questions } = storeToRefs(useQuizStore())
 
-  const { values, errors, validate } = useForm<Partial<ConfigPayload>>({
+  const { values, errors, validate } = useForm<Partial<Config>>({
     validationSchema: ConfigValidator(questions.value.length),
     initialValues: config.value,
   })
@@ -57,6 +58,16 @@ meta:
         isValidate.value = false
       })
   })
+
+  // function handleUploadFile(e: Event) {
+  //   const target = e.target as HTMLInputElement
+  //   if (!target.files) return
+  //   const file = target.files[0]
+  //   console.log(file.name)
+  //   uploadFile(file).then((res) => {
+  //     console.log(res)
+  //   })
+  // }
 </script>
 
 <template>

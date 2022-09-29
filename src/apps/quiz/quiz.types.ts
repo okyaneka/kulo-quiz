@@ -3,6 +3,8 @@ import type {
   useId,
   useTimestamps,
 } from '~/composables/types/interfaces'
+import type { Config } from '../config/config.types'
+import type { Questions } from '../question/question.types'
 import type { useTopic } from '../topic/topic.types'
 import type { QuizGrade, QuizLevel, QuizStatus } from './quiz.schemes'
 
@@ -15,7 +17,15 @@ export interface QuizPayload extends useTopic {
   status: QuizStatus
 }
 
-export interface Quiz extends QuizPayload, QuizExtends {}
+export interface Quiz extends QuizPayload, QuizExtends {
+  max_point: number
+  max_duration: number
+  config: Config | any
+}
+
+export interface QuizData extends Quiz {
+  questions: Questions[]
+}
 
 export type QuizFilterable = Pick<Quiz, 'grade' | 'level' | 'status'> & {
   'author.uid': string

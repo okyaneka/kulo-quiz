@@ -10,11 +10,20 @@ meta:
   import QuestionForm from '~/components/question/question-form.vue'
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
   import { deleteQuestion } from '~/apps/question/question.repositories'
+  import type { Question } from '~/apps/question/question.types'
+  import { QuestionPayloadSchemes } from '~/apps/question/question.schemes'
 
   const props = defineProps<{ validate?: boolean }>()
   const emit = defineEmits<{
     (e: 'update:validate', value: boolean): void
   }>()
+
+  const { questions } = storeToRefs(useQuizStore())
+
+  const lastScrollPos = ref<number>(0)
+  const isShowNav = ref<boolean>(true)
+  const openQuestion = ref()
+  const questionsValid = ref<boolean[]>([])
 
   const isValidate = computed({
     get: () => {
@@ -25,18 +34,14 @@ meta:
     },
   })
 
-  const { questions } = storeToRefs(useQuizStore())
-
-  const lastScrollPos = ref<number>(0)
-  const isShowNav = ref<boolean>(true)
-  const openQuestion = ref()
-
   function handleAddQuestion() {
-    questions.value.push({
+    const index = questions.value.push({
+      seq: questions.value.length,
       guide: '',
       image_url: null,
-      timer: null,
     })
+
+    openQuestion.value = `question-${index - 1}`
   }
 
   async function handleDeleteQuestion(index: number) {
@@ -73,44 +78,54 @@ meta:
     <h3 style="margin-bottom: 16px">Questions</h3>
 
     <el-collapse class="custom-header" v-model="openQuestion" accordion>
-      <template
+      <el-collapse-item
         v-for="(question, index) in questions"
         :key="`question-${index}`"
+        :name="`question-${index}`"
+        :title="`Pertanyaan #${index + 1}`"
       >
-        <el-collapse-item
-          v-if="question"
-          :name="`question-${index}`"
-          :title="`Pertanyaan #${index + 1}`"
-        >
-          <template #title>
-            <h5>Question {{ index + 1 }}</h5>
-            <el-popconfirm
-              hide-icon
-              title="Are you sure to delete this?"
-              @confirm="handleDeleteQuestion(index)"
-            >
-              <template #reference>
-                <el-icon
-                  :size="24"
-                  hide-icon
-                  style="margin-left: auto"
-                  @click.stop=""
-                >
-                  <svg-icon
-                    color="var(--el-color-danger-light-3)"
-                    name="close-circle"
-                  />
-                </el-icon>
-              </template>
-            </el-popconfirm>
-          </template>
+        <template #title>
+          <h5>Question {{ index + 1 }}</h5>
+          <el-popover v-if="questionsValid[index] == false">
+            <template #reference>
+              <el-icon
+                :size="20"
+                style="margin-left: 1rem"
+                color="#1a73e8"
+                @click.stop=""
+              >
+                <svg-icon name="info-circle" />
+              </el-icon>
+            </template>
+            <p align="center">This question is not valid yet.</p>
+          </el-popover>
 
-          <question-form
-            v-model:value="questions[index]"
-            v-model:validate="isValidate"
-          ></question-form>
-        </el-collapse-item>
-      </template>
+          <el-popconfirm
+            hide-icon
+            title="Are you sure to delete this?"
+            @confirm="handleDeleteQuestion(index)"
+          >
+            <template #reference>
+              <el-button
+                size="small"
+                circle
+                plain
+                type="danger"
+                style="margin-left: auto"
+                @click.stop=""
+                :icon="Close"
+              >
+              </el-button>
+            </template>
+          </el-popconfirm>
+        </template>
+
+        <question-form
+          v-model:value="questions[index]"
+          v-model:validate="isValidate"
+          v-model:is-valid="questionsValid[index]"
+        ></question-form>
+      </el-collapse-item>
     </el-collapse>
   </el-card>
 
@@ -127,5 +142,5 @@ meta:
       transition: bottom 0.3s ease-in;
     "
     @click="handleAddQuestion"
-  />
+  ></el-button>
 </template>

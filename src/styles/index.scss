@@ -19,11 +19,16 @@ $headings: (
   'h4': 1.125em,
   'h5': 1em,
   'h6': 0.875em,
+  'p': 1em,
 );
 
 @each $h, $size in $headings {
   #{$h} {
     font-size: $size;
+  }
+
+  .text-wrapper #{$h} {
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -84,4 +89,8 @@ a {
 .el-popconfirm__action {
   text-align: center !important;
   word-break: initial !important;
+}
+
+.no-margin-tabs .el-tabs__header {
+  margin-bottom: 0 !important;
 }

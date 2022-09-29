@@ -11,39 +11,50 @@
     image_url: null,
   }
 
-  const props = defineProps<{ value: ChoicesQuestionPayloadData }>()
-  const emits = defineEmits<{
+  const props = defineProps<{
+    value: ChoicesQuestionPayloadData
+    errors?: any
+  }>()
+
+  // const emit =
+  defineEmits<{
     (e: 'update:value', value: ChoicesQuestionPayloadData): void
   }>()
 
-  const values = computed({
-    get() {
-      return props.value ?? { question: '', choices: [] }
-    },
-    set(value) {
-      if (value != undefined) emits('update:value', value)
-    },
-  })
+  const choiceInput = ref()
 
+  // const values = computed({
+  //   get() {
+  //     return props.value ?? { question: '', choices: [] }
+  //   },
+  //   set(value) {
+  //     if (value != undefined) emit('update:value', value)
+  //   },
   // })
+
   const { value: question } = useField<QOptionsPayload['question']>('question')
   const { value: choices } = useField<QOptionsPayload['choices']>('choices')
 
   function handleAddOption() {
     if (choices.value) choices.value.push({ ...blankChoice })
     else choices.value = [{ ...blankChoice }]
+    nextTick().then(() => {
+      const input = choiceInput.value.slice().pop() as HTMLInputElement
+      input.focus()
+    })
   }
 
   function handleDeleteOption(index: number) {
     if (choices.value) choices.value.splice(index, 1)
   }
 
-  watch(question, (value) => {
-    values.value.question = value
-  })
-  watch(choices, (value) => {
-    values.value.choices = value
-  })
+  // watch(question, (value) => {
+  //   values.value.question = value
+  // })
+
+  // watch(choices, (value) => {
+  //   values.value.choices = value
+  // })
 
   onMounted(() => {
     question.value = props.value?.question ?? ''
@@ -52,18 +63,33 @@
 </script>
 
 <template>
-  <el-form-item label="Question">
+  <el-form-item label="Question" :error="errors?.question">
     <el-input v-model="question" type="textarea"></el-input>
   </el-form-item>
 
-  <el-form-item label="Options">
-    <el-row
-      v-for="(option, index) in choices"
-      :key="`option-${index}`"
-      align="middle"
-      style="width: 100%; flex-wrap: nowrap"
+  <template v-if="errors.choices">
+    <p
+      style="
+        color: var(--el-color-error);
+        font-size: var(--el-font-size-extra-small);
+      "
     >
-      <el-input v-model="option.text" style="width: 100%; margin-right: 16px">
+      {{ errors.choices }}
+    </p>
+  </template>
+
+  <el-form-item
+    v-for="(option, index) in choices"
+    :key="`option-${index}`"
+    :error="errors[`choices[${index}].text`]"
+    :label="index == 0 ? 'Options' : ''"
+  >
+    <el-row align="middle" style="width: 100%; flex-wrap: nowrap">
+      <el-input
+        ref="choiceInput"
+        v-model="option.text"
+        style="width: 100%; margin-right: 16px"
+      >
         <template #append>
           <el-space>
             <el-checkbox v-model="option.is_true" />

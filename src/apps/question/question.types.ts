@@ -6,12 +6,12 @@ import type {
 import type { useQuiz } from '../quiz/quiz.types'
 
 export enum QuestionMode {
-  'Choices',
+  Choices,
 }
 
-type QuestionExtends = useId & useQuiz & useAuthor & useTimestamps
+type Core = useId & useQuiz & useAuthor & useTimestamps
 
-interface QuestionPayload {
+export interface QuestionPayload {
   point: number
   mode: QuestionMode
   seq: number
@@ -20,9 +20,9 @@ interface QuestionPayload {
   timer: number | null
 }
 
-interface Question extends QuestionExtends, QuestionPayload {}
+export interface Question extends Core, QuestionPayload {}
 
-interface AnswerChoices {
+export interface Choice {
   text: string
   is_true: boolean
   image_url: string | null
@@ -30,25 +30,34 @@ interface AnswerChoices {
 
 export interface ChoicesQuestionPayload extends QuestionPayload {
   question: string
-  choices: AnswerChoices[]
+  choices: Choice[]
 }
 
-export interface ChoicesQuestion extends ChoicesQuestionPayload, Question {}
+export interface ChoicesQuestion extends Core, ChoicesQuestionPayload {}
+
+export type QuestionPayloads = QuestionPayload | ChoicesQuestionPayload
 
 export type Questions = Question | ChoicesQuestion
-
-export type QuestionsPayload = QuestionPayload | ChoicesQuestionPayload
 
 export type QuestionOrderable = 'seq' | keyof useTimestamps
 
 export type QuestionFilterable = Pick<
-  Questions,
+  Question,
   'mode' | 'timer' | 'point' | 'guide'
 > & {
   'author.id': string
   'quiz.id': string
 }
-// export interface Question extends QuestionExtends {
+
+export interface UseQuestion {
+  question: Pick<Question, 'id' | 'mode'> & { question?: string }
+}
+
+// export type Questions = Question | ChoicesQuestion
+
+// export type QuestionsPayload = QuestionPayload | ChoicesQuestionPayload
+
+// export interface Question extends Core {
 //   point: number
 //   mode: typeof QuestionMode[number]
 //   seq: number | null
@@ -72,7 +81,7 @@ export type QuestionFilterable = Pick<
 // }
 
 // export type OptionsQuestionPayload = Partial<OptionsQuestion> &
-//   Omit<QuestionOption, keyof QuestionExtends>
+//   Omit<QuestionOption, keyof Core>
 
 // export type AllQuestion = OptionsQuestion
 

@@ -1,7 +1,9 @@
 import { runTransaction } from 'firebase/firestore'
 import type { ResponseRowsPayload } from '~/composables/types/interfaces'
 import { useColRef, useDocRef, useFirestore } from '~/plugins/firebase'
-import { useQuizStore } from '../quiz/quiz.repositories'
+import { TimerMode } from '../config/config.types'
+import { useQuizDocRef, useQuizStore } from '../quiz/quiz.repositories'
+import type { Quiz } from '../quiz/quiz.types'
 import type {
   QuestionFilterable,
   QuestionOrderable,
@@ -14,7 +16,7 @@ function useQuestionColRef() {
   return useColRef<Questions>(QUESTIONS)
 }
 
-function useQuestionDocRef(id: string) {
+export function useQuestionDocRef(id: string) {
   return useDocRef<Questions>(QUESTIONS, id)
 }
 
@@ -39,7 +41,7 @@ export async function getQuestionByQuiz(quiz_id: string) {
     QuestionOrderable
   >(useQuestionColRef(), {
     filter: { 'quiz.id': quiz_id },
-    // orders: [['seq', 'asc']],
+    orders: [['seq', 'asc']],
   })
 
   const { questions } = storeToRefs(useQuizStore())
@@ -59,6 +61,10 @@ export async function getQuestionList(
 }
 
 export async function setQuestions(payload: Partial<Questions>[]) {
+  const { quiz } = useQuizStore()
+  if (quiz == undefined) throw new Error('quiz_undefined')
+  let max_duration = quiz.max_duration ?? 0
+
   payload.forEach((question, seq) => {
     payload[seq].seq = seq
   })
@@ -79,10 +85,13 @@ export async function setQuestions(payload: Partial<Questions>[]) {
     })
   })
 
-  return await runTransaction(useFirestore(), async (transaction) => {
+  let max_point = 0
+
+  const rows = await runTransaction(useFirestore(), async (transaction) => {
     const rows: Partial<Questions>[] = []
     payload.forEach(async (question) => {
       if (question.id == undefined) throw new Error('question_undefined')
+      max_point += question.point ?? 0
 
       transaction.set(
         useQuestionDocRef(question.id),
@@ -93,6 +102,13 @@ export async function setQuestions(payload: Partial<Questions>[]) {
     })
     return rows
   })
+
+  if (quiz.config?.timer_mode == TimerMode['Question timer'])
+    max_duration = rows.reduce((c, v) => c + (v.timer ?? 0), 0)
+
+  await setDocument(useQuizDocRef<Quiz>(quiz.id), { max_point, max_duration })
+
+  return rows
 }
 
 export async function deleteQuestion(id: string) {

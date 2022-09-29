@@ -1,10 +1,3 @@
-import type {
-  useAuthor,
-  useId,
-  useTimestamps,
-} from '~/composables/types/interfaces'
-import type { useQuiz } from '../quiz/quiz.types'
-
 /**
  * Question mode config
  *
@@ -12,6 +5,7 @@ import type { useQuiz } from '../quiz/quiz.types'
  * - 1: Custom
  */
 export enum QuestionMode {
+  'Sequences (Classic)',
   Random,
   Custom,
 }
@@ -51,9 +45,7 @@ export enum Units {
   Hours,
 }
 
-type ConfigExtends = useId & useQuiz & useAuthor & useTimestamps
-
-export interface ConfigPayload {
+export interface Config {
   description: string
   user_guide: string
   question_displayed: number
@@ -65,5 +57,3 @@ export interface ConfigPayload {
   break: number
   break_units: Units
 }
-
-export interface Config extends ConfigExtends, ConfigPayload {}

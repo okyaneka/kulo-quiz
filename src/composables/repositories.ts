@@ -4,7 +4,14 @@ import type {
   ResponseRowsPayload,
   useId,
 } from './types/interfaces'
+import {
+  getDownloadURL,
+  ref as storageRef,
+  uploadBytes,
+} from 'firebase/storage'
 import { getAuthor, getTimestamps } from './helpers'
+import { useStorage } from '~/plugins/firebase'
+import { string, z } from 'zod'
 
 export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
   ref: CollectionReference<T>,
@@ -18,8 +25,20 @@ export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
   let q = query(ref)
 
   if (filter)
-    Object.entries(filter).forEach(([path, value]) => {
-      q = query(q, where(path, '==', value))
+    Object.entries(filter).forEach(([path, value]: [string, string | any]) => {
+      if (typeof value == 'string') q = query(q, where(path, '==', value))
+      else {
+        const { success } = z
+          .object({
+            operator: z.string(),
+            value: z.string().or(z.number()),
+          })
+          .safeParse(value)
+        if (success) {
+          q = query(q, orderBy(path))
+          q = query(q, where(path, value.operator, value.value))
+        }
+      }
     })
 
   const { size: count } = await getDocs(q)
@@ -81,4 +100,18 @@ export const setDocument = async <T = unknown>(
 
 export const deleteDocument = async (ref: DocumentReference) => {
   return await deleteDoc(ref)
+}
+
+export const uploadFile = async (file: File) => {
+  const storage = useStorage()
+  const ref = storageRef(storage, 'test/' + file.name)
+
+  return await uploadBytes(ref, file)
+}
+
+export const getFile = async (ref: string) => {
+  const storage = useStorage()
+  const sRef = storageRef(storage, ref)
+
+  return await getDownloadURL(sRef)
 }

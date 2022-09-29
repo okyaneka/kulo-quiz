@@ -1,21 +1,41 @@
 <script setup lang="ts">
-  import type { Component } from 'vue'
-  import { QuestionValidator } from '~/apps/question/question.schemes'
+  import ChoiceQuestionMode from './mode/choice-question-mode.vue'
   import {
     QuestionMode,
-    type QuestionsPayload,
+    type ChoicesQuestion,
+    type Question,
+    type QuestionPayloads,
   } from '~/apps/question/question.types'
-  import QuestionOptionsMode from './mode/question-options-mode.vue'
+  import {
+    ChoicesQuestionPayloadScheme,
+    QuestionPayloadScheme,
+  } from '~/apps/question/question.schemes'
+  import { z } from 'zod'
 
   const props = defineProps<{
-    value: Partial<QuestionsPayload>
+    value: Partial<QuestionPayloads>
     validate?: boolean
+    isValid?: boolean
   }>()
 
   const emit = defineEmits<{
-    (e: 'update:value', value: Partial<QuestionsPayload>): void
+    (e: 'update:value', value: Partial<QuestionPayloads>): void
     (e: 'update:validate', value: boolean): void
+    (e: 'update:isValid', value: boolean): void
   }>()
+
+  const validator = computed(() => {
+    let validator
+    switch (props.value.mode) {
+      case QuestionMode.Choices:
+        validator = ChoicesQuestionPayloadScheme._def.shape()
+        break
+      default:
+        validator = QuestionPayloadScheme._def.shape()
+        break
+    }
+    return toFormValidator(z.object(validator))
+  })
 
   const isValidate = computed({
     get: () => {
@@ -26,41 +46,36 @@
     },
   })
 
-  const validationSchema = computed(() => {
-    return QuestionValidator(props.value?.mode)
-  })
-
   const { values, errors, setValues, validate } = useForm<
-    Partial<QuestionsPayload>
+    Partial<QuestionPayloads>
   >({
-    validationSchema: validationSchema.value,
+    validationSchema: validator,
     initialValues: {
       image_url: null,
     },
   })
   useField<number>('point')
   useField<QuestionMode>('mode')
-  useField<string>('guide', undefined, { initialValue: '' })
+  useField<string>('guide')
   useField<number>('timer')
 
-  const questionFormComponent = computed<Component>(() => {
-    switch (values.mode) {
-      case QuestionMode.Choices:
-        return QuestionOptionsMode
-      default:
-        return h('div', 'blank')
+  watch(values, (value) => {
+    if (value.mode == QuestionMode.Choices) {
+      emit('update:value', {
+        ...props.value,
+        ...value,
+      } as Partial<ChoicesQuestion>)
+    } else {
+      emit('update:value', { ...props.value, ...value } as Partial<Question>)
     }
   })
 
-  watch(values, (value) => {
-    emit('update:value', { ...props.value, ...value })
-  })
-
   watch(isValidate, (value) => {
-    if (value)
+    if (value) {
       validate().then(() => {
         isValidate.value = false
       })
+    }
   })
 
   onMounted(() => {
@@ -100,11 +115,11 @@
       <hr
         style="border: 1px solid var(--el-border-color); margin-bottom: 0.5rem"
       />
-      <component
-        :is="questionFormComponent"
+
+      <choice-question-mode
         v-model:value="values"
         :errors="errors"
-      ></component>
+      ></choice-question-mode>
     </template>
   </el-form>
 </template>
