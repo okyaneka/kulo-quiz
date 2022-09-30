@@ -13,6 +13,10 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Pages from 'vite-plugin-pages'
 import Layouts from 'vite-plugin-vue-layouts'
 
+// svg icon
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import path from 'path'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -30,10 +34,28 @@ export default defineConfig({
       imports: [
         'vue',
         'vue-router',
+        'pinia',
         {
+          '@vee-validate/zod': ['toFormValidator'],
+          'firebase/firestore': [
+            'addDoc',
+            'collection',
+            'deleteDoc',
+            'doc',
+            'getDoc',
+            'getDocs',
+            'limit',
+            'orderBy',
+            'query',
+            'runTransaction',
+            'setDoc',
+            'startAfter',
+            'Timestamp',
+            'where',
+            'writeBatch',
+          ],
           'element-plus': ['ElMessage'],
           'vee-validate': ['useField', 'useForm'],
-          // yup: ['*', 'yup'],
         },
       ],
       dirs: ['src/composables/**'],
@@ -50,11 +72,14 @@ export default defineConfig({
           importStyle: 'sass',
         }),
       ],
-      types: [{ from: 'vee-validate', names: ['Form', 'Field'] }],
+      dirs: ['src/composables/components'],
     }),
     Pages(),
     Layouts({
       defaultLayout: 'default',
+    }),
+    createSvgIconsPlugin({
+      iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
     }),
   ],
   resolve: {

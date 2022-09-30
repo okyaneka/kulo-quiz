@@ -40,7 +40,7 @@ meta:
     justify="center"
     style="min-height: 100vh; padding: var(--el-main-padding) 0"
   >
-    <el-col :span="24" :lg="16" :md="20">
+    <el-col :span="24" :md="20">
       <el-card v-loading="isLoading">
         <el-space :size="32" direction="vertical" fill>
           <el-space />

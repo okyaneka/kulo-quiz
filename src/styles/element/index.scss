@@ -15,7 +15,10 @@ $--colors: (
     'base': #db2828,
   ),
   'info': (
-    'base': #42b8dd,
+    'base': #909399,
+  ),
+  'saya': (
+    'base': #f0f124,
   ),
 );
 
@@ -38,6 +41,10 @@ $--colors: (
   ),
   $main: (
     'padding': 0 20px,
+  ),
+  $collapse: (
+    'header-font-size': 16px,
+    'content-font-size': 16px,
   )
 );
 

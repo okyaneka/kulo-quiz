@@ -1,13 +1,7 @@
 <script lang="ts" setup>
   import type { Component, CSSProperties } from 'vue'
-  import {
-    House,
-    Collection,
-    CirclePlus,
-    Document,
-    User,
-  } from '@element-plus/icons-vue'
   import { onBeforeRouteLeave } from 'vue-router'
+  import SvgIcon from '~/composables/components/svg-icon.vue'
 
   interface MenuItem {
     title: string
@@ -23,13 +17,25 @@
     {
       title: 'Home',
       slug: 'home',
-      icon: House,
+      icon: () => h(SvgIcon, { name: 'home' }),
       style: { position: 'sticky', left: 0, zIndex: 1 },
     },
-    { title: 'Quiz', slug: 'quiz', icon: Collection },
-    { title: 'Add', slug: 'create-quiz', icon: CirclePlus },
-    { title: 'My Quiz', slug: 'my-quiz', icon: Document },
-    { title: 'Profile', slug: 'profile', icon: User },
+    {
+      title: 'Search',
+      slug: 'quiz',
+      icon: () => h(SvgIcon, { name: 'search-status' }),
+    },
+    {
+      title: 'Add',
+      slug: 'create-quiz',
+      icon: () => h(SvgIcon, { name: 'add' }),
+    },
+    {
+      title: 'Profile',
+      slug: 'profile',
+      icon: () => h(SvgIcon, { name: 'profile-circle' }),
+    },
+    // { title: 'My Quiz', slug: 'my-quiz', icon: Document },
   ])
 
   function setMinWidth() {
@@ -40,9 +46,9 @@
       const p = Math.ceil(
         (window.innerWidth - (window.innerHeight * 9) / 16) / 2
       )
-      padding.value = `0 ${p}px`
+      padding.value = `${p}px`
     } else {
-      padding.value = '0'
+      padding.value = '0px'
     }
   }
 
@@ -64,11 +70,17 @@
 </script>
 
 <template>
-  <el-container :style="{ padding, minHeight: '100vh' }">
-    <el-main style="overflow: visible">
+  <el-container
+    style="padding: 0 var(--global-layout-padding); min-height: 100vh"
+    :style="{
+      '--global-layout-padding': padding,
+      '--global-main-height': 'calc(100vh - 56px)',
+    }"
+  >
+    <el-main style="overflow: visible; max-width: 100%; --el-main-padding: 0px">
       <router-view />
     </el-main>
-    <el-footer style="position: sticky; bottom: 0; padding: 0; z-index: 1">
+    <el-footer style="position: sticky; bottom: 0; padding: 0; z-index: 999">
       <el-menu
         :ellipsis="false"
         :default-active="activeIndex"
@@ -97,9 +109,9 @@
                   direction="vertical"
                   style="margin-bottom: 4px"
                 >
-                  <el-icon style="margin: 0"
-                    ><component :is="menu.icon"
-                  /></el-icon>
+                  <el-icon style="margin: 0">
+                    <component :is="menu.icon" />
+                  </el-icon>
                   <div
                     style="
                       line-height: 1;

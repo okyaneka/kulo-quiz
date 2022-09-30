@@ -10,7 +10,7 @@ meta:
   import type {
     QuizThumbnail,
     SearchPayload,
-  } from '~/apps/quiz/quiz.repository'
+  } from '~/apps/quiz/quiz.repositories'
   import QuizFilterDrawer from '~/components/quiz/quiz-filter-drawer.vue'
   import QuizProductThumbnail from '../../components/quiz/quiz-product-thumbnail.vue'
 

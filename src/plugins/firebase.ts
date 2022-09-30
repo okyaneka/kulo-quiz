@@ -5,7 +5,14 @@ import {
   type AppCheck,
 } from 'firebase/app-check'
 import type { FirebaseOptions } from 'firebase/app'
+import {
+  CollectionReference,
+  DocumentReference,
+  getFirestore,
+  type Firestore,
+} from 'firebase/firestore'
 import { defineStore } from 'pinia'
+import { getStorage, type FirebaseStorage } from 'firebase/storage'
 
 export function useApp() {
   const config: FirebaseOptions = {
@@ -39,9 +46,35 @@ export function useAppCheck() {
   return appCheck
 }
 
+export function useFirestore() {
+  const appStore = useAppStore()
+  const firestore = getFirestore(useApp())
+
+  appStore.firestore = firestore
+
+  return firestore
+}
+
+export function useStorage() {
+  const appStore = useAppStore()
+  const storage = getStorage(useApp())
+
+  appStore.storage = storage
+
+  return storage
+}
+
+export const useColRef = <T = unknown>(_collection: string) =>
+  collection(useFirestore(), _collection) as CollectionReference<T>
+
+export const useDocRef = <T = unknown>(_collection: string, id: string) =>
+  doc(useFirestore(), _collection, id) as DocumentReference<T>
+
 export const useAppStore = defineStore('app', () => {
   const app = ref<FirebaseApp>()
   const appCheck = ref<AppCheck>()
+  const firestore = ref<Firestore>()
+  const storage = ref<FirebaseStorage>()
 
-  return { app, appCheck }
+  return { app, appCheck, firestore, storage }
 })

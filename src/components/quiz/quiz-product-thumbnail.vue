@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { StarFilled, UserFilled } from '@element-plus/icons-vue'
-  import type { QuizThumbnail } from '~/apps/quiz/quiz.repository'
+  import type { QuizThumbnail } from '~/apps/quiz/quiz.repositories'
 
   defineProps<{
     data: QuizThumbnail
