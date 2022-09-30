@@ -1,6 +1,9 @@
 name: Script Test
 on:
   push:
+    branches-ignore:
+      - dev
+      - master
 jobs:
   build:
     runs-on: ubuntu-latest
