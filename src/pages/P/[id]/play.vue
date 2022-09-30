@@ -128,7 +128,7 @@ meta:
     return questions.value?.map((question, index) => {
       return {
         answer: answers.value[index] ?? null,
-        ...getQuestion(question),
+        ...getQuestion(question as ChoicesQuestion),
       } as AnswerPayload
     })
   })
