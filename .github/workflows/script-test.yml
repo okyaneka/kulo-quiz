@@ -6,25 +6,37 @@ on:
       - master
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
     strategy:
       matrix:
-        node-version: [16]
+        node-version: [16.x, 18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 7
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Lint All Script
-        run: pnpm run lint
-      - name: Validating Types
-        run: pnpm run type-check
-      # - name: Running Unit Testing
-      #   run: pnpm test
+      - name: Use pnpm
+        id: pnpm-install
+        uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+          run_install: false
+      - name: Get pnpm directory
+        id: pnpm-cache
+        run: |
+          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - run: pnpm install
+      - run: pnpm run lint
+      - run: pnpm run type-check
