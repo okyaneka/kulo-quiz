@@ -14,7 +14,7 @@ meta:
   } from '@element-plus/icons-vue'
   import type { Component } from 'vue'
   import { useAuthStore } from '~/apps/auth/auth.repository'
-  import { TimerMode, Units, type Config } from '~/apps/config/config.types'
+  import { TimerMode, type Config } from '~/apps/config/config.types'
   import {
     QuestionMode,
     type ChoicesQuestion,
@@ -49,7 +49,7 @@ meta:
   const result = ref<Result>()
   const step = ref<1 | 2 | 3>(1)
   const timeElapsed = ref<number>(0)
-  const timeInterval = ref<any>()
+  const timeInterval = ref()
 
   const questionTimer = ref()
   const quizTimer = ref()
@@ -133,23 +133,23 @@ meta:
     })
   })
 
-  const quizDuration = computed(() => {
-    if (config.value == undefined) return undefined
+  // const quizDuration = computed(() => {
+  //   if (config.value == undefined) return undefined
 
-    switch (config.value.timer_mode) {
-      case TimerMode['Question timer']:
-        return {
-          counter:
-            questions.value?.reduce((c, v) => c + (v.timer ?? 0), 0) ?? 0,
-          unit: Units.Seconds,
-        }
-      default:
-        return {
-          counter: config.value.timer,
-          unit: config.value.timer_units,
-        }
-    }
-  })
+  //   switch (config.value.timer_mode) {
+  //     case TimerMode['Question timer']:
+  //       return {
+  //         counter:
+  //           questions.value?.reduce((c, v) => c + (v.timer ?? 0), 0) ?? 0,
+  //         unit: Units.Seconds,
+  //       }
+  //     default:
+  //       return {
+  //         counter: config.value.timer,
+  //         unit: config.value.timer_units,
+  //       }
+  //   }
+  // })
 
   const { data: quizData, isFetching: loading } = useQuery({
     queryKey: ['quiz-data'],

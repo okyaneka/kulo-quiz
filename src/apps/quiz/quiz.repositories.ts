@@ -109,7 +109,7 @@ export async function setQuiz(id: string, payload: Partial<QuizPayload>) {
 }
 
 export async function setConfig(id: string, payload: Partial<Config>) {
-  const data: any = { config: payload }
+  const data: Partial<Quiz> = { config: payload }
   if (
     payload.timer_mode != undefined &&
     payload.timer != undefined &&

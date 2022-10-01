@@ -3,7 +3,7 @@ import type {
   useId,
   useTimestamps,
 } from '~/composables/types/interfaces'
-import type { QuestionMode, UseQuestion } from '../question/question.types'
+import type { UseQuestion } from '../question/question.types'
 import type { useQuiz } from '../quiz/quiz.types'
 
 export interface Result extends useId, useTimestamps, useAuthor, useQuiz {

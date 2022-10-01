@@ -1,5 +1,6 @@
 import type { DocumentReference, CollectionReference } from 'firebase/firestore'
 import type {
+  CustomFilter,
   ResponseRows,
   ResponseRowsPayload,
   useId,
@@ -11,7 +12,6 @@ import {
 } from 'firebase/storage'
 import { getAuthor, getTimestamps } from './helpers'
 import { useStorage } from '~/plugins/firebase'
-import { string, z } from 'zod'
 
 export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
   ref: CollectionReference<T>,
@@ -25,19 +25,12 @@ export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
   let q = query(ref)
 
   if (filter)
-    Object.entries(filter).forEach(([path, value]: [string, string | any]) => {
+    Object.entries(filter).forEach(([path, value]: [string, unknown]) => {
       if (typeof value == 'string') q = query(q, where(path, '==', value))
       else {
-        const { success } = z
-          .object({
-            operator: z.string(),
-            value: z.string().or(z.number()),
-          })
-          .safeParse(value)
-        if (success) {
-          q = query(q, orderBy(path))
-          q = query(q, where(path, value.operator, value.value))
-        }
+        const v = value as CustomFilter
+        q = query(q, orderBy(path))
+        q = query(q, where(path, v.operator, v.value))
       }
     })
 

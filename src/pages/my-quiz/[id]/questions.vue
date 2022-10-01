@@ -6,14 +6,12 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import { Plus, Close, FullScreen, Minus } from '@element-plus/icons-vue'
+  import { Plus, Close } from '@element-plus/icons-vue'
   import QuestionForm from '~/components/question/question-form.vue'
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
   import { deleteQuestion } from '~/apps/question/question.repositories'
-  import type { Question } from '~/apps/question/question.types'
-  import { QuestionPayloadSchemes } from '~/apps/question/question.schemes'
 
-  const props = defineProps<{ validate?: boolean }>()
+  const props = defineProps<{ validate?: boolean; disabled?: boolean }>()
   const emit = defineEmits<{
     (e: 'update:validate', value: boolean): void
   }>()
@@ -124,6 +122,7 @@ meta:
           v-model:value="questions[index]"
           v-model:validate="isValidate"
           v-model:is-valid="questionsValid[index]"
+          :disabled="disabled"
         ></question-form>
       </el-collapse-item>
     </el-collapse>

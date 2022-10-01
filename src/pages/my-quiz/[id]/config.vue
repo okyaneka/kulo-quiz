@@ -17,7 +17,7 @@ meta:
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
   // import { getFile, uploadFile } from '~/composables/repositories'
 
-  const props = defineProps<{ validate?: boolean }>()
+  const props = defineProps<{ disabled?: boolean; validate?: boolean }>()
   const emit = defineEmits<{
     (e: 'update:validate', value: boolean): void
   }>()
@@ -76,7 +76,7 @@ meta:
       <h3>Config</h3>
     </el-row>
 
-    <el-form v-model="values" label-position="top">
+    <el-form v-model="values" :disabled="disabled" label-position="top">
       <el-form-item :error="errors.description" label="Description">
         <editor v-model="values.description" style="width: 100%" />
       </el-form-item>

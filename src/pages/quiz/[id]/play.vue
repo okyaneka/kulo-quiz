@@ -32,7 +32,7 @@ meta:
    */
   const step = ref<1 | 2 | 3 | 4>(3)
   const counter = ref<number>(1)
-  const timeInterval = ref<any>()
+  const timeInterval = ref()
   const no = ref<number>(1)
   const QuestionDrawer = ref<boolean>(false)
   const finishDialog = ref<boolean>(false)

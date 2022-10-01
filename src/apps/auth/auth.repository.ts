@@ -10,7 +10,7 @@ import {
   type UserCredential,
   updateProfile,
   sendPasswordResetEmail,
-  RecaptchaVerifier,
+  // RecaptchaVerifier,
 } from 'firebase/auth'
 import { defineStore } from 'pinia'
 import type { Author } from '~/composables/types/interfaces'
@@ -104,27 +104,27 @@ export function authObserver(callback: AuthObserverCallback) {
   })
 }
 
-export function useRecaptchaVerifier(
-  ref: HTMLElement,
-  callback: () => any
-): RecaptchaVerifier {
-  return new RecaptchaVerifier(
-    ref,
-    {
-      callback: (res: any) => {
-        console.log('callback', res)
-        callback()
-      },
-      'expired-callback': (res: any) => {
-        console.log('expired-callback', res)
-      },
-      'error-callback': (res: any) => {
-        console.log('error-callback', res)
-      },
-    },
-    useAuth()
-  )
-}
+// export function useRecaptchaVerifier(
+//   ref: HTMLElement,
+//   callback: () => any
+// ): RecaptchaVerifier {
+//   return new RecaptchaVerifier(
+//     ref,
+//     {
+//       callback: (res: any) => {
+//         console.log('callback', res)
+//         callback()
+//       },
+//       'expired-callback': (res: any) => {
+//         console.log('expired-callback', res)
+//       },
+//       'error-callback': (res: any) => {
+//         console.log('error-callback', res)
+//       },
+//     },
+//     useAuth()
+//   )
+// }
 
 export function useAuthUser(): User {
   const { user } = useAuthStore()

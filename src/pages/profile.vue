@@ -13,13 +13,16 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px">
+  <el-row style="padding: 20px 0">
     <el-col>
       <el-card>
         <el-row :gutter="16">
           <el-col :span="8">
             <el-avatar
-              :src="authUser?.photoURL ?? undefined"
+              :src="
+                authUser?.photoURL ??
+                'https://kusonime.com/wp-content/uploads/2022/05/Ao-Ashi-605x340.jpg'
+              "
               :size="128"
               style="max-width: 100%"
             ></el-avatar>

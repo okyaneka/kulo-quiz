@@ -1,5 +1,9 @@
 import type { User } from 'firebase/auth'
-import type { OrderByDirection, Timestamp } from 'firebase/firestore'
+import type {
+  OrderByDirection,
+  Timestamp,
+  WhereFilterOp,
+} from 'firebase/firestore'
 
 export type Author = Pick<User, 'uid' | 'email' | 'displayName'>
 
@@ -38,4 +42,9 @@ export interface ResponseRowsPayload<
   per_page?: number
   orders?: [Orderable, OrderByDirection][]
   filter?: Partial<Filterable>
+}
+
+export interface CustomFilter {
+  value: string
+  operator: WhereFilterOp
 }
