@@ -133,7 +133,12 @@ export function useAuthUser(): User {
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User>()
+  const user = ref<User | null>()
+
+  const isLoggedIn = async (): Promise<boolean> => {
+    if (user.value == undefined) await getAuthUser()
+    return !!user.value
+  }
 
   const useAuthor = (): Author => {
     if (user.value == undefined) throw new Error('user_undefined')
@@ -144,5 +149,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, useAuthor }
+  return { user, isLoggedIn, useAuthor }
 })

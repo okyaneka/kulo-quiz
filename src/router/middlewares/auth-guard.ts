@@ -1,5 +1,5 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
-import { getAuthUser, useAuthUser } from '~/apps/auth/auth.repository'
+import { useAuthStore } from '~/apps/auth/auth.repository'
 
 export default async function (
   to: RouteLocationNormalized,
@@ -7,22 +7,15 @@ export default async function (
   next: NavigationGuardNext
 ): Promise<void | undefined> {
   if (to.meta.requireAuth || to.meta.noRequireAuth) {
-    let user = null
-    try {
-      user = useAuthUser()
-    } catch (error) {
-      user = await getAuthUser().catch(() => {
-        console.log('user_retrieved')
-      })
-    }
+    const { isLoggedIn } = useAuthStore()
 
     if (to.meta.requireAuth) {
-      if (user) return next()
+      if (await isLoggedIn()) return next()
       else return next('/')
     }
 
     if (to.meta.noRequireAuth) {
-      if (user) return next('/home')
+      if (await isLoggedIn()) return next('/home')
       else return next()
     }
   }

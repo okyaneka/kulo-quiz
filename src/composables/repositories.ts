@@ -23,6 +23,7 @@ export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
   const orders = payload?.orders
 
   let q = query(ref)
+  const { size: total } = await getDocs(q)
 
   if (filter)
     Object.entries(filter).forEach(([path, value]: [string, unknown]) => {
@@ -57,7 +58,7 @@ export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
     rows.push({ ...doc.data(), id: doc.id })
   })
 
-  return { count, rows }
+  return { total, count, rows }
 }
 
 export const addDocument = async <T = unknown, P = unknown>(
@@ -83,12 +84,15 @@ export const getDocument = async <T = unknown>(
 
 export const setDocument = async <T = unknown>(
   ref: DocumentReference<T>,
-  payload: Partial<T>
+  payload: Partial<T>,
+  createIfEmpty?: boolean
 ): Promise<T> => {
-  const doc = (await getDocument(ref)) as unknown as T & useId
   const document = { ...payload, updated_at: Timestamp.now() }
+  if (createIfEmpty) return await addDocument(ref.parent, document)
+
+  await getDocument(ref)
   await setDoc(ref, document, { merge: true })
-  return { id: doc.id, ...document } as unknown as T
+  return { id: ref.id, ...document } as unknown as T
 }
 
 export const deleteDocument = async (ref: DocumentReference) => {

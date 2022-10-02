@@ -30,6 +30,7 @@ export interface useTimestamps {
 }
 
 export interface ResponseRows<T = unknown> {
+  total: number
   count: number
   rows: T[]
 }
