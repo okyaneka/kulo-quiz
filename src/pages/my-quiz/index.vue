@@ -8,7 +8,7 @@ meta:
 <script setup lang="ts">
   import { getGrade, getLevel, getStatus } from '~/apps/quiz/quiz.helpers'
   import { getQuizList } from '~/apps/quiz/quiz.repositories'
-  import { EditPen, Share } from '@element-plus/icons-vue'
+  import { EditPen /*Share*/ } from '@element-plus/icons-vue'
 
   const page = ref<number>(1)
   const per_page = ref<number>(10)

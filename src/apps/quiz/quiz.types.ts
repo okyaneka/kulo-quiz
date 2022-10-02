@@ -20,7 +20,7 @@ export interface QuizPayload extends useTopic {
 export interface Quiz extends QuizPayload, QuizExtends {
   max_point: number
   max_duration: number
-  config: Config | any
+  config: Config | Partial<Config> | null
 }
 
 export interface QuizData extends Quiz {

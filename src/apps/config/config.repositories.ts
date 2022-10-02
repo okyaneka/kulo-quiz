@@ -1,5 +1,4 @@
 import { useDocRef } from '~/plugins/firebase'
-import { useQuizStore } from '../quiz/quiz.repositories'
 import type { Config } from './config.types'
 
 const CONFIGS = 'configs'

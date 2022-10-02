@@ -8,10 +8,7 @@ meta:
   import { MoreFilled } from '@element-plus/icons-vue'
   import { getQuestionByQuiz } from '~/apps/question/question.repositories'
   // QuestionMode,
-  import type {
-    Questions,
-    ChoicesQuestionPayload,
-  } from '~/apps/question/question.types'
+  import type { Questions } from '~/apps/question/question.types'
   import {
     getQuiz,
     setQuiz as _setQuiz,
@@ -20,7 +17,7 @@ meta:
   } from '~/apps/quiz/quiz.repositories'
   import { setQuestions as _setQuestions } from '~/apps/question/question.repositories'
   import type { QuizPayload } from '~/apps/quiz/quiz.types'
-  import { QuizScheme } from '~/apps/quiz/quiz.schemes'
+  import { QuizScheme, QuizStatus } from '~/apps/quiz/quiz.schemes'
   // import { QuestionScheme } from '~/apps/question/question.schemes'
   import type { Config } from '~/apps/config/config.types'
   import { ConfigScheme } from '~/apps/config/config.scheme'
@@ -37,6 +34,8 @@ meta:
   const isShowDrawer = ref<boolean>(false)
   const lastScrollPos = ref<number>(window.scrollY)
   const isValidate = ref<boolean>(false)
+
+  const isPublish = computed(() => quiz.value?.status == QuizStatus.Publish)
 
   const routePath = computed(() => {
     return route.path
@@ -66,7 +65,7 @@ meta:
 
   // set quiz
   const { mutateAsync: setQuiz, isLoading: setQuizLoading } = useMutation({
-    mutationFn: (payload: QuizPayload) =>
+    mutationFn: (payload: Partial<QuizPayload>) =>
       _setQuiz(route.params.id as string, payload),
   })
 
@@ -141,12 +140,13 @@ meta:
     return ConfigScheme(questions.value.length).safeParse(config.value)
   }
 
-  async function handleNextFrom(step?: string) {
+  async function handleNextStep() {
+    const current = route.name as string
     isValidate.value = true
     isShowOption.value = false
     let parsed, successCallback, failedCallback
 
-    if (step == 'edit-quiz') {
+    if (current == 'edit-quiz') {
       parsed = () => parseQuiz()
       successCallback = async (data: unknown) => {
         await setQuiz(data as QuizPayload)
@@ -154,7 +154,7 @@ meta:
         active.value = 'edit-questions'
       }
       failedCallback = () => ElMessage.error('quiz_is_not_valid')
-    } else if (step == 'edit-questions') {
+    } else if (current == 'edit-questions') {
       parsed = () => parseQuestions()
       successCallback = async (data: unknown) => {
         await setQuestions(data as Questions[])
@@ -162,21 +162,17 @@ meta:
         active.value = 'edit-config'
       }
       failedCallback = () => ElMessage.error('questions_is_not_valid')
-    } else if (step == 'edit-config') {
+    } else if (current == 'edit-config') {
       parsed = () => parseConfig()
       successCallback = async (data: unknown) => {
         await setConfig(data as Config)
-        router.push({ name: 'edit-config' })
-        active.value = 'edit-config'
+        await setQuiz({ status: QuizStatus.Publish })
         ElMessage.success('Quiz published.')
+        router.push({ name: 'share-quiz', params: { id: route.params.id } })
       }
       failedCallback = () => ElMessage.error('config_is_not_valid')
     }
-    if (
-      parsed == undefined ||
-      successCallback == undefined ||
-      failedCallback == undefined
-    )
+    if (!parsed || !successCallback || !failedCallback)
       return ElMessage.error('some_data_is_not_valid')
 
     const data = parsed()
@@ -213,11 +209,12 @@ meta:
           </template>
         </el-skeleton>
       </el-card>
-      <router-view v-else v-model:validate="isValidate" />
+      <router-view v-else v-model:validate="isValidate" :disabled="isPublish" />
     </el-col>
   </el-row>
 
   <el-popover
+    v-if="!isPublish"
     v-model:visible="isShowOption"
     placement="top-end"
     width="auto"
@@ -246,10 +243,7 @@ meta:
       <el-button style="width: 100%" @click="handlePreview()"
         >Preview</el-button
       >
-      <el-button
-        style="width: 100%"
-        type="primary"
-        @click="handleNextFrom(route.name as string)"
+      <el-button style="width: 100%" type="primary" @click="handleNextStep()"
         >Selanjutnya</el-button
       >
     </el-space>

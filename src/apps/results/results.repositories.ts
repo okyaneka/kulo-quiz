@@ -1,6 +1,6 @@
 import type { useId } from '~/composables/types/interfaces'
 import { useColRef, useDocRef, useFirestore } from '~/plugins/firebase'
-import { getQuiz, useQuizStore } from '../quiz/quiz.repositories'
+import { useQuizStore } from '../quiz/quiz.repositories'
 import { useQuestionDocRef } from '~/apps/question/question.repositories'
 import type { Answer, AnswerPayload, Result, ResultData } from './results.types'
 import {

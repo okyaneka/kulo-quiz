@@ -6,18 +6,18 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import { gsap } from 'gsap'
-  import { Check, Close } from '@element-plus/icons-vue'
+  // import { gsap } from 'gsap'
+  // import { Check, Close } from '@element-plus/icons-vue'
   import { useAuthStore } from '~/apps/auth/auth.repository'
   import type { QuizStandingData } from '~/apps/quiz/quiz.repositories'
 
   const score = ref(0)
-  const scoreInterval = ref<any>()
+  const scoreInterval = ref()
   const description = ref<string>()
   const standingsData = ref<QuizStandingData[]>([])
-  const isShowDescription = ref<boolean>(false)
-  const isShowstandingsData = ref<boolean>(false)
-  const standings = ref()
+  // const isShowDescription = ref<boolean>(false)
+  // const isShowstandingsData = ref<boolean>(false)
+  // const standings = ref()
 
   const authStore = useAuthStore()
 

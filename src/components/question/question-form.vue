@@ -16,6 +16,7 @@
     value: Partial<QuestionPayloads>
     validate?: boolean
     isValid?: boolean
+    disabled?: boolean
   }>()
 
   const emit = defineEmits<{
@@ -84,7 +85,7 @@
 </script>
 
 <template>
-  <el-form label-position="top">
+  <el-form label-position="top" :disabled="disabled">
     <el-form-item :error="errors.point" label="Point">
       <el-input-number v-model.number="values.point"></el-input-number>
     </el-form-item>

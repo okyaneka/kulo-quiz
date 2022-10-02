@@ -17,9 +17,15 @@ import Layouts from 'vite-plugin-vue-layouts'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import path from 'path'
 
+// basicSsl
+import basicSsl from '@vitejs/plugin-basic-ssl'
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: { https: true },
+  preview: { https: true },
   plugins: [
+    basicSsl(),
     vue(),
     vueJsx(),
     AutoImport({

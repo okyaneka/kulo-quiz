@@ -19,7 +19,7 @@
   function getAnimeOption(
     el: HTMLElement,
     height: string,
-    onComplete: () => any
+    onComplete: () => unknown
   ) {
     return {
       targets: el,
@@ -39,7 +39,7 @@
     el.style.height = lastHeight.value != '' ? lastHeight.value : '0px'
   }
 
-  function onEnter(el: HTMLElement, done: () => any) {
+  function onEnter(el: HTMLElement, done: () => unknown) {
     anime(getAnimeOption(el, height.value, done))
   }
 
@@ -49,7 +49,7 @@
   function onBeforeLeave(el: HTMLElement) {
     el.style.height = lastHeight.value
   }
-  function onLeave(el: HTMLElement, done: () => any) {
+  function onLeave(el: HTMLElement, done: () => unknown) {
     anime(getAnimeOption(el, '0px', done))
   }
   onMounted(() => {

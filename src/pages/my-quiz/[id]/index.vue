@@ -9,6 +9,10 @@ meta:
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
   import QuizForm from '../../../components/quiz/quiz-form.vue'
 
+  defineProps<{
+    disabled?: boolean
+  }>()
+
   const { quiz } = storeToRefs(useQuizStore())
 </script>
 
@@ -16,6 +20,11 @@ meta:
   <el-card>
     <h3 style="margin-bottom: 16px">Data</h3>
 
-    <quiz-form v-if="quiz != undefined" v-model:data="quiz" hide-submit />
+    <quiz-form
+      v-if="quiz != undefined"
+      v-model:data="quiz"
+      :disabled="disabled"
+      hide-submit
+    />
   </el-card>
 </template>

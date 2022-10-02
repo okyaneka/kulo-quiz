@@ -13,7 +13,7 @@
 
   const props = defineProps<{
     value: ChoicesQuestionPayloadData
-    errors?: any
+    errors?: { [key: string]: string }
   }>()
 
   // const emit =
@@ -67,21 +67,21 @@
     <el-input v-model="question" type="textarea"></el-input>
   </el-form-item>
 
-  <template v-if="errors.choices">
+  <template v-if="errors?.choices">
     <p
       style="
         color: var(--el-color-error);
         font-size: var(--el-font-size-extra-small);
       "
     >
-      {{ errors.choices }}
+      {{ errors?.choices }}
     </p>
   </template>
 
   <el-form-item
     v-for="(option, index) in choices"
     :key="`option-${index}`"
-    :error="errors[`choices[${index}].text`]"
+    :error="errors ? errors[`choices[${index}].text`] : ''"
     :label="index == 0 ? 'Options' : ''"
   >
     <el-row align="middle" style="width: 100%; flex-wrap: nowrap">

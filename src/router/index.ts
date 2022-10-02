@@ -29,6 +29,5 @@ router.beforeEach(
     return next()
   }
 )
-// router.beforeEach(unAuthGuard)
 
 export default router

@@ -4,7 +4,6 @@ import {
   type QuestionPayload,
   type ChoicesQuestionPayload,
   type Choice,
-  type Question,
 } from './question.types'
 
 const QuestionPayloadShape = z.object({

@@ -6,13 +6,13 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import { gsap } from 'gsap'
-  import { Check, Close } from '@element-plus/icons-vue'
+  // import { gsap } from 'gsap'
+  // import { Check, Close } from '@element-plus/icons-vue'
   import { useAuthStore } from '~/apps/auth/auth.repository'
   import {
     getQuiz,
     useQuizStore,
-    type QuizStandingData,
+    // type QuizStandingData,
   } from '~/apps/quiz/quiz.repositories'
   import {
     getResultPreviewData,
