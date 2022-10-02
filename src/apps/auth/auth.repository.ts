@@ -136,8 +136,12 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>()
 
   const isLoggedIn = async (): Promise<boolean> => {
-    if (user.value == undefined) await getAuthUser()
-    return !!user.value
+    try {
+      if (user.value == undefined) await getAuthUser()
+      return !!user.value
+    } catch (e) {
+      return false
+    }
   }
 
   const useAuthor = (): Author => {

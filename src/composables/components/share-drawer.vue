@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
   import QRCode from 'qrcode'
   import { z } from 'zod'
@@ -17,7 +18,7 @@
     'telegram',
   }
 
-  const shares = [
+  const shares: any[] = [
     {
       key: ShareWith['wa'],
       color: '#25D366',
@@ -25,12 +26,14 @@
       label: 'Whatsapp',
     },
     {
+      disabled: true,
       key: ShareWith['ig-feed'],
       color: '#E1306C',
       icon: 'instagram',
       label: 'IG Feed',
     },
     {
+      disabled: true,
       key: ShareWith['ig-story'],
       color: '#E1306C',
       icon: 'instagram',
@@ -43,6 +46,7 @@
       label: 'FB Post',
     },
     {
+      disabled: true,
       key: ShareWith['fb-story'],
       color: '#4267B2',
       icon: 'facebook',
@@ -60,7 +64,7 @@
       icon: 'telegram',
       label: 'Telegram',
     },
-  ] as const
+  ]
 
   const props = defineProps<{
     modelValue: boolean
@@ -72,13 +76,13 @@
 
   const qrWrapper = ref<HTMLElement>()
 
-  const qr_url = ref<string>()
+  const qrUrl = ref<string>()
   const loaded = ref<boolean>(false)
   const canShare = ref<boolean>(false)
   const shareAs = ref<'public' | 'group'>('public')
 
   const loaderHeight = computed<string>(
-    () => (qrWrapper.value?.clientWidth ?? 0) + 'px'
+    () => (qrWrapper.value?.clientWidth ?? 0) - 24 + 'px'
   )
 
   const caption = computed<string>(() => {
@@ -116,25 +120,21 @@
   } = useMutation({
     mutationFn: async () => {
       canShare.value = !!navigator.share
-      const url = new URL(location.origin)
+      const url = new URL(import.meta.env.VITE_APP_BASE_URL ?? location.origin)
 
-      if (shareAs.value == 'public') {
-        url.pathname = `/q/${props.quiz.id}`
-      } else if (shareAs.value == 'group') {
-        const groupData = await setGroup(group)
-        url.pathname = `/g/${groupData.id}`
-      }
+      if (shareAs.value == 'public') url.pathname = `/q/${props.quiz.id}`
+      else if (shareAs.value == 'group')
+        url.pathname = `/g/${(await setGroup(group)).id}`
 
-      if (user.value != undefined) {
-        url.searchParams.append('r', user.value.uid)
-      }
+      if (user.value != undefined) url.searchParams.append('r', user.value.uid)
 
       const share = await setShare({ urlin: url.href })
 
-      qr_url.value = await QRCode.toDataURL(share.urlout, {
-        margin: 0,
+      qrUrl.value = await QRCode.toDataURL(share.urlout, {
+        margin: 2,
         width: 320,
       })
+
       return share.urlout
     },
     onSuccess: () => {
@@ -164,34 +164,69 @@
   function shareTo(app: ShareWith) {
     console.log(app)
 
-    if (app == ShareWith['wa']) return shareWithWa()
+    if (app == ShareWith['wa']) return shareToWa()
     if (app == ShareWith['ig-feed']) return
     if (app == ShareWith['ig-story']) return
-    if (app == ShareWith['fb-post']) return
+    if (app == ShareWith['fb-post']) return shareToFb()
     if (app == ShareWith['fb-story']) return
-    if (app == ShareWith['twitter']) return
-    if (app == ShareWith['telegram']) return
+    if (app == ShareWith['twitter']) return shareToTwitter()
+    if (app == ShareWith['telegram']) return shareToTelegram()
   }
 
-  function shareWithWa() {
+  function useAnchor() {
     const anchor = document.createElement('a')
     anchor.target = '_blank'
+    anchor.onclick = () => document.removeChild(anchor)
+    return anchor
+  }
+
+  function shareToWa() {
+    const anchor = useAnchor()
     anchor.href = `https://wa.me/?text=${caption.value}`
     anchor.setAttribute('data-action', 'share/whatsapp/share')
-    anchor.onclick = () => document.removeChild(anchor)
     anchor.click()
   }
 
-  function copyLink() {
-    console.log('copyLink')
+  function shareToFb() {
+    const anchor = useAnchor()
+    anchor.href = `https://www.facebook.com/dialog/share?app_id=${
+      import.meta.env.VITE_FB_APP_ID
+    }&display=true&href=${shareUrl.value}`
+    anchor.click()
+  }
+
+  function shareToTwitter() {
+    const anchor = useAnchor()
+    anchor.href = `https://twitter.com/intent/tweet?text=${caption.value}`
+    anchor.click()
+  }
+
+  function shareToTelegram() {
+    const anchor = useAnchor()
+    anchor.href = `https://t.me/share/url?url=${encodeURIComponent(
+      caption.value ?? ''
+    )}`
+    anchor.click()
+  }
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(caption.value)
+    ElMessage.success('Link coppied!')
   }
 
   function downloadQR() {
-    console.log('downloadQR')
+    const anchor = useAnchor()
+    anchor.href = qrUrl.value ?? ''
+    anchor.target = 'download'
+    anchor.download = props.quiz.title + ' quiz'
+    anchor.click()
   }
 
-  function moreShare() {
-    console.log('moreShare')
+  async function moreShare() {
+    if (qrUrl.value == undefined) throw new Error('qr_code_not_generated')
+    const blob = await (await fetch(qrUrl.value)).blob()
+    const file = new File([blob], props.quiz.title + ' quiz.png')
+    navigator.share({ text: caption.value, files: [file] })
   }
 </script>
 
@@ -263,7 +298,7 @@
             <el-row justify="center">
               <el-card
                 shadow="never"
-                :body-style="{ padding: '12px' }"
+                :body-style="{ padding: 0 }"
                 :style="{
                   width: '320px',
                   maxWidth: '100%',
@@ -273,7 +308,7 @@
                 <el-skeleton
                   v-if="loading"
                   animated
-                  style="width: 100%"
+                  style="width: calc(100% - 24px); padding: 12px"
                   :style="{ height: loaderHeight }"
                 >
                   <template #template>
@@ -283,7 +318,7 @@
                     ></el-skeleton-item>
                   </template>
                 </el-skeleton>
-                <el-image v-if="loaded" :src="qr_url"> </el-image>
+                <el-image v-if="loaded" :src="qrUrl"> </el-image>
               </el-card>
             </el-row>
           </el-col>
@@ -295,34 +330,35 @@
           <el-col>
             <p align="center" style="margin: 8px 0">Share to:</p>
             <el-space wrap style="width: 100%; justify-content: center">
-              <el-space
-                v-for="share in shares"
-                :key="share.key"
-                direction="vertical"
-                :size="0"
-                @click="shareTo(share.key)"
-                style="padding: 8px"
-              >
-                <el-button
-                  circle
-                  plain
-                  :disabled="!loaded"
-                  :color="share.color"
-                  style="padding: 6px; height: 32px; width: 32px"
+              <template v-for="share in shares" :key="share.key">
+                <el-space
+                  v-if="!share?.disabled"
+                  direction="vertical"
+                  :size="0"
+                  @click="shareTo(share.key)"
+                  style="padding: 8px"
                 >
-                  <el-icon style="width: 100%; height: 100%">
-                    <svg-icon :name="share.icon" />
-                  </el-icon>
-                </el-button>
-                <strong
-                  style="
-                    white-space: nowrap;
-                    font-size: var(--el-font-size-small);
-                  "
-                >
-                  {{ share.label }}
-                </strong>
-              </el-space>
+                  <el-button
+                    circle
+                    plain
+                    :disabled="!loaded"
+                    :color="share.color"
+                    style="padding: 6px; height: 32px; width: 32px"
+                  >
+                    <el-icon style="width: 100%; height: 100%">
+                      <svg-icon :name="share.icon" />
+                    </el-icon>
+                  </el-button>
+                  <strong
+                    style="
+                      white-space: nowrap;
+                      font-size: var(--el-font-size-small);
+                    "
+                  >
+                    {{ share.label }}
+                  </strong>
+                </el-space>
+              </template>
             </el-space>
 
             <hr style="margin: 8px; border: var(--el-border)" />
@@ -332,17 +368,13 @@
               alignment="start"
               style="width: 100%; justify-content: center"
             >
-              <el-space
-                direction="vertical"
-                style="padding: 2px"
-                :size="0"
-                @click="copyLink()"
-              >
+              <el-space direction="vertical" style="padding: 2px" :size="0">
                 <el-button
                   circle
                   plain
                   :disabled="!loaded"
                   style="padding: 6px; height: 32px; width: 32px"
+                  @click="copyLink()"
                 >
                   <el-icon style="width: 100%; height: 100%">
                     <svg-icon name="duplicate" />
@@ -352,17 +384,13 @@
                   Copy Link
                 </p>
               </el-space>
-              <el-space
-                direction="vertical"
-                style="padding: 2px"
-                :size="0"
-                @click="downloadQR()"
-              >
+              <el-space direction="vertical" style="padding: 2px" :size="0">
                 <el-button
                   circle
                   plain
                   :disabled="!loaded"
                   style="padding: 6px; height: 32px; width: 32px"
+                  @click="downloadQR()"
                 >
                   <el-icon style="width: 100%; height: 100%">
                     <svg-icon name="cloud-download" />
@@ -372,17 +400,17 @@
                   Download QR
                 </p>
               </el-space>
+
               <el-space
                 v-if="canShare"
                 direction="vertical"
                 style="padding: 2px"
                 :size="0"
-                @click="moreShare()"
               >
                 <el-button
                   circle
                   plain
-                  :disabled="!loaded"
+                  @click="moreShare()"
                   style="padding: 6px; height: 32px; width: 32px"
                 >
                   <el-icon style="width: 100%; height: 100%">
