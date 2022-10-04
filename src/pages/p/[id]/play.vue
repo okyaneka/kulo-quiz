@@ -151,7 +151,11 @@ meta:
   //   }
   // })
 
-  const { data: quizData, isFetching: loading } = useQuery({
+  const {
+    data: quizData,
+    isFetching: loading,
+    refetch: fetchQuizData,
+  } = useQuery({
     queryKey: ['quiz-data'],
     queryFn: () =>
       getQuizData(route.params.id as string).then((quiz) => {
@@ -161,7 +165,7 @@ meta:
           throw new Error('bad_request: status_not_draft')
         return quiz
       }),
-    enabled: loadQuiz,
+    enabled: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchInterval: false,
@@ -302,9 +306,14 @@ meta:
       return ElMessage.error('some_question_or_answer_is_invalid')
     await setResult(answersPayload.value)
   }
+
+  onMounted(() => {
+    fetchQuizData.value()
+  })
 </script>
 
 <template>
+  {{ quizData?.max_duration }}
   <el-row style="padding: 20px 0; min-height: 100vh; flex-direction: column">
     <el-col v-if="loading" style="margin: auto 0">
       <el-progress
