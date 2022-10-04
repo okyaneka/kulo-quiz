@@ -27,7 +27,8 @@ export const getDocumentList = async <T = unknown, F = unknown, O = unknown>(
 
   if (filter)
     Object.entries(filter).forEach(([path, value]: [string, unknown]) => {
-      if (typeof value == 'string') q = query(q, where(path, '==', value))
+      if (['number', 'string'].includes(typeof value))
+        q = query(q, where(path, '==', value))
       else {
         const v = value as CustomFilter
         q = query(q, orderBy(path))
@@ -92,6 +93,7 @@ export const setDocument = async <T = unknown>(
 
   await getDocument(ref)
   await setDoc(ref, document, { merge: true })
+
   return { id: ref.id, ...document } as unknown as T
 }
 
