@@ -3,92 +3,80 @@
 
   const props = withDefaults(
     defineProps<{
+      autoStart: boolean
       duration?: number
-      start?: boolean
       timeUsed: number
     }>(),
-    {
-      duration: 0,
-      start: false,
-      timeUsed: 0,
-    }
+    { duration: 0, timeUsed: 0 }
   )
 
   const emit = defineEmits<{
-    (e: 'update:start', value: boolean): void
     (e: 'update:timeUsed', value: number): void
     (e: 'end'): void
   }>()
 
-  const _start = ref(false)
-  const timer = ref()
-  const _timeUsed = ref(0)
   const timerEl = ref<HTMLDivElement>()
   const timerAnime = ref<anime.AnimeInstance>()
-
-  const start = computed({
-    get: () => props.start,
-    set: (value) => {
-      _start.value = value
-      emit('update:start', value)
-    },
-  })
+  const timeUsedMs = ref(0)
 
   const timeUsed = computed({
     get: () => props.timeUsed,
-    set: (value) => {
-      _timeUsed.value = value
-      emit('update:timeUsed', value)
-    },
+    set: (value) => emit('update:timeUsed', value),
   })
 
-  function startInterval() {
-    endInterval()
-    timeUsed.value = 0
-    timer.value = setInterval(() => {
-      timeUsed.value++
-    }, 1e3)
+  function start() {
+    if (timerAnime.value == undefined) {
+      timerAnime.value = anime({
+        targets: timerEl.value,
+        duration: props.duration * 1e3 - 200,
+        width: '100%',
+        easing: 'linear',
+        update(anim) {
+          timeUsedMs.value = Math.floor(anim.currentTime)
+          timeUsed.value = Math.floor(timeUsedMs.value / 1e3)
+        },
+        complete: end,
+      })
+    } else {
+      timerAnime.value.restart()
+    }
   }
 
-  function endInterval() {
-    clearInterval(timer.value)
-    timer.value = undefined
-  }
-
-  function startTimer() {
-    startInterval()
-    timerAnime.value = anime({
-      targets: timerEl.value,
-      duration: props.duration * 1e3 - 100,
-      width: '100%',
-      easing: 'linear',
-      complete: () => endQuizTimer(),
-    })
-  }
-
-  function endQuizTimer() {
+  function end() {
     timerAnime.value?.pause()
+    timerAnime.value = undefined
     anime({
       targets: timerEl.value,
       duration: 100,
       width: '0%',
       easing: 'linear',
       complete() {
-        start.value = false
-        endInterval()
         emit('end')
       },
     })
   }
 
-  watchEffect(() => {
-    if (start.value || _start.value) startTimer()
-    else if (!start.value || !_start.value) endQuizTimer()
+  function pause() {
+    timerAnime.value?.pause()
+  }
+  function resume() {
+    timerAnime.value?.play()
+  }
+
+  defineExpose({
+    start,
+    pause,
+    resume,
+    end,
+  })
+
+  onMounted(() => {
+    if (props.autoStart) start()
   })
 </script>
 
 <template>
-  <div class="timer-wrapper">
+  <div class="timer-wrapper" style="margin: 8px 0 0">
     <div ref="timerEl" class="timer-progress"></div>
   </div>
 </template>

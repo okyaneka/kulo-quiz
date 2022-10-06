@@ -22,7 +22,7 @@ const QuestionPayloadScheme: z.ZodType<
 
 const ChoiceShape = z.object({
   text: z.string().min(1),
-  is_true: z.boolean(),
+  key: z.number(),
   image_url: z.string().nullable(),
 })
 
@@ -35,10 +35,13 @@ const ChoicesQuestionPayloadShape = z.object({
   ...QuestionPayloadScheme._def.shape(),
   question: z.string().min(1),
   choices: z.preprocess((arg) => {
+    if (!arg) return false
     const choices = arg as Choice[]
-    if (choices.some((choice) => choice.is_true)) return choices
-    else return false
-  }, z.array(z.object(ChoiceScheme._def.shape()), { invalid_type_error: 'must_have_correct_answer' }).min(1)),
+    const keys = choices.map((v) => v.key)
+    if (new Set(keys).size != choices.length) return false
+    return choices
+  }, z.array(z.object(ChoiceScheme._def.shape()), { invalid_type_error: 'key_must_no_duplicate' }).min(1)),
+  correct_answer: z.number().array().min(1, 'Correct answer is required'),
 })
 
 const ChoicesQuestionPayloadScheme: z.ZodType<

@@ -53,21 +53,16 @@ meta:
   })
 
   watch(isValidate, (value) => {
+    console.log(value)
+
     if (value)
       validate().then(() => {
         isValidate.value = false
       })
+    nextTick().then(() => {
+      isValidate.value = false
+    })
   })
-
-  // function handleUploadFile(e: Event) {
-  //   const target = e.target as HTMLInputElement
-  //   if (!target.files) return
-  //   const file = target.files[0]
-  //   console.log(file.name)
-  //   uploadFile(file).then((res) => {
-  //     console.log(res)
-  //   })
-  // }
 </script>
 
 <template>

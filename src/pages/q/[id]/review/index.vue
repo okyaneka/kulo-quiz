@@ -1,5 +1,4 @@
 <route lang="yaml">
-name: preview-quiz-review
 meta:
   layout: private
   requireAuth: true
@@ -15,9 +14,9 @@ meta:
     // type QuizStandingData,
   } from '~/apps/quiz/quiz.repositories'
   import {
-    getResultPreviewData,
-    getResultPreviewList,
-    getStandingPreviewList,
+    getResultData,
+    getResultList,
+    getStandingList,
   } from '~/apps/results/results.repositories'
 
   const route = useRoute()
@@ -32,19 +31,19 @@ meta:
 
   const { data: results } = useQuery({
     queryKey: ['results'],
-    queryFn: () => getResultPreviewList(route.params.id as string),
+    queryFn: () => getResultList(route.params.id as string),
   })
 
   const { data: standings } = useQuery({
     queryKey: ['standings'],
-    queryFn: () => getStandingPreviewList(route.params.id as string),
+    queryFn: () => getStandingList(route.params.id as string),
   })
 
   const { data: resultData } = useQuery({
     queryKey: ['result-data'],
     queryFn: () => {
       if (lastResult.value == undefined) throw new Error('result_undefined')
-      return getResultPreviewData(lastResult.value.id)
+      return getResultData(lastResult.value.id)
     },
     enabled: loadLastResultData,
   })
@@ -153,7 +152,7 @@ meta:
           />
         </el-table>
 
-        <p v-if="standings != undefined && standings.count > 10" align="center">
+        <p align="center">
           <router-link to="#">Show full standings</router-link>
         </p>
       </el-card>
@@ -192,9 +191,7 @@ meta:
                   <el-space fill :size="8">
                     <p>Your answer</p>
                     <p>
-                      <strong v-if="answer.answer">{{
-                        answer.answer.text
-                      }}</strong>
+                      <strong v-if="answer.answer">{{ answer.answer }}</strong>
                       <i v-else>Not answered</i>
                     </p>
                   </el-space>
@@ -205,7 +202,9 @@ meta:
                     <p>Correct answer</p>
                     <p>
                       <strong>{{
-                        answer.correct_answer.map((v) => v.text).join(', ')
+                        Array.isArray(answer.correct_answer)
+                          ? answer.correct_answer.join(', ')
+                          : answer.correct_answer
                       }}</strong>
                     </p>
                   </el-space>
@@ -228,12 +227,10 @@ meta:
       </el-card>
     </el-col>
 
-    <el-col style="position: sticky; bottom: 64px; z-index: 9">
+    <el-col style="position: sticky; bottom: 64px">
       <el-card :body-style="{ padding: '12px' }">
         <el-row justify="space-between" align="middle">
-          <router-link :to="{ name: 'preview-quiz-play' }">
-            <el-button type="primary">Requiz?</el-button>
-          </router-link>
+          <el-button type="primary">Requiz?</el-button>
           <el-button>Find other quiz</el-button>
         </el-row>
       </el-card>

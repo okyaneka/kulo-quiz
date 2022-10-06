@@ -6,8 +6,8 @@ meta:
 </route>
 
 <script setup lang="ts">
+  import type QuestionForm from '~/composables/components/question-form/question-form.vue'
   import { Plus, Close } from '@element-plus/icons-vue'
-  import QuestionForm from '~/components/question/question-form.vue'
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
   import { deleteQuestion } from '~/apps/question/question.repositories'
 
@@ -17,6 +17,7 @@ meta:
   }>()
 
   const { questions } = storeToRefs(useQuizStore())
+  const forms = ref<(InstanceType<typeof QuestionForm> | null)[]>([])
 
   const lastScrollPos = ref<number>(0)
   const isShowNav = ref<boolean>(true)
@@ -60,6 +61,22 @@ meta:
     }
     lastScrollPos.value = currentScrollPos
   }
+
+  function validate() {
+    // return new Promise((res) => {
+
+    forms.value.forEach((v) => {
+      if (v != null) v.validate()
+    })
+    // })
+  }
+
+  watch(isValidate, (value) => {
+    validate()
+    nextTick().then(() => emit('update:validate', false))
+  })
+
+  defineExpose({ validate })
 
   onMounted(() => {
     if (questions.value.length == 0) handleAddQuestion()
@@ -119,8 +136,8 @@ meta:
         </template>
 
         <question-form
+          ref="forms"
           v-model:value="questions[index]"
-          v-model:validate="isValidate"
           v-model:is-valid="questionsValid[index]"
           :disabled="disabled"
         ></question-form>

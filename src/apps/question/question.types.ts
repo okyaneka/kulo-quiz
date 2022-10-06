@@ -20,17 +20,20 @@ export interface QuestionPayload {
   timer: number | null
 }
 
-export interface Question extends Core, QuestionPayload {}
+export interface Question extends Core, QuestionPayload {
+  correct_answer: null
+}
 
 export interface Choice {
   text: string
-  is_true: boolean
+  key: number
   image_url: string | null
 }
 
 export interface ChoicesQuestionPayload extends QuestionPayload {
   question: string
   choices: Choice[]
+  correct_answer: number[]
 }
 
 export interface ChoicesQuestion extends Core, ChoicesQuestionPayload {}
@@ -49,42 +52,8 @@ export type QuestionFilterable = Pick<
   'quiz.id': string
 }
 
-export interface UseQuestion {
-  question: Pick<Question, 'id' | 'mode'> & { question?: string }
+export type useChoicesQuestion = {
+  question: Pick<ChoicesQuestion, 'id' | 'mode' | 'question'>
 }
 
-// export type Questions = Question | ChoicesQuestion
-
-// export type QuestionsPayload = QuestionPayload | ChoicesQuestionPayload
-
-// export interface Question extends Core {
-//   point: number
-//   mode: typeof QuestionMode[number]
-//   seq: number | null
-//   guide: string | null
-//   guide_image: string | null
-//   timer: number | null
-// }
-
-// /**
-//  * Options mode question
-//  */
-// export interface QuestionOption {
-//   text: string
-//   is_true: boolean | null
-//   option_image?: string
-// }
-
-// export interface OptionsQuestion extends Question {
-//   question: string
-//   options: QuestionOption[]
-// }
-
-// export type OptionsQuestionPayload = Partial<OptionsQuestion> &
-//   Omit<QuestionOption, keyof Core>
-
-// export type AllQuestion = OptionsQuestion
-
-// export type QuestionPayload = OptionsQuestionPayload
-
-// export type QuestionPayloadData = Partial<QuestionPayload>
+export type UseQuestion = useChoicesQuestion

@@ -44,62 +44,60 @@
 </script>
 
 <template>
-  <el-col style="position: sticky; bottom: 0">
-    <el-row>
-      <el-col :span="8" style="text-align: center; margin: 0">
-        <el-button
-          :disabled="disablePrev"
-          size="large"
-          type="primary"
-          circle
-          plain
-          @click="$emit('click:prev')"
-          @mouseup="endFocus"
-          @touchend="endFocus"
-        >
-          <template #icon>
-            <svg-icon name="chevron-left"></svg-icon>
-          </template>
-        </el-button>
-      </el-col>
-      <el-col :span="8" style="text-align: center; margin: 0">
-        <el-button
-          :disabled="disableNext && !showFinish"
-          size="large"
-          :type="isHolded || showFinish ? 'success' : 'primary'"
-          circle
-          plain
-          @mousedown="startHold"
-          @mousemove="resetHold"
-          @mouseleave="resetHold"
-          @mouseup="endHold"
-          @touchstart="startHold"
-          @touchmove="resetHold"
-          @touchcancel="resetHold"
-          @touchend="endHold"
-        >
-          <template #icon>
-            <svg-icon
-              :name="isHolded || showFinish ? 'check' : 'chevron-right'"
-            ></svg-icon>
-          </template>
-        </el-button>
-      </el-col>
-      <el-col :span="8" style="text-align: center; margin: 0">
-        <el-button
-          size="large"
-          type="primary"
-          circle
-          plain
-          @click="$emit('click:other')"
-          @mouseup="endFocus"
-          @touchend="endFocus"
-        >
-          <template #icon>
-            <svg-icon name="hashtag"></svg-icon>
-          </template>
-        </el-button>
-      </el-col>
-    </el-row>
-  </el-col>
+  <el-row>
+    <el-col :span="8" style="text-align: center; margin: 0">
+      <el-button
+        :disabled="disablePrev"
+        size="large"
+        type="primary"
+        circle
+        plain
+        @click="$emit('click:prev')"
+        @mouseup="endFocus"
+        @touchend="endFocus"
+      >
+        <template #icon>
+          <svg-icon name="chevron-left"></svg-icon>
+        </template>
+      </el-button>
+    </el-col>
+    <el-col :span="8" style="text-align: center; margin: 0">
+      <el-button
+        :disabled="disableNext && !showFinish"
+        size="large"
+        :type="isHolded || showFinish ? 'success' : 'primary'"
+        circle
+        plain
+        @mousedown="startHold"
+        @mousemove="resetHold"
+        @mouseleave="resetHold"
+        @mouseup="endHold"
+        @touchstart="startHold"
+        @touchmove="resetHold"
+        @touchcancel="resetHold"
+        @touchend="endHold"
+      >
+        <template #icon>
+          <svg-icon
+            :name="isHolded || showFinish ? 'check' : 'chevron-right'"
+          ></svg-icon>
+        </template>
+      </el-button>
+    </el-col>
+    <el-col :span="8" style="text-align: center; margin: 0">
+      <el-button
+        size="large"
+        type="primary"
+        circle
+        plain
+        @click="$emit('click:other')"
+        @mouseup="endFocus"
+        @touchend="endFocus"
+      >
+        <template #icon>
+          <svg-icon name="hashtag"></svg-icon>
+        </template>
+      </el-button>
+    </el-col>
+  </el-row>
 </template>

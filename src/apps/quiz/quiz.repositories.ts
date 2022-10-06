@@ -1,12 +1,16 @@
 import { defineStore } from 'pinia'
 import type { ResponseRowsPayload } from '~/composables/types/interfaces'
 import { useColRef, useDocRef } from '~/plugins/firebase'
-import { TimerMode, type Config } from '../config/config.types'
-import { getQuestionByQuiz } from '../question/question.repositories'
-import type {
-  ChoicesQuestion,
-  Questions,
-  UseQuestion,
+import type { Config } from '../config/config.types'
+import {
+  getQuestionByQuiz,
+  setQuestions,
+} from '../question/question.repositories'
+import {
+  QuestionMode,
+  type ChoicesQuestion,
+  type Questions,
+  type UseQuestion,
 } from '../question/question.types'
 import type {
   QuizPayload,
@@ -99,8 +103,14 @@ export async function getQuiz(id: string) {
 
 export async function getQuizData(id: string): Promise<QuizData> {
   const quiz = await getQuiz(id)
-  const questions = (await getQuestionByQuiz(id)) as Questions[]
-  const quizData = { ...quiz, questions }
+  const questions = await getQuestionByQuiz<Questions>(id)
+  const selectedQuestions: Questions[] = []
+  for (let i = 0; i < (quiz.config?.question_displayed ?? 0); i++) {
+    selectedQuestions.push(
+      ...questions.splice(Math.floor(Math.random() * questions.length), 1)
+    )
+  }
+  const quizData = { ...quiz, questions: selectedQuestions }
   return quizData
 }
 
@@ -110,21 +120,36 @@ export async function setQuiz(id: string, payload: Partial<QuizPayload>) {
 
 export async function setConfig(id: string, payload: Partial<Config>) {
   const data: Partial<Quiz> = { config: payload }
-  if (
-    payload.timer_mode != undefined &&
-    payload.timer != undefined &&
-    payload.timer_units != undefined
-  ) {
-    if ([0, 2].includes(payload.timer_mode)) {
-      const timers = [1, 6e1, 36e2]
-      data.max_duration = payload.timer * timers[payload.timer_units]
-    } else if (payload.timer_mode == TimerMode['Question timer']) {
-      const questions = await getQuestionByQuiz(id)
-      data.max_duration = questions.reduce((c, v) => c + (v?.timer ?? 0), 0)
-    }
+
+  let quiz_max_duration = 0,
+    questions_max_duration = 0
+  if ([0, 2].includes(payload.timer_mode as number)) {
+    const timers = [1, 6e1, 36e2]
+    quiz_max_duration =
+      (payload.timer as number) * timers[payload.timer_units as number]
   }
 
+  if ([1, 2].includes(payload.timer_mode as number)) {
+    const questions = await getQuestionByQuiz(id)
+    questions_max_duration = questions.reduce((c, v) => c + (v?.timer ?? 0), 0)
+  }
+
+  data.max_duration =
+    quiz_max_duration > questions_max_duration
+      ? quiz_max_duration
+      : questions_max_duration
+
   return await setDocument(useQuizDocRef<Quiz>(id), data)
+}
+
+export async function setDraft(
+  id: string,
+  quiz: Partial<Quiz>,
+  questions: Partial<Questions>[]
+) {
+  await setQuiz(id, quiz)
+  await setQuestions(questions)
+  if (quiz.config != undefined) await setConfig(id, quiz.config)
 }
 
 export const useQuizStore = defineStore('quiz', () => {
@@ -148,14 +173,18 @@ export const useQuizStore = defineStore('quiz', () => {
     }
   }
 
-  function getQuestion(question: ChoicesQuestion): UseQuestion {
-    return {
-      question: {
-        id: question.id,
-        mode: question.mode,
-        question: question.question,
-      },
+  function getQuestion(question: Questions): UseQuestion {
+    if (question.mode == QuestionMode.Choices) {
+      const q = question as ChoicesQuestion
+      return {
+        question: {
+          id: q.id,
+          mode: q.mode,
+          question: q.question,
+        },
+      }
     }
+    throw new Error('question_invalid')
   }
 
   return { quiz, config, questions, getQuiz, getQuestion }

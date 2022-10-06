@@ -84,13 +84,31 @@ meta:
               <p>{{ QuizLevel[quiz.level] }}</p>
               <div>
                 <el-space :wrap="false">
-                  <el-tooltip content="Continue Edit Quiz">
+                  <el-tooltip
+                    v-if="quiz.status == QuizStatus.Draft"
+                    content="Continue Edit Quiz"
+                  >
                     <router-link
                       :to="{ name: 'edit-questions', params: { id: quiz.id } }"
                     >
                       <el-button circle>
                         <template #icon>
                           <svg-icon name="edit" />
+                        </template>
+                      </el-button>
+                    </router-link>
+                  </el-tooltip>
+
+                  <el-tooltip
+                    v-if="quiz.status == QuizStatus.Publish"
+                    content="Continue Edit Quiz"
+                  >
+                    <router-link
+                      :to="{ name: 'q-id', params: { id: quiz.id } }"
+                    >
+                      <el-button circle>
+                        <template #icon>
+                          <svg-icon name="eye" />
                         </template>
                       </el-button>
                     </router-link>

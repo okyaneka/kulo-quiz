@@ -4,28 +4,32 @@
     type ChoicesQuestion,
     type Questions,
   } from '~/apps/question/question.types'
-  import ChoiceQuizQuestion from './question-mode/choice-quiz-question.vue'
 
   defineProps<{
     question?: Questions
-    answer: null | string
+    answer: number | null
   }>()
 
   defineEmits<{
-    (e: 'update:answer', value: string): void
+    (e: 'update:answer', value: number): void
   }>()
 </script>
 
 <template>
   <el-row v-if="question != undefined">
+    <el-col v-if="question.guide">
+      <p align="center">
+        {{ question.guide }}
+      </p>
+    </el-col>
     <el-col>
-      <choice-quiz-question
+      <question-mode-choices
         v-if="question.mode == QuestionMode.Choices"
         :question="(question as ChoicesQuestion)"
         :answer="answer"
         @update:answer="$emit('update:answer', $event)"
       >
-      </choice-quiz-question>
+      </question-mode-choices>
     </el-col>
   </el-row>
 </template>

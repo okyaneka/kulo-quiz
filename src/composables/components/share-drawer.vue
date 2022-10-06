@@ -162,8 +162,6 @@
   }
 
   function shareTo(app: ShareWith) {
-    console.log(app)
-
     if (app == ShareWith['wa']) return shareToWa()
     if (app == ShareWith['ig-feed']) return
     if (app == ShareWith['ig-story']) return

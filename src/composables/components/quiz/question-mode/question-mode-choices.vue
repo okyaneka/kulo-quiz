@@ -3,12 +3,18 @@
 
   defineProps<{
     question: ChoicesQuestion
-    answer: null | string
+    answer: number | null
   }>()
 
-  defineEmits<{
-    (e: 'update:answer', value: string): void
+  const emit = defineEmits<{
+    (e: 'update:answer', value: number): void
   }>()
+
+  function selectAnswer(value: number) {
+    const activeElement = document.activeElement as HTMLElement
+    activeElement.blur()
+    emit('update:answer', value)
+  }
 </script>
 
 <template>
@@ -18,10 +24,10 @@
     </p>
     <el-button
       v-for="option in question.choices ?? []"
-      :type="option.text == answer ? 'primary' : 'default'"
-      :key="option.text"
+      :type="option.key == answer ? 'primary' : 'default'"
+      :key="option.key"
       size="large"
-      @click="$emit('update:answer', option.text)"
+      @click="selectAnswer(option.key)"
       >{{ option.text }}</el-button
     >
   </el-space>

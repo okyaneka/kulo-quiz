@@ -5,62 +5,58 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import anime from 'animejs'
-  import {
-    DArrowLeft,
-    DArrowRight,
-    Grid,
-    SuccessFilled,
-  } from '@element-plus/icons-vue'
-  import type { Component } from 'vue'
-  import { useAuthStore } from '~/apps/auth/auth.repository'
   import { TimerMode, type Config } from '~/apps/config/config.types'
   import {
     QuestionMode,
     type ChoicesQuestion,
   } from '~/apps/question/question.types'
   import { getQuizData, useQuizStore } from '~/apps/quiz/quiz.repositories'
-  import { QuizLevel, QuizStatus } from '~/apps/quiz/quiz.schemes'
+  import { QuizLevel } from '~/apps/quiz/quiz.schemes'
   import {
     addResultPreview,
     setResultPreview as __setResult,
   } from '~/apps/results/results.repositories'
-  import type { AnswerPayload, Result } from '~/apps/results/results.types'
+  import type {
+    AnswerPayload,
+    ChoicesAnswerAnswerPayload,
+    Result,
+  } from '~/apps/results/results.types'
+  import type QuizTimerIndicator from '~/composables/components/quiz/quiz-timer-indicator.vue'
 
-  interface QuestionNav {
-    key: string
-    type: '' | 'primary'
-    title: string
-    icon: Component
-    disabled?: () => boolean
-    onClick?: () => void
-  }
+  const quizTimer = ref<InstanceType<typeof QuizTimerIndicator> | null>(null)
+  const questionTimer = ref<InstanceType<typeof QuizTimerIndicator> | null>(
+    null
+  )
 
   const route = useRoute()
   const router = useRouter()
   const { getQuestion } = useQuizStore()
-  const { user } = storeToRefs(useAuthStore())
 
-  const answers = ref<(string | null)[]>([])
-  const counter = ref<number>(1)
-  const finishDialog = ref<boolean>(false)
-  const no = ref<number>(1)
-  const QuestionDrawer = ref<boolean>(false)
+  const step = ref<1 | 2 | 3>(2)
+  const showFinishDialog = ref<boolean>(false)
+  const showQuestionDrawer = ref<boolean>(false)
+  const num = ref<number>(1)
   const result = ref<Result>()
-  const step = ref<1 | 2 | 3>(1)
-  const timeElapsed = ref<number>(0)
-  const timeInterval = ref()
+  const answers = ref<(number | null)[]>([])
+  const timesUp = ref(false)
 
-  const questionTimer = ref()
-  const quizTimer = ref()
+  // time used
+  const questionTimeUsed = ref<number>(0)
+  const quizTimeUsed = ref<number>(0)
 
-  const loadQuiz = computed<boolean>(() => !!user.value)
+  const quizDuration = computed<number>(
+    () =>
+      (useQuizTimer.value
+        ? quizData.value?.max_duration
+        : question.value?.timer) ?? 0
+  )
+
+  const timeUsed = computed<number>(() =>
+    useQuizTimer.value ? quizTimeUsed.value : questionTimeUsed.value
+  )
+
   const config = computed(() => quizData.value?.config as Config)
   const questions = computed(() => quizData.value?.questions)
-
-  const timesUp = computed(
-    () => (quizData.value?.max_duration ?? 0) <= timeElapsed.value
-  )
 
   const useQuestionTimer = computed<boolean>(
     () => config.value != undefined && [1, 2].includes(config.value.timer_mode)
@@ -70,86 +66,10 @@ meta:
     () => config.value != undefined && [0, 2].includes(config.value.timer_mode)
   )
 
-  const navs = computed<QuestionNav[]>(() => [
-    {
-      key: 'prev',
-      type: 'primary',
-      disabled: (): boolean => no.value == 1,
-      icon: DArrowLeft,
-      title: 'Previous Question',
-      onClick: prevQuestion,
-    },
-    {
-      key: 'go',
-      type: '',
-      icon: Grid,
-      title: 'Go to spesific number',
-      onClick: goSelectQuestion,
-    },
-    {
-      key: 'next',
-      type: 'primary',
-      disabled: (): boolean => no.value == questions.value?.length,
-      icon: DArrowRight,
-      title: 'Next Question',
-      onClick: nextQuestion,
-    },
-    {
-      key: 'finish',
-      type: '',
-      icon: SuccessFilled,
-      title: 'Finish the Quiz',
-      onClick: finishQuiz,
-    },
-  ])
-
-  const timeLeftFormated = computed(() => {
-    let timer
-    if (config.value.timer_mode == TimerMode['Question timer'])
-      timer =
-        questions.value
-          ?.slice(0, no.value)
-          .reduce((c, v) => c + (v.timer ?? 0), 0) ?? 0
-    else timer = quizData.value?.max_duration ?? 0
-    const time = timer - timeElapsed.value
-    const sec = time % 60
-    const min = Math.floor(time / 60)
-    return `${min.toString().padStart(2, '0')}:${sec
-      .toString()
-      .padStart(2, '0')}`
-  })
-
   const question = computed(() => {
     if (questions.value == undefined) return undefined
-    return questions.value[no.value - 1] as ChoicesQuestion
+    return questions.value[num.value - 1]
   })
-
-  const answersPayload = computed(() => {
-    return questions.value?.map((question, index) => {
-      return {
-        answer: answers.value[index] ?? null,
-        ...getQuestion(question as ChoicesQuestion),
-      } as AnswerPayload
-    })
-  })
-
-  // const quizDuration = computed(() => {
-  //   if (config.value == undefined) return undefined
-
-  //   switch (config.value.timer_mode) {
-  //     case TimerMode['Question timer']:
-  //       return {
-  //         counter:
-  //           questions.value?.reduce((c, v) => c + (v.timer ?? 0), 0) ?? 0,
-  //         unit: Units.Seconds,
-  //       }
-  //     default:
-  //       return {
-  //         counter: config.value.timer,
-  //         unit: config.value.timer_units,
-  //       }
-  //   }
-  // })
 
   const {
     data: quizData,
@@ -157,14 +77,7 @@ meta:
     refetch: fetchQuizData,
   } = useQuery({
     queryKey: ['quiz-data'],
-    queryFn: () =>
-      getQuizData(route.params.id as string).then((quiz) => {
-        if (quiz.author.uid != user.value?.uid)
-          throw new Error('bad_request: permission_denied')
-        if (quiz.status != QuizStatus.Draft)
-          throw new Error('bad_request: status_not_draft')
-        return quiz
-      }),
+    queryFn: () => getQuizData(route.params.id as string),
     enabled: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -186,125 +99,80 @@ meta:
     },
   })
 
-  function setAnswer(answer: string) {
-    const index = no.value - 1
-    answers.value[index] = answer == answers.value[index] ? null : answer
-  }
-
-  function startCountdown() {
-    step.value = 2
-    counter.value = 3
-    timeInterval.value = setInterval(() => {
-      if (--counter.value == 0) {
-        clearInterval(timeInterval.value)
-        timeInterval.value = undefined
+  function nextStep() {
+    switch (++step.value) {
+      case 3:
         startQuiz()
-      }
-    }, 1000)
+        break
+
+      default:
+        break
+    }
   }
 
   async function startQuiz() {
-    if (quizData.value == undefined) throw new Error('quiz_is_undefined')
-
-    const duration = quizData.value.max_duration
-    step.value = 3
-    timeInterval.value = setInterval(() => {
-      if (++timeElapsed.value == duration) {
-        clearInterval(timeInterval.value)
-        timeInterval.value = undefined
-        finishQuiz()
-        endQuiz()
-      }
-    }, 1000)
-
-    await nextTick()
     result.value = await createResult()
-
-    startQuestionTimer()
-    startQuizTimer(duration)
-  }
-
-  function startQuestionTimer() {
-    if (useQuestionTimer.value)
-      anime({
-        targets: questionTimer.value,
-        duration: (question.value?.timer ?? 0) * 1e3 - 300,
-        width: '100%',
-        easing: 'linear',
-        complete() {
-          anime({
-            targets: questionTimer.value,
-            duration: 300,
-            width: '0%',
-            easing: 'linear',
-            complete() {
-              nextQuestion()
-            },
-          })
-        },
-      })
-  }
-
-  function startQuizTimer(duration: number) {
-    if (useQuizTimer.value)
-      anime({
-        targets: quizTimer.value,
-        duration: duration * 1e3 - 300,
-        width: '100%',
-        easing: 'linear',
-        complete() {
-          anime({
-            targets: quizTimer.value,
-            duration: 300,
-            width: '0%',
-            easing: 'linear',
-          })
-        },
-      })
-  }
-
-  function goSelectQuestion() {
-    QuestionDrawer.value = true
-  }
-
-  function goTo(question_no: number) {
-    no.value = question_no
-    QuestionDrawer.value = false
-    nextTick().then(() => {
-      const activeElement = document.activeElement as HTMLElement
-      activeElement.blur()
-      startQuestionTimer()
-    })
-  }
-
-  function prevQuestion() {
-    if (no.value == 1) goTo(config.value.question_displayed)
-    else goTo(no.value - 1)
+    await nextTick()
+    if (useQuizTimer.value) quizTimer.value?.start()
+    if (useQuestionTimer.value) questionTimer.value?.start()
   }
 
   function nextQuestion() {
-    if (no.value == config.value.question_displayed) finishQuiz()
-    else goTo(no.value + 1)
+    if (num.value < config.value.question_displayed)
+      selectQuestion(num.value + 1)
   }
 
-  function finishQuiz() {
-    finishDialog.value = true
+  function prevQuestion() {
+    if (num.value >= 1) selectQuestion(num.value - 1)
   }
 
-  function cancelFinish() {
-    finishDialog.value = false
-    no.value = 1
+  async function selectQuestion(_num: number) {
+    num.value = _num
+    questionTimer.value?.start()
   }
 
-  async function confirmFinishQuiz() {
-    if (!timesUp.value) endQuiz()
-    router.push({ name: 'preview-quiz-review' })
+  function endQuestion() {
+    if (num.value == config.value.question_displayed) {
+      if (config.value.timer_mode == 2) selectQuestion(1)
+      else endQuiz()
+    } else nextQuestion()
   }
 
   async function endQuiz() {
-    if (answersPayload.value == undefined)
-      return ElMessage.error('some_question_or_answer_is_invalid')
-    await setResult(answersPayload.value)
+    timesUp.value = true
+    showFinishDialog.value = true
+    await setAnswer()
+  }
+
+  function finishQuiz() {
+    showFinishDialog.value = true
+  }
+
+  function cancelFinish() {
+    showFinishDialog.value = false
+  }
+
+  async function confirmFinishQuiz() {
+    await setAnswer()
+    router.push({ name: 'preview-quiz-review' })
+  }
+
+  async function setAnswer() {
+    if (questions.value != undefined) {
+      const answersPayload = questions.value.map((question, index) => {
+        if (question.mode == QuestionMode.Choices) {
+          const q = question as ChoicesQuestion
+          return {
+            answer:
+              q.choices.find((v) => v.key == answers.value[index]) ?? null,
+            ...getQuestion(q),
+          } as ChoicesAnswerAnswerPayload
+        }
+        return { answer: null, ...getQuestion(question) }
+      })
+
+      await setResult(answersPayload)
+    }
   }
 
   onMounted(() => {
@@ -313,7 +181,6 @@ meta:
 </script>
 
 <template>
-  {{ quizData?.max_duration }}
   <el-row style="padding: 20px 0; min-height: 100vh; flex-direction: column">
     <el-col v-if="loading" style="margin: auto 0">
       <el-progress
@@ -322,229 +189,105 @@ meta:
         :show-text="false"
       ></el-progress>
     </el-col>
-    <template v-else-if="!timesUp">
-      <!-- preparation -->
-      <el-col v-if="step == 1" style="margin: auto 0">
-        <el-space fill wrap style="width: 100%">
-          <h1 align="center">{{ quizData?.title }}</h1>
-          <ul
-            style="
-              color: var(--el-text-color-regular);
-              text-align: center;
-              margin-bottom: 20px;
-            "
-          >
-            <li>
-              dificulty_level:
-              {{
-                quizData?.level != undefined ? QuizLevel[quizData?.level] : ''
-              }}
-            </li>
-            <li>question_total: {{ config?.question_displayed }}</li>
-            <li>
-              timer_mode:
-              {{ config?.timer_mode ? TimerMode[config?.timer_mode] : '' }}
-            </li>
-            <li>
-              quiz_duration:
-              {{ quizData?.max_duration ?? 0 }} seconds
-            </li>
-          </ul>
 
-          <p align="center">
-            <strong><em> Are you ready? </em></strong>
-          </p>
-          <el-row justify="center">
-            <el-button type="primary" size="large" @click="startCountdown"
-              >READY</el-button
-            >
-          </el-row>
-        </el-space>
+    <template
+      v-else-if="
+        quizData != undefined &&
+        config != undefined &&
+        question != undefined &&
+        !timesUp
+      "
+    >
+      <el-col v-if="step == 1" style="margin: auto 0">
+        <quiz-summary
+          :title="quizData.title"
+          :level="quizData.level ? QuizLevel[quizData.level] : ''"
+          :question-displayed="config.question_displayed"
+          :timer-mode="TimerMode[config.timer_mode]"
+          :max-duration="quizData.max_duration"
+          @click:ready="nextStep"
+        ></quiz-summary>
       </el-col>
 
       <!-- counter -->
       <el-col v-if="step == 2" style="margin: auto 0">
-        <el-space fill wrap style="width: 100%">
-          <p align="center">
-            <em>We will getting started in:</em>
-          </p>
-          <p align="center" style="font-size: 48px">
-            <strong>{{ counter }}</strong>
-          </p>
-        </el-space>
+        <quiz-counter @end="nextStep"></quiz-counter>
       </el-col>
 
       <!-- quiz -->
       <template v-if="step == 3">
-        <!-- question area -->
-        <el-col style="margin: auto 0">
-          <el-row>
-            <el-col>
-              <p align="center">
-                <el-tooltip placement="auto" content="Mark an do it later.">
-                  <el-button circle size="large">
-                    <strong>{{ no }}</strong>
-                  </el-button>
-                </el-tooltip>
-              </p>
-            </el-col>
-            <template
-              v-if="
-                question != undefined && question?.mode == QuestionMode.Choices
-              "
-            >
-              <el-col>
-                <p align="center">
-                  <strong>{{ question.question }}</strong>
-                </p>
-              </el-col>
-              <el-col>
-                <el-space fill style="width: 100%">
-                  <el-button
-                    v-for="option in question.choices ?? []"
-                    :type="
-                      option.text == answers[no - 1] ? 'primary' : 'default'
-                    "
-                    :key="option.text"
-                    size="large"
-                    @click="setAnswer(option.text)"
-                    >{{ option.text }}</el-button
-                  >
-                </el-space>
-              </el-col>
-            </template>
-          </el-row>
+        <el-col style="margin-top: auto">
+          <p align="center">
+            <el-button circle size="large">
+              <strong>{{ num }}</strong>
+            </el-button>
+          </p>
+        </el-col>
+
+        <el-col style="margin-bottom: auto">
+          <quiz-question
+            :question="question"
+            v-model:answer="answers[num - 1]"
+          ></quiz-question>
         </el-col>
 
         <el-col>
-          <el-space fill style="width: 100%">
-            <el-row justify="space-between">
-              <p>
-                <strong>{{ no }}</strong
-                ><span
-                  style="
-                    color: var(--el-text-color-secondary);
-                    font-size: var(--el-font-size-extra-small);
-                  "
-                  >/{{ config?.question_displayed }}</span
-                >
-              </p>
-              <p>- {{ timeLeftFormated }}</p>
-            </el-row>
-            <div
-              v-if="useQuestionTimer"
-              style="
-                height: 6px;
-                background-color: var(--el-fill-color);
-                border-radius: 3px;
-              "
-            >
-              <div
-                ref="questionTimer"
-                style="
-                  border-radius: 3px;
-                  height: 100%;
-                  background-color: var(--el-color-primary);
-                  width: 0%;
-                "
-              ></div>
-            </div>
-            <div
-              v-if="useQuizTimer"
-              style="
-                height: 6px;
-                background-color: var(--el-fill-color);
-                border-radius: 3px;
-              "
-            >
-              <div
-                ref="quizTimer"
-                style="
-                  border-radius: 3px;
-                  height: 100%;
-                  background-color: var(--el-color-primary);
-                  width: 0%;
-                "
-              ></div>
-            </div>
-          </el-space>
+          <quiz-progress-indicator
+            :num="num"
+            :num-count="config.question_displayed"
+            :duration="quizDuration"
+            :time-used="timeUsed"
+          ></quiz-progress-indicator>
         </el-col>
 
-        <el-col
-          v-if="config?.timer_mode != TimerMode['Question timer']"
-          style="position: sticky; bottom: 0"
-        >
-          <el-row>
-            <el-col
-              v-for="nav in navs"
-              :key="nav.key"
-              :span="24 / navs.length"
-              style="text-align: center; margin: 0"
-            >
-              <el-tooltip placement="auto" :content="nav.title">
-                <el-button
-                  :disabled="!!nav?.disabled ? nav?.disabled() : false"
-                  size="large"
-                  :type="nav.type"
-                  circle
-                  :icon="nav.icon"
-                  @click="nav.onClick"
-                />
-              </el-tooltip>
-            </el-col>
-          </el-row>
+        <el-col>
+          <!-- question timer -->
+          <quiz-timer-indicator
+            v-if="useQuestionTimer"
+            ref="questionTimer"
+            v-model:time-used="questionTimeUsed"
+            :duration="question.timer"
+            @end="endQuestion"
+          ></quiz-timer-indicator>
+
+          <!-- quiz timer -->
+          <quiz-timer-indicator
+            v-if="useQuizTimer"
+            ref="quizTimer"
+            v-model:time-used="quizTimeUsed"
+            :duration="quizData.max_duration"
+            @end="endQuiz"
+          ></quiz-timer-indicator>
+        </el-col>
+
+        <el-col style="position: sticky; bottom: 0">
+          <quiz-navigation
+            :disable-next="num >= (config.question_displayed as number)"
+            :disable-prev="num <= 1"
+            :show-finish="num == (config.question_displayed as number)"
+            @click:next="nextQuestion"
+            @click:prev="prevQuestion"
+            @click:finish="finishQuiz"
+            @click:other="showQuestionDrawer = true"
+          ></quiz-navigation>
         </el-col>
       </template>
     </template>
   </el-row>
 
-  <el-dialog
-    v-model="finishDialog"
-    :show-close="false"
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    width="80%"
-  >
-    <el-space fill style="width: 100%">
-      <h1 align="center" style="margin-bottom: 16px; word-break: normal">
-        <template v-if="timesUp"> Time is up. Finish the Quiz! </template>
-        <template v-else> Are you sure to finish this quiz? </template>
-      </h1>
-    </el-space>
-    <el-space style="width: 100%; justify-content: center">
-      <el-button
-        v-if="!timesUp"
-        :disabled="isLoading"
-        size="large"
-        @click="cancelFinish()"
-        >Cancel</el-button
-      >
-      <el-button
-        :loading="isLoading"
-        type="primary"
-        size="large"
-        @click="confirmFinishQuiz()"
-        >Finish</el-button
-      >
-    </el-space>
-  </el-dialog>
+  <quiz-finish-dialog
+    v-model="showFinishDialog"
+    :times-up="timesUp"
+    :loading="isLoading"
+    @click:cancel="cancelFinish()"
+    @click:confirm="confirmFinishQuiz()"
+  ></quiz-finish-dialog>
 
-  <el-drawer
-    v-if="config?.timer_mode != TimerMode['Question timer']"
-    v-model="QuestionDrawer"
-    direction="btt"
-    :show-close="false"
-    :withHeader="false"
-  >
-    <el-space :size="8" wrap style="justify-content: center">
-      <el-button
-        v-for="i in config?.question_displayed"
-        :key="i"
-        style="width: 3rem"
-        @click="goTo(i)"
-      >
-        {{ i }}
-      </el-button>
-    </el-space>
-  </el-drawer>
+  <quiz-question-drawer
+    v-if="useQuizTimer"
+    v-model="showQuestionDrawer"
+    :num="num"
+    :num-count="config.question_displayed"
+    @click:num="selectQuestion"
+  ></quiz-question-drawer>
 </template>

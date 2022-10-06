@@ -24,7 +24,7 @@ router.beforeEach(
     for (let i = 0; i < middlewares.length; i++) {
       guard = await middlewares[i](to, from, next)
 
-      if (guard) return guard
+      if (guard) return guard()
     }
     return next()
   }
