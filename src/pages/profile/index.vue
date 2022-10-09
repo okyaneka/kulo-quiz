@@ -104,7 +104,7 @@ meta:
 
                   <el-tooltip
                     v-if="quiz.status == QuizStatus.Publish"
-                    content="Continue Edit Quiz"
+                    content="View Quiz"
                   >
                     <router-link
                       :to="{ name: 'q-id', params: { id: quiz.id } }"

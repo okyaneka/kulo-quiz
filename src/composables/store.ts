@@ -1,5 +1,9 @@
 export const useNotfoundStore = defineStore('notfound-guard', () => {
   const isNotFound = ref(false)
 
-  return { isNotFound }
+  function throwNotFound() {
+    isNotFound.value = true
+  }
+
+  return { isNotFound, throwNotFound }
 })
