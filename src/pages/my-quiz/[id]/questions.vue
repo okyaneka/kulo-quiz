@@ -99,8 +99,12 @@ meta:
         :title="`Pertanyaan #${index + 1}`"
       >
         <template #title>
-          <!-- <h5>Question {{ index + 1 }}</h5> -->
-          <h5>{{ question.id }}</h5>
+          <el-tooltip>
+            <h5>Question {{ index + 1 }}</h5>
+            <template #content>
+              <span>{{ question.question }}</span>
+            </template>
+          </el-tooltip>
           <el-popover v-if="questionsValid[index] == false">
             <template #reference>
               <el-icon

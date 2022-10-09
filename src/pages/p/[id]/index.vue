@@ -39,7 +39,7 @@ meta:
       },
       {
         name: 'working_duration',
-        value: quiz.value?.max_duration + ' Seconds',
+        value: durationHumanized(quiz.value?.max_duration),
       },
       {
         name: 'time_limit_to_repeat',
@@ -72,7 +72,7 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px">
+  <el-row>
     <el-col>
       <quiz-preview
         :title="quiz?.title"
@@ -82,12 +82,14 @@ meta:
         :spesification="tableData"
       >
         <template #footer>
-          <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 1">
-            <router-link :to="{ name: 'p-id-play' }">
-              <el-button type="primary" style="width: 100%"
-                >START PREVIEW QUIZ</el-button
-              >
-            </router-link>
+          <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 10">
+            <el-card shadow="never">
+              <router-link :to="{ name: 'p-id-play' }">
+                <el-button type="primary" style="width: 100%"
+                  >START PREVIEW QUIZ</el-button
+                >
+              </router-link>
+            </el-card>
           </el-col>
         </template>
       </quiz-preview>

@@ -42,7 +42,7 @@ meta:
       },
       {
         name: 'working_duration',
-        value: quiz.value?.max_duration + ' Seconds',
+        value: durationHumanized(quiz.value?.max_duration),
       },
       {
         name: 'time_limit_to_repeat',
@@ -75,7 +75,7 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px">
+  <el-row style="padding: 20px 0">
     <el-col>
       <quiz-preview
         :title="quiz?.title"
@@ -85,22 +85,24 @@ meta:
         :spesification="tableData"
       >
         <template #footer>
-          <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 1">
-            <el-row style="flex-wrap: nowrap">
-              <router-link
-                :to="{ name: 'q-id-play' }"
-                style="width: 100%; margin-right: 16px"
-              >
-                <el-button type="primary" style="width: 100%"
-                  >START QUIZ</el-button
+          <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 10">
+            <el-card shadow="never">
+              <el-row style="flex-wrap: nowrap">
+                <router-link
+                  :to="{ name: 'q-id-play' }"
+                  style="width: 100%; margin-right: 16px"
                 >
-              </router-link>
-              <el-button circle @click="showShareDrawer = true">
-                <el-icon>
-                  <svg-icon name="share"></svg-icon>
-                </el-icon>
-              </el-button>
-            </el-row>
+                  <el-button type="primary" style="width: 100%"
+                    >START QUIZ</el-button
+                  >
+                </router-link>
+                <el-button circle @click="showShareDrawer = true">
+                  <el-icon>
+                    <svg-icon name="share"></svg-icon>
+                  </el-icon>
+                </el-button>
+              </el-row>
+            </el-card>
           </el-col>
         </template>
       </quiz-preview>

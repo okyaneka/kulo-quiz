@@ -3,6 +3,7 @@
 
   const props = defineProps<{
     loading?: boolean
+    title?: string
     score?: number | string
   }>()
 
@@ -39,7 +40,7 @@
 
   <el-card v-else>
     <el-space fill style="width: 100%">
-      <h1 align="center">Your Last Score!</h1>
+      <h1 align="center">{{ title ?? 'Your Last Score!' }}</h1>
       <p
         v-if="score == undefined"
         align="center"

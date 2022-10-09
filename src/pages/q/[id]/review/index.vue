@@ -38,8 +38,8 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px 0">
-    <el-col>
+  <el-row>
+    <el-col style="padding: 20px 20px 0">
       <quiz-score
         :loading="resultLoading || results == undefined"
         :score="result?.score"
@@ -47,7 +47,7 @@ meta:
     </el-col>
 
     <!-- recent score -->
-    <el-col>
+    <el-col style="padding: 0 20px">
       <quiz-score-history
         :loading="resultsLoading"
         :result="results?.rows ?? []"
@@ -67,7 +67,7 @@ meta:
     </el-col>
 
     <!-- standings -->
-    <el-col>
+    <el-col style="padding: 0 20px">
       <quiz-standing
         :loading="standingsLoading"
         :standing="standings?.rows ?? []"
@@ -84,7 +84,7 @@ meta:
     </el-col>
 
     <!-- evaluations -->
-    <el-col>
+    <el-col style="padding: 0 20px">
       <quiz-evaluation
         :loading="resultLoading || results == undefined"
         :answers="result?.answers ?? []"
@@ -93,9 +93,9 @@ meta:
 
     <el-col
       v-if="!resultLoading && !resultsLoading && !standingsLoading"
-      style="position: sticky; bottom: 64px; z-index: 10"
+      style="position: sticky; bottom: 56px; z-index: 10"
     >
-      <el-card :body-style="{ padding: '12px' }">
+      <el-card shadow="never" :body-style="{ padding: '20px' }">
         <el-row justify="space-between" align="middle">
           <router-link :to="{ name: 'p-id' }">
             <el-button type="primary">Requiz?</el-button>

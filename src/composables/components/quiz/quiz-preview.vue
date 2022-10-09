@@ -92,7 +92,7 @@
 </script>
 
 <template>
-  <el-row>
+  <el-row style="padding: 20px">
     <el-col>
       <h3>{{ title }}</h3>
     </el-col>
@@ -100,6 +100,7 @@
     <el-col v-if="loading">
       <el-skeleton animated :rows="6"></el-skeleton>
     </el-col>
+
     <template v-else>
       <el-col>
         <el-tabs
@@ -145,8 +146,7 @@
           </div>
         </el-space>
       </el-col>
-
-      <slot name="footer" />
     </template>
   </el-row>
+  <slot name="footer" />
 </template>

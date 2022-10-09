@@ -160,7 +160,7 @@ meta:
     </el-col>
 
     <el-col style="position: sticky; bottom: 64px">
-      <el-card :body-style="{ padding: '12px' }">
+      <el-card shadow="never" :body-style="{ padding: '12px' }">
         <el-row justify="space-between" align="middle">
           <el-button type="primary">Requiz?</el-button>
           <el-button>Find other quiz</el-button>

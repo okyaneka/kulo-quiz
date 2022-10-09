@@ -1,5 +1,4 @@
 <route lang="yaml">
-name: create-quiz
 meta:
   layout: private
   requireAuth: true
@@ -33,13 +32,13 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px">
+  <el-row style="padding: 20px 0">
     <el-col>
       <h1 align="center">Create Your Own Quiz</h1>
     </el-col>
 
     <el-col>
-      <el-card v-loading="isLoading">
+      <el-card v-loading="isLoading" style="margin: 0 20px">
         <quiz-form
           v-model:data="quiz"
           submit-text="Next"

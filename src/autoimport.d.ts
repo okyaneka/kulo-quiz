@@ -18,6 +18,7 @@ declare global {
   const deleteDoc: typeof import('firebase/firestore')['deleteDoc']
   const deleteDocument: typeof import('./composables/repositories')['deleteDocument']
   const doc: typeof import('firebase/firestore')['doc']
+  const durationHumanized: typeof import('./composables/helpers')['durationHumanized']
   const effectScope: typeof import('vue')['effectScope']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getAuthor: typeof import('./composables/helpers')['getAuthor']

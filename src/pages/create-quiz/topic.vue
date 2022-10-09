@@ -1,5 +1,4 @@
 <route lang="yaml">
-name: create-quiz-topic
 meta:
   layout: private
   requireAuth: true
@@ -80,21 +79,22 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px 0">
+  <el-row style="padding: 20px">
+    <el-col>
+      <el-space fill style="width: 100%">
+        <h1 align="center">Ask for New Topic</h1>
+        <p
+          align="center"
+          style="color: var(--el-text-color-regular); padding: 0 20px"
+        >
+          New topic request will be verified by our team. The process will take
+          for a while before you can use your topic. We will notify when the new
+          topic you requested has been verified.
+        </p>
+      </el-space>
+    </el-col>
     <el-col>
       <el-card v-loading="addTopicLoading">
-        <el-space fill style="width: 100%; margin-bottom: 20px">
-          <h1 align="center">Ask for New Topic</h1>
-          <p
-            align="center"
-            style="color: var(--el-text-color-regular); padding: 0 20px"
-          >
-            New topic request will be verified by our team. The process will
-            take for a while before you can use your topic. We will notify when
-            the new topic you requested has been verified.
-          </p>
-        </el-space>
-
         <el-form label-position="top" @submit.prevent="handleSubmit">
           <el-form-item :error="errors.title" label="Topic title">
             <el-input v-model="values.title" type="text"></el-input>
