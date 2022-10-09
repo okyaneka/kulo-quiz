@@ -24,20 +24,24 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px 0; min-height: 100vh; flex-direction: column">
-    <el-col>
-      <quiz-score :loading="loading" :score="result?.score"></quiz-score>
+  <el-row style="min-height: calc(100vh - 56px); flex-direction: column">
+    <el-col style="padding: 20px 20px 0">
+      <quiz-score
+        :loading="loading"
+        title="Score"
+        :score="result?.score"
+      ></quiz-score>
     </el-col>
 
-    <el-col>
+    <el-col style="padding: 0 20px">
       <quiz-evaluation
         :loading="loading"
         :answers="result?.answers ?? []"
       ></quiz-evaluation>
     </el-col>
 
-    <el-col style="position: sticky; bottom: 64px; margin-top: auto">
-      <el-card :body-style="{ padding: '12px' }">
+    <el-col style="position: sticky; bottom: 56px; margin-top: auto">
+      <el-card :body-style="{ padding: '20px' }">
         <el-row justify="space-between" align="middle">
           <router-link :to="{ name: 'q-id-review' }">
             <el-button type="primary">Back</el-button>
