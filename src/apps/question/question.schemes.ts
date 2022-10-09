@@ -10,9 +10,12 @@ const QuestionPayloadShape = z.object({
   point: z.number().min(1),
   mode: z.nativeEnum(QuestionMode),
   seq: z.number().min(0),
-  guide: z.string().nullable(),
-  image_url: z.string().nullable(),
-  timer: z.number().nullable(),
+  guide: z.preprocess((arg) => (arg ? arg : null), z.string().nullable()),
+  image_url: z.preprocess((arg) => (arg ? arg : null), z.string().nullable()),
+  timer: z.preprocess(
+    (arg) => (!isNaN(parseInt(arg as string)) ? (arg as number) : null),
+    z.number().nullable()
+  ),
 })
 
 const QuestionPayloadScheme: z.ZodType<

@@ -27,12 +27,18 @@ interface AnswerCore extends useId, useTimestamps, useAuthor, useResult {
   feedback_false?: string
 }
 
-export interface ChoicesAnswerAnswerPayload extends UseQuestion {
-  answer: Choice | null
+export interface AnswerPayload extends UseQuestion {
+  answer: null
 }
 
-export type AnswerPayload = ChoicesAnswerAnswerPayload
+export interface ChoicesAnswerAnswerPayload extends UseQuestion {
+  answer: Choice
+}
+
+export type AnswersPayload = AnswerPayload | ChoicesAnswerAnswerPayload
+
+export type NullAnswer = AnswerCore & AnswerPayload
 
 export type ChoicesAnswer = AnswerCore & ChoicesAnswerAnswerPayload
 
-export type Answer = ChoicesAnswer
+export type Answer = NullAnswer | ChoicesAnswer

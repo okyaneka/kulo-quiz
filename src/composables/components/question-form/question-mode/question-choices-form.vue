@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import { Close, QuestionFilled } from '@element-plus/icons-vue'
-  import type { ElCheckbox } from 'element-plus'
   import type {
     Choice,
     ChoicesQuestionPayload,
@@ -61,6 +60,10 @@
   onMounted(() => {
     question.value = props.value?.question ?? ''
     choices.value = props.value?.choices ?? [{ ...blankChoice }]
+    choices.value.forEach((v) => {
+      correctAnswerValue.value[v.key] =
+        props.value.correct_answer?.includes(v.key) ?? false
+    })
   })
 </script>
 
@@ -91,7 +94,6 @@
         ref="choiceInput"
         v-model="option.text"
         style="width: 100%; margin-right: 16px"
-        :placeholder="'key: ' + option.key"
       >
         <template #append>
           <el-space>

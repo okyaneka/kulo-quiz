@@ -18,11 +18,12 @@ export interface QuestionPayload {
   guide: string | null
   image_url: string | null
   timer: number | null
+  question?: null
+  choices?: null
+  correct_answer?: null
 }
 
-export interface Question extends Core, QuestionPayload {
-  correct_answer: null
-}
+export interface Question extends Core, QuestionPayload {}
 
 export interface Choice {
   text: string
@@ -30,7 +31,8 @@ export interface Choice {
   image_url: string | null
 }
 
-export interface ChoicesQuestionPayload extends QuestionPayload {
+export interface ChoicesQuestionPayload
+  extends Omit<QuestionPayload, 'question' | 'choices' | 'correct_answer'> {
   question: string
   choices: Choice[]
   correct_answer: number[]

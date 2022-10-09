@@ -1,7 +1,7 @@
 <route lang="yaml">
 meta:
-  layout: private
   requireAuth: true
+  layout: private
 </route>
 
 <script setup lang="ts">
@@ -23,6 +23,7 @@ meta:
   const userGuide = ref<HTMLElement>()
   const spesification = ref<HTMLElement>()
   const active = ref<'description' | 'userGuide' | 'spesification'>()
+  const showShareDrawer = ref(false)
 
   const elements = computed((): Ref<HTMLElement | undefined>[] => {
     return [description, userGuide, spesification]
@@ -89,10 +90,8 @@ meta:
     queryKey: ['quiz-data'],
     queryFn: () =>
       getQuizData(route.params.id as string).then((quiz) => {
-        if (quiz.author.uid != user.value?.uid)
-          throw new Error('bad_request: permission_denied')
-        if (quiz.status != QuizStatus.Draft)
-          throw new Error('bad_request: status_not_draft')
+        if (quiz.status != QuizStatus.Publish)
+          throw new Error('bad_request: status_not_publish')
         return quiz
       }),
     enabled: loadQuiz,
@@ -100,6 +99,7 @@ meta:
       ElMessage.error(e.message)
       router.push('/')
     },
+    refetchOnWindowFocus: false,
   })
 
   function setActive() {
@@ -164,6 +164,7 @@ meta:
   onMounted(() => {
     setActive()
     enableScrollObserver()
+    if (route.query.share == '1') showShareDrawer.value = true
   })
 
   onUnmounted(() => {
@@ -221,12 +222,25 @@ meta:
       </el-col>
 
       <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 1">
-        <router-link :to="{ name: 'preview-quiz-play' }">
-          <el-button type="primary" style="width: 100%"
-            >START PREVIEW QUIZ</el-button
+        <el-space
+          direction="vertical"
+          fill
+          style="width: 100%; max-width: 100%"
+        >
+          <router-link :to="{ name: 'q-id-play' }">
+            <el-button type="primary" style="width: 100%">START QUIZ</el-button>
+          </router-link>
+          <el-button style="width: 100%" @click="showShareDrawer = true"
+            >SHARE</el-button
           >
-        </router-link>
+        </el-space>
       </el-col>
+
+      <share-drawer
+        v-model="showShareDrawer"
+        :quiz-id="quizData?.id"
+        :quiz-title="quizData?.title"
+      ></share-drawer>
     </template>
   </el-row>
 </template>

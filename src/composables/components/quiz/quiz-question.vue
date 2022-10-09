@@ -23,13 +23,13 @@
       </p>
     </el-col>
     <el-col>
-      <question-mode-choices
+      <question-choices-mode
         v-if="question.mode == QuestionMode.Choices"
         :question="(question as ChoicesQuestion)"
         :answer="answer"
         @update:answer="$emit('update:answer', $event)"
       >
-      </question-mode-choices>
+      </question-choices-mode>
     </el-col>
   </el-row>
 </template>

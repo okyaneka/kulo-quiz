@@ -85,6 +85,7 @@
     "useField": true,
     "useForm": true,
     "useMutation": true,
+    "useNotfoundStore": true,
     "useQuery": true,
     "useRoute": true,
     "useRouter": true,

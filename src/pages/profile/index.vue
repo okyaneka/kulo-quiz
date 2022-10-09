@@ -89,7 +89,10 @@ meta:
                     content="Continue Edit Quiz"
                   >
                     <router-link
-                      :to="{ name: 'edit-questions', params: { id: quiz.id } }"
+                      :to="{
+                        name: 'my-quiz-id-questions',
+                        params: { id: quiz.id },
+                      }"
                     >
                       <el-button circle>
                         <template #icon>

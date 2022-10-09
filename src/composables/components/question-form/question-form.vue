@@ -39,6 +39,7 @@
     validationSchema: validator,
     initialValues: {
       image_url: null,
+      correct_answer: null,
     },
   })
   useField<number>('point')
@@ -97,11 +98,11 @@
         style="border: 1px solid var(--el-border-color); margin-bottom: 0.5rem"
       />
 
-      <question-form-choices
+      <question-choices-form
         v-if="values.mode == QuestionMode.Choices"
         v-model:value="values"
         :errors="errors"
-      ></question-form-choices>
+      ></question-choices-form>
     </template>
   </el-form>
 </template>

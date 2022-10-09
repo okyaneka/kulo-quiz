@@ -152,7 +152,7 @@ meta:
           />
         </el-table>
 
-        <p v-if="standings != undefined && standings.count > 10" align="center">
+        <p align="center">
           <router-link to="#">Show full standings</router-link>
         </p>
       </el-card>
@@ -191,9 +191,7 @@ meta:
                   <el-space fill :size="8">
                     <p>Your answer</p>
                     <p>
-                      <strong v-if="answer.answer">{{
-                        answer.answer.text
-                      }}</strong>
+                      <strong v-if="answer.answer">{{ answer.answer }}</strong>
                       <i v-else>Not answered</i>
                     </p>
                   </el-space>
@@ -204,7 +202,9 @@ meta:
                     <p>Correct answer</p>
                     <p>
                       <strong>{{
-                        answer.correct_answer.map((v) => v.text).join(', ')
+                        Array.isArray(answer.correct_answer)
+                          ? answer.correct_answer.join(', ')
+                          : answer.correct_answer
                       }}</strong>
                     </p>
                   </el-space>
@@ -227,12 +227,10 @@ meta:
       </el-card>
     </el-col>
 
-    <el-col style="position: sticky; bottom: 64px; z-index: 9">
+    <el-col style="position: sticky; bottom: 64px">
       <el-card :body-style="{ padding: '12px' }">
         <el-row justify="space-between" align="middle">
-          <router-link :to="{ name: 'preview-quiz-play' }">
-            <el-button type="primary">Requiz?</el-button>
-          </router-link>
+          <el-button type="primary">Requiz?</el-button>
           <el-button>Find other quiz</el-button>
         </el-row>
       </el-card>

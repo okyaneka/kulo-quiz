@@ -1,9 +1,12 @@
 <script setup lang="ts">
+  import { TimerMode } from '~/apps/config/config.types'
+  import { QuizLevel } from '~/apps/quiz/quiz.schemes'
+
   defineProps<{
     title: string
-    level: string
+    level: QuizLevel
     questionDisplayed: number
-    timerMode: string
+    timerMode: TimerMode
     maxDuration: number
   }>()
 
@@ -15,18 +18,13 @@
 <template>
   <el-space fill wrap style="width: 100%">
     <h1 align="center">{{ title }}</h1>
-    <ul
-      style="
-        color: var(--el-text-color-regular);
-        text-align: center;
-        margin-bottom: 20px;
-      "
-    >
-      <li>dificulty_level: {{ level }}</li>
-      <li>question_total: {{ questionDisplayed }}</li>
-      <li>timer_mode: {{ timerMode }}</li>
-      <li>quiz_duration: {{ maxDuration }} seconds</li>
-    </ul>
+
+    <div class="text-wrapper" style="margin: 8px">
+      <p align="center">dificulty_level: {{ QuizLevel[level] }}</p>
+      <p align="center">question_total: {{ questionDisplayed }}</p>
+      <p align="center">timer_mode: {{ TimerMode[timerMode] }}</p>
+      <p align="center">quiz_duration: {{ maxDuration }} seconds</p>
+    </div>
 
     <p align="center">
       <strong><em> Are you ready? </em></strong>

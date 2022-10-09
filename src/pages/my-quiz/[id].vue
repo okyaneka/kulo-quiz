@@ -69,7 +69,8 @@ meta:
 
   // set questions
   const { mutateAsync: setQuestions } = useMutation({
-    mutationFn: (payload: Partial<Questions>[]) => _setQuestions(payload),
+    mutationFn: (payload: Partial<Questions>[]) =>
+      _setQuestions(route.params.id as string, payload),
   })
 
   // set config
@@ -79,14 +80,11 @@ meta:
   })
 
   // save draft
-  const { mutateAsync: handleSaveDraft } = useMutation({
+  const { mutateAsync: saveDraft } = useMutation({
     mutationFn: async () => {
       isShowOption.value = false
       if (quiz.value != undefined)
         setDraft(route.params.id as string, quiz.value, questions.value)
-    },
-    onSuccess: () => {
-      ElMessage.success('Saved to draft.')
     },
   })
 
@@ -94,6 +92,7 @@ meta:
   const { mutateAsync: handleNextStep, isLoading: stepLoading } = useMutation({
     mutationFn: async () => {
       if (view.value && view.value.validate) view.value.validate()
+      await saveDraft()
       const current = route.name as string
       isValidate.value = true
       isShowOption.value = false
@@ -103,13 +102,13 @@ meta:
         parsed = () => parseQuiz()
         successCallback = async (data: unknown) => {
           await setQuiz(data as QuizPayload)
-          router.push({ name: 'edit-questions' })
-          active.value = 'edit-questions'
+          router.push({ name: 'my-quiz-id-questions' })
+          active.value = 'my-quiz-id-questions'
         }
         failedCallback = () => {
           ElMessage.error('quiz_is_not_valid')
         }
-      } else if (current == 'edit-questions') {
+      } else if (current == 'my-quiz-id-questions') {
         parsed = () => parseQuestions()
         successCallback = async (data: unknown) => {
           await setQuestions(data as Questions[])
@@ -139,6 +138,7 @@ meta:
         return ElMessage.error('some_data_is_not_valid')
 
       const data = parsed()
+
       if (data.success) return await successCallback(data.data)
       return failedCallback()
     },
@@ -154,11 +154,11 @@ meta:
     if (!parseQuestions().success)
       return ElMessage.error('questions_is_not_valid')
     if (!parseConfig().success) return ElMessage.error('config_is_not_valid')
-    await handleSaveDraft()
+    await saveDraft()
 
     const anchor = document.createElement('a')
     anchor.href = router.resolve({
-      name: 'preview-quiz',
+      name: 'p-id',
       params: { id: route.params.id },
     }).href
     anchor.target = '_blank'
@@ -197,12 +197,19 @@ meta:
     return ConfigScheme(questions.value.length).safeParse(config.value)
   }
 
+  function handleSaveDraftClicked() {
+    saveDraft().then(() => {
+      ElMessage.success('Saved to draft.')
+    })
+  }
+
   onMounted(() => {
     isShowDrawer.value = route.query.new == '1'
     active.value = route.name as string
     window.addEventListener('scroll', onscroll)
-    autoSaveInterval.value = setInterval(() => {
-      handleSaveDraft()
+    autoSaveInterval.value = setInterval(async () => {
+      await saveDraft()
+      ElMessage.success('Saved to draft.')
     }, 5 * 6 * 1e4)
   })
 
@@ -259,7 +266,7 @@ meta:
       ></el-button>
     </template>
     <el-space direction="vertical" fill>
-      <el-button style="width: 100%" @click="handleSaveDraft()"
+      <el-button style="width: 100%" @click="handleSaveDraftClicked()"
         >Simpan draft</el-button
       >
       <el-button style="width: 100%" @click="handlePreview()"
@@ -288,7 +295,8 @@ meta:
     "
   >
     <el-tab-pane name="edit-quiz" label="1. Data"> </el-tab-pane>
-    <el-tab-pane name="edit-questions" label="2. Questions"> </el-tab-pane>
+    <el-tab-pane name="my-quiz-id-questions" label="2. Questions">
+    </el-tab-pane>
     <el-tab-pane name="edit-config" label="3. Config"> </el-tab-pane>
   </el-tabs>
 
@@ -301,7 +309,7 @@ meta:
     >
       <template #extra>
         <el-space fill style="width: 100%">
-          <el-button type="primary" @click="goTo('edit-questions')"
+          <el-button type="primary" @click="goTo('my-quiz-id-questions')"
             >Let's add questions!</el-button
           >
           <router-link to="/my-quiz">Back to my quiz</router-link>

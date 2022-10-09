@@ -89,7 +89,11 @@ export const getDocument = async <T = unknown>(
   ref: DocumentReference<T>
 ): Promise<T> => {
   const document = await getDoc(ref)
-  if (!document.exists()) throw new Error('document_not_found')
+  if (!document.exists()) {
+    const { isNotFound } = storeToRefs(useNotfoundStore())
+    isNotFound.value = true
+    throw new Error('document_not_found')
+  }
   return { ...document.data(), id: document.id } as unknown as T
 }
 

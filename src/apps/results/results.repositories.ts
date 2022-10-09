@@ -4,7 +4,7 @@ import { useQuizStore } from '../quiz/quiz.repositories'
 import { useQuestionDocRef } from '~/apps/question/question.repositories'
 import type {
   Answer,
-  AnswerPayload,
+  AnswersPayload,
   ChoicesAnswer,
   Result,
   ResultData,
@@ -16,6 +16,7 @@ import {
   type Questions,
 } from '../question/question.types'
 import { useAuthUser } from '../auth/auth.repository'
+import type { Quiz } from '../quiz/quiz.types'
 
 interface ResultCollection {
   results: string
@@ -43,13 +44,13 @@ const preview: ResultCollection = {
 //   return useDocRef<T>(model, id)
 // }
 
-async function __addResult(model: ResultCollection) {
+async function __addResult(quiz: Quiz, model: ResultCollection) {
   const { getQuiz } = useQuizStore()
 
   const payload: Omit<Result, 'id'> = {
     ...getAuthor(),
     ...getTimestamps(),
-    ...getQuiz(),
+    ...getQuiz(quiz),
     score: 0,
     duration: 0,
   }
@@ -60,7 +61,7 @@ async function __addResult(model: ResultCollection) {
 async function __setResult(
   model: ResultCollection,
   id: string,
-  answers: AnswerPayload[]
+  answers: AnswersPayload[]
 ) {
   const unfinishedResult = await __getUnfinishedResult(model, id)
   const result = await addDocument(
@@ -70,10 +71,13 @@ async function __setResult(
   await deleteDocument(useDocRef(model.unfinished_results, result.id))
 
   const { getQuestion } = useQuizStore()
+  const duration = Math.floor(
+    (Date.now() - result.created_at.toMillis()) / 1000
+  )
 
   // create id first
-  const payloadWithId = await new Promise<(AnswerPayload & useId)[]>((res) => {
-    const rows: (AnswerPayload & useId)[] = []
+  const payloadWithId = await new Promise<(AnswersPayload & useId)[]>((res) => {
+    const rows: (AnswersPayload & useId)[] = []
     let created = 0
     answers.forEach((answer) => {
       addDocument(useColRef<Answer>(model.answers), {}).then((doc) => {
@@ -88,7 +92,7 @@ async function __setResult(
   const resultData = await runTransaction(
     useFirestore(),
     async (transaction) => {
-      function validateAnswer(question: Questions, answer: AnswerPayload) {
+      function validateAnswer(question: Questions, answer: AnswersPayload) {
         let correct_answer, is_correct
         if (question.mode == QuestionMode.Choices) {
           const q = question as ChoicesQuestion
@@ -151,9 +155,7 @@ async function __setResult(
       return {
         ...result,
         score,
-        duration: Math.floor(
-          (Date.now() - result.created_at.toMillis()) / 1000
-        ),
+        duration,
       }
     }
   )
@@ -166,13 +168,12 @@ async function __setResult(
   return result
 }
 
-async function __getResultList(model: ResultCollection, quiz_id: string) {
+async function __getResultList(model: ResultCollection, quiz_id?: string) {
   const user = useAuthUser()
+  const filter: { [key: string]: string | number } = { 'author.uid': user.uid }
+  if (quiz_id != undefined) filter['quiz.id'] = quiz_id
   return getDocumentList<Result>(useColRef(model.results), {
-    filter: {
-      'quiz.id': quiz_id,
-      'author.uid': user.uid,
-    },
+    filter,
     orders: [['created_at', 'desc']],
   })
 }
@@ -202,15 +203,15 @@ async function __getStandingList(model: ResultCollection, quiz_id: string) {
   })
 }
 
-export async function addResult() {
-  return await __addResult(results)
+export async function addResult(quiz: Quiz) {
+  return await __addResult(quiz, results)
 }
 
-export async function setResult(id: string, answers: AnswerPayload[]) {
+export async function setResult(id: string, answers: AnswersPayload[]) {
   return await __setResult(results, id, answers)
 }
 
-export async function getResultList(quiz_id: string) {
+export async function getResultList(quiz_id?: string) {
   return await __getResultList(results, quiz_id)
 }
 
@@ -222,15 +223,15 @@ export async function getStandingList(quiz_id: string) {
   return await __getStandingList(results, quiz_id)
 }
 
-export async function addResultPreview() {
-  return await __addResult(preview)
+export async function addResultPreview(quiz: Quiz) {
+  return await __addResult(quiz, preview)
 }
 
-export async function setResultPreview(id: string, answers: AnswerPayload[]) {
+export async function setResultPreview(id: string, answers: AnswersPayload[]) {
   return await __setResult(preview, id, answers)
 }
 
-export async function getResultPreviewList(quiz_id: string) {
+export async function getResultPreviewList(quiz_id?: string) {
   return await __getResultList(preview, quiz_id)
 }
 

@@ -8,6 +8,8 @@
   } from '~/apps/quiz/quiz.schemes'
   import type { QuizPayload } from '~/apps/quiz/quiz.types'
   import { getTopicList } from '~/apps/topic/topic.repository'
+  import { TopicStatus } from '~/apps/topic/topic.scheme'
+  import type { Topic } from '~/apps/topic/topic.types'
 
   type QuizPayloadData = Partial<QuizPayload>
 
@@ -38,12 +40,12 @@
   //   },
   // })
 
-  const topicOptions = computed<OptionType[]>(() => {
+  const topicOptions = computed<OptionType<Topic>[]>(() => {
     return (
       topics.value?.rows
         .map((v) => ({
           label: v.fulltitle,
-          value: v.id,
+          value: v,
         }))
         .filter((v) => {
           return v.label.toLowerCase().includes(topicQuery.value.toLowerCase())
@@ -65,7 +67,6 @@
     queryFn: async () =>
       await getTopicList({
         per_page: 0,
-        filter: { status: 2 },
         orders: [['fulltitle', 'asc']],
       }),
   })
@@ -106,16 +107,35 @@
         v-model="topic"
         filterable
         remote
+        value-key="value.id"
         :remote-method="(e: string) => topicQuery = e"
         :options="topicOptions"
         @change="handleTopicChanged"
         style="width: 100%"
       >
+        <template #default="{ item }">
+          <el-row
+            justify="space-between"
+            align="middle"
+            style="margin-right: 8px"
+          >
+            <span style="margin-right: 8px">{{ item.label }}</span>
+
+            <el-tag
+              v-if="(item.value as Topic).status != TopicStatus.approved"
+              type="warning"
+            >
+              {{ TopicStatus[(item.value as Topic).status] }}
+            </el-tag>
+          </el-row>
+        </template>
+
         <template #empty>
           <el-card shadow="never">
             <p style="font-size: var(--el-font-size-base)">
               Topic not found. You can ask for new topic
               <router-link
+                target="_blank"
                 :to="{
                   name: 'create-quiz-topic',
                   query: { title: topicQuery },

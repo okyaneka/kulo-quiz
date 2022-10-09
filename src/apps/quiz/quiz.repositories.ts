@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 import type { ResponseRowsPayload } from '~/composables/types/interfaces'
 import { useColRef, useDocRef } from '~/plugins/firebase'
-import type { Config } from '../config/config.types'
+import {
+  QuestionMode as ConfigQuestionMode,
+  type Config,
+} from '../config/config.types'
 import {
   getQuestionByQuiz,
   setQuestions,
@@ -12,6 +15,7 @@ import {
   type Questions,
   type UseQuestion,
 } from '../question/question.types'
+import { QuizStatus } from './quiz.schemes'
 import type {
   QuizPayload,
   Quiz,
@@ -103,13 +107,18 @@ export async function getQuiz(id: string) {
 
 export async function getQuizData(id: string): Promise<QuizData> {
   const quiz = await getQuiz(id)
+  const config = quiz.config as Config
   const questions = await getQuestionByQuiz<Questions>(id)
+
   const selectedQuestions: Questions[] = []
-  for (let i = 0; i < (quiz.config?.question_displayed ?? 0); i++) {
-    selectedQuestions.push(
-      ...questions.splice(Math.floor(Math.random() * questions.length), 1)
-    )
-  }
+  if (config.question_mode == ConfigQuestionMode.Random)
+    for (let i = 0; i < (config.question_displayed ?? 0); i++) {
+      selectedQuestions.push(
+        ...questions.splice(Math.floor(Math.random() * questions.length), 1)
+      )
+    }
+  else selectedQuestions.push(...questions.splice(0, config.question_displayed))
+
   const quizData = { ...quiz, questions: selectedQuestions }
   return quizData
 }
@@ -147,9 +156,15 @@ export async function setDraft(
   quiz: Partial<Quiz>,
   questions: Partial<Questions>[]
 ) {
-  await setQuiz(id, quiz)
-  await setQuestions(questions)
-  if (quiz.config != undefined) await setConfig(id, quiz.config)
+  const q = await getDocument(useQuizDocRef(id))
+  if (q.status == QuizStatus.Publish) {
+    await getQuiz(id)
+    await getQuestionByQuiz(id)
+  } else {
+    await setQuiz(id, quiz)
+    await setQuestions(id, questions)
+    if (quiz.config != undefined) await setConfig(id, quiz.config)
+  }
 }
 
 export const useQuizStore = defineStore('quiz', () => {
@@ -163,12 +178,13 @@ export const useQuizStore = defineStore('quiz', () => {
     },
   })
 
-  function getQuiz(): useQuiz {
-    if (quiz.value == undefined) throw new Error('quiz_undefined')
+  function getQuiz(q?: Quiz): useQuiz {
+    if (q == undefined) q = quiz.value
+    if (q == undefined) throw new Error('quiz_undefined')
     return {
       quiz: {
-        id: quiz.value.id,
-        title: quiz.value.title,
+        id: q.id,
+        title: q.title,
       },
     }
   }

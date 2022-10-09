@@ -1,51 +1,79 @@
 <script setup lang="ts">
-  import type QuizTimerIndicator from '~/composables/components/quiz/quiz-timer-indicator.vue'
+  import QuizScore from '../../composables/components/result/quiz-score.vue'
+  import QuizScoreHistory from '../../composables/components/result/quiz-score-history.vue'
+  import {
+    getResultPreviewData,
+    getResultPreviewList,
+    getStandingPreviewList,
+  } from '~/apps/results/results.repositories'
+  import QuizStanding from '../../composables/components/result/quiz-standing.vue'
+  import QuizEvaluation from '../../composables/components/result/quiz-evaluation.vue'
+  import { useColRef } from '~/plugins/firebase'
 
-  const durationData = ref(3)
-  const startData = ref(false)
-  const timeUsedData = ref(0)
-  const timer = ref<InstanceType<typeof QuizTimerIndicator> | null>(null)
+  const quiz_id = '6WFhxgiw3iTHoMH3dYDR'
+  const result_id = ref<string>()
 
-  function start() {
-    timer.value?.start()
-    startData.value = true
-  }
+  const { data: results, isLoading: resultsLoading } = useQuery({
+    queryKey: ['results'],
+    queryFn: () => getResultPreviewList(quiz_id),
+    onSuccess: (data) => {
+      result_id.value = data.rows[1].id
+    },
+  })
 
-  function pause() {
-    timer.value?.pause()
-  }
+  const { data: standing, isLoading: standingLoading } = useQuery({
+    queryKey: ['standing'],
+    queryFn: () => getStandingPreviewList(quiz_id),
+  })
 
-  function end() {
-    timer.value?.end()
-    startData.value = false
-  }
+  const { data: result, isLoading: resultLoading } = useQuery({
+    queryKey: ['result', result_id],
+    queryFn: () => getResultPreviewData(result_id.value as string),
+    enabled: computed(() => result_id.value != undefined),
+  })
 
-  function resume() {
-    timer.value?.resume()
-  }
+  const answers = computed(() => result.value?.answers ?? [])
+
+  onMounted(() => {
+    getDocs(query(useColRef('answers_preview'))).then((snap) => {
+      console.log(snap.size)
+    })
+  })
 </script>
 
 <template>
   <el-row>
+    <el-col> </el-col>
+
     <el-col>
-      <el-button @click="start">start</el-button>
-      <el-button @click="end">end </el-button>
-      <el-button @click="pause">pause </el-button>
-      <el-button @click="resume">resume</el-button>
+      <quiz-score-history
+        :loading="resultsLoading"
+        :result="results?.rows ?? []"
+      >
+        <template #footer>
+          <p align="center">
+            <router-link to="#">Show all my score</router-link>
+          </p>
+        </template>
+      </quiz-score-history>
     </el-col>
 
     <el-col>
-      <div>duration: {{ durationData }}</div>
-      <div>start: {{ startData }}</div>
-      <div>timeUsed: {{ timeUsedData }}</div>
+      <quiz-standing
+        :loading="standingLoading"
+        :standing="standing?.rows ?? []"
+      >
+        <template #footer>
+          <p v-if="standing != undefined && standing.count > 10" align="center">
+            <router-link to="#">Show full standings</router-link>
+          </p>
+        </template>
+      </quiz-standing>
     </el-col>
+
     <el-col>
-      <quiz-timer-indicator
-        ref="timer"
-        :duration="durationData"
-        v-model:start="startData"
-        v-model:timeUsed="timeUsedData"
-      ></quiz-timer-indicator>
+      <quiz-evaluation :loading="resultLoading" :answers="answers">
+      </quiz-evaluation>
     </el-col>
   </el-row>
 </template>

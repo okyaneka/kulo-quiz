@@ -2,7 +2,7 @@ import { runTransaction } from 'firebase/firestore'
 import type { ResponseRowsPayload } from '~/composables/types/interfaces'
 import { useColRef, useDocRef, useFirestore } from '~/plugins/firebase'
 import { TimerMode } from '../config/config.types'
-import { useQuizDocRef, useQuizStore } from '../quiz/quiz.repositories'
+import { getQuiz, useQuizDocRef, useQuizStore } from '../quiz/quiz.repositories'
 import type { Quiz } from '../quiz/quiz.types'
 import type {
   Question,
@@ -63,8 +63,11 @@ export async function getQuestionList(
   })
 }
 
-export async function setQuestions(payload: Partial<Questions>[]) {
-  const { quiz } = useQuizStore()
+export async function setQuestions(
+  quiz_id: string,
+  payload: Partial<Questions>[]
+) {
+  const quiz = await getQuiz(quiz_id)
   if (quiz == undefined) throw new Error('quiz_undefined')
   const data: Partial<Quiz> = {}
 
@@ -80,7 +83,7 @@ export async function setQuestions(payload: Partial<Questions>[]) {
     payload.forEach((question, index) => {
       if (!question.id) {
         addEmptyQuestion().then((doc) => {
-          question = { ...question, ...doc }
+          Object.assign(question, doc)
           if (++created == newQuestion.length) res(true)
           payload[index].id = doc.id
         })
