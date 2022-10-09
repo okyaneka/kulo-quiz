@@ -10,6 +10,25 @@ meta:
   const { user: authUser } = storeToRefs(useAuthStore())
 
   const active = ref<string>('my')
+
+  const avatar = ref<HTMLDivElement>()
+
+  const avatarWidth = ref(0)
+
+  function setAvatarWidth() {
+    setTimeout(() => {
+      avatarWidth.value = avatar.value?.clientWidth ?? 0
+    }, 10)
+  }
+
+  onMounted(() => {
+    window.addEventListener('resize', setAvatarWidth)
+    setAvatarWidth()
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', setAvatarWidth)
+  })
 </script>
 
 <template>
@@ -18,13 +37,14 @@ meta:
       <el-card>
         <el-row :gutter="16">
           <el-col :span="8">
+            <div id="avatar" ref="avatar"></div>
             <el-avatar
               :src="
                 authUser?.photoURL ??
                 'https://kusonime.com/wp-content/uploads/2022/05/Ao-Ashi-605x340.jpg'
               "
-              :size="128"
-              style="max-width: 100%"
+              :size="avatarWidth"
+              style="transition: all 0.3s"
             ></el-avatar>
           </el-col>
           <el-col :span="16" style="margin: 0">
