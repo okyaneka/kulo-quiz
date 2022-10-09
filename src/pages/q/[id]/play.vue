@@ -53,7 +53,7 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px 0; min-height: 100vh; flex-direction: column">
+  <el-row style="min-height: 100vh; flex-direction: column">
     <quiz-play
       v-model:answers="answers"
       :loading="loading"

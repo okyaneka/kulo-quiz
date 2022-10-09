@@ -19,6 +19,8 @@
   const timerAnime = ref<anime.AnimeInstance>()
   const timeUsedMs = ref(0)
 
+  const duration = computed(() => props.duration * 1e3 - 200)
+
   const timeUsed = computed({
     get: () => props.timeUsed,
     set: (value) => emit('update:timeUsed', value),
@@ -28,7 +30,7 @@
     if (timerAnime.value == undefined) {
       timerAnime.value = anime({
         targets: timerEl.value,
-        duration: props.duration * 1e3 - 200,
+        duration: duration.value,
         width: '100%',
         easing: 'linear',
         update(anim) {

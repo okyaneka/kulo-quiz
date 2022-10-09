@@ -136,7 +136,7 @@
 </script>
 
 <template>
-  <el-col v-if="loading" style="margin: auto 0">
+  <el-col v-if="loading" style="margin: auto 20px">
     <el-progress
       :percentage="80"
       indeterminate
@@ -145,7 +145,7 @@
   </el-col>
 
   <template v-else-if="!hideContent && config != undefined">
-    <el-col v-if="step == 1" style="margin: auto 0">
+    <el-col v-if="step == 1" style="margin: auto 20px">
       <quiz-summary
         :title="quiz?.title"
         :level="quiz?.level"
@@ -157,13 +157,13 @@
     </el-col>
 
     <!-- counter -->
-    <el-col v-if="step == 2" style="margin: auto 0">
+    <el-col v-if="step == 2" style="margin: auto 20px">
       <quiz-counter @end="nextStep"></quiz-counter>
     </el-col>
 
     <!-- quiz -->
     <template v-if="step == 3">
-      <el-col style="margin-top: auto">
+      <el-col style="margin: auto 20px 0">
         <p align="center">
           <el-button circle size="large">
             <strong>{{ num }}</strong>
@@ -171,52 +171,49 @@
         </p>
       </el-col>
 
-      <el-col style="margin-bottom: auto">
+      <el-col style="margin: 20px 20px auto">
         <quiz-question
           :question="question"
           v-model:answer="answers[num - 1]"
         ></quiz-question>
       </el-col>
 
-      <el-col>
-        <quiz-progress-indicator
-          :num="num"
-          :num-count="config.question_displayed"
-          :duration="quizDuration"
-          :time-used="timeUsed"
-        ></quiz-progress-indicator>
-      </el-col>
-
-      <el-col>
-        <!-- question timer -->
-        <quiz-timer-indicator
-          v-if="useQuestionTimer"
-          ref="questionTimer"
-          v-model:time-used="questionTimeUsed"
-          :duration="question?.timer"
-          @end="endQuestion"
-        ></quiz-timer-indicator>
-
-        <!-- quiz timer -->
-        <quiz-timer-indicator
-          v-if="useQuizTimer"
-          ref="quizTimer"
-          v-model:time-used="quizTimeUsed"
-          :duration="quiz?.max_duration"
-          @end="timeEnded"
-        ></quiz-timer-indicator>
-      </el-col>
-
       <el-col style="position: sticky; bottom: 0">
-        <quiz-navigation
-          :disable-next="num >= (config.question_displayed as number)"
-          :disable-prev="num <= 1"
-          :show-finish="num == (config.question_displayed as number)"
-          @click:next="nextQuestion"
-          @click:prev="prevQuestion"
-          @click:finish="finishQuiz"
-          @click:other="showQuestionDrawer = true"
-        ></quiz-navigation>
+        <el-card shadow="never">
+          <quiz-progress-indicator
+            :num="num"
+            :num-count="config.question_displayed"
+            :duration="quizDuration"
+            :time-used="timeUsed"
+          ></quiz-progress-indicator>
+
+          <!-- question timer -->
+          <quiz-timer-indicator
+            v-if="useQuestionTimer"
+            ref="questionTimer"
+            v-model:time-used="questionTimeUsed"
+            :duration="question?.timer"
+            @end="endQuestion"
+          ></quiz-timer-indicator>
+
+          <!-- quiz timer -->
+          <quiz-timer-indicator
+            v-if="useQuizTimer"
+            ref="quizTimer"
+            v-model:time-used="quizTimeUsed"
+            :duration="quiz?.max_duration"
+            @end="timeEnded"
+          ></quiz-timer-indicator>
+          <quiz-navigation
+            :disable-next="num >= (config.question_displayed as number)"
+            :disable-prev="num <= 1"
+            :show-finish="num == (config.question_displayed as number)"
+            @click:next="nextQuestion"
+            @click:prev="prevQuestion"
+            @click:finish="finishQuiz"
+            @click:other="showQuestionDrawer = true"
+          ></quiz-navigation>
+        </el-card>
       </el-col>
     </template>
   </template>

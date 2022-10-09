@@ -22,6 +22,7 @@
         {{ question.guide }}
       </p>
     </el-col>
+
     <el-col>
       <question-choices-mode
         v-if="question.mode == QuestionMode.Choices"
