@@ -243,187 +243,185 @@
     </template>
 
     <template #default>
-      <el-card>
-        <el-row justify="center">
-          <el-col v-if="!!user">
-            <el-space direction="vertical" fill :size="8" style="width: 100%">
-              <p align="center">Share as:</p>
-              <el-row justify="center">
-                <el-switch
-                  v-model="shareAs"
-                  :loading="loading"
-                  class="mb-2"
-                  active-color="var(--el-color-primary)"
-                  inactive-color="var(--el-color-primary)"
-                  inactive-text="Public"
-                  inactive-value="public"
-                  active-text="Group"
-                  active-value="group"
-                  @change="handleChange($event as string)"
-                />
-              </el-row>
-              <el-space v-if="shareAs == 'group'" direction="vertical">
-                <el-form v-model="group" @submit.prevent="handleSubmit()">
-                  <el-form-item :error="errors.name">
-                    <el-input
-                      :disabled="loaded || loading"
-                      placeholder="Enter group name"
-                      v-model="group.name"
-                    >
-                    </el-input>
-                  </el-form-item>
-
-                  <el-form-item v-if="!loading">
-                    <el-row justify="center" style="width: 100%">
-                      <el-button
-                        v-if="loaded"
-                        type="primary"
-                        @click="loaded = false"
-                      >
-                        Create another group
-                      </el-button>
-                      <el-button v-else type="primary" native-type="submit">
-                        Get Link
-                      </el-button>
-                    </el-row>
-                  </el-form-item>
-                </el-form>
-                <template v-if="!loading"> </template>
-              </el-space>
-            </el-space>
-          </el-col>
-
-          <el-col v-if="loaded || loading" :span="18">
+      <el-row justify="center">
+        <el-col v-if="!!user">
+          <el-space direction="vertical" fill :size="8" style="width: 100%">
+            <p align="center">Share as:</p>
             <el-row justify="center">
-              <el-card
-                shadow="never"
-                :body-style="{ padding: 0 }"
-                :style="{
-                  width: '320px',
-                  maxWidth: '100%',
-                }"
-              >
-                <div ref="qrWrapper"></div>
-                <el-skeleton
-                  v-if="loading"
-                  animated
-                  style="width: calc(100% - 24px); padding: 12px"
-                  :style="{ height: loaderHeight }"
-                >
-                  <template #template>
-                    <el-skeleton-item
-                      variant="rect"
-                      style="height: 100%"
-                    ></el-skeleton-item>
-                  </template>
-                </el-skeleton>
-                <el-image v-if="loaded" :src="qrUrl"> </el-image>
-              </el-card>
+              <el-switch
+                v-model="shareAs"
+                :loading="loading"
+                class="mb-2"
+                active-color="var(--el-color-primary)"
+                inactive-color="var(--el-color-primary)"
+                inactive-text="Public"
+                inactive-value="public"
+                active-text="Group"
+                active-value="group"
+                @change="handleChange($event as string)"
+              />
             </el-row>
-          </el-col>
-
-          <el-col>
-            <h3 align="center">"{{ quizTitle }}"</h3>
-          </el-col>
-
-          <el-col>
-            <p align="center" style="margin: 8px 0">Share to:</p>
-            <el-space wrap style="width: 100%; justify-content: center">
-              <template v-for="share in shares" :key="share.key">
-                <el-space
-                  v-if="!share?.disabled"
-                  direction="vertical"
-                  :size="0"
-                  @click="shareTo(share.key)"
-                  style="padding: 8px"
-                >
-                  <el-button
-                    circle
-                    plain
-                    :disabled="!loaded"
-                    :color="share.color"
-                    style="padding: 6px; height: 32px; width: 32px"
+            <el-space v-if="shareAs == 'group'" direction="vertical">
+              <el-form v-model="group" @submit.prevent="handleSubmit()">
+                <el-form-item :error="errors.name">
+                  <el-input
+                    :disabled="loaded || loading"
+                    placeholder="Enter group name"
+                    v-model="group.name"
                   >
-                    <el-icon style="width: 100%; height: 100%">
-                      <svg-icon :name="share.icon" />
-                    </el-icon>
-                  </el-button>
-                  <strong
-                    style="
-                      white-space: nowrap;
-                      font-size: var(--el-font-size-small);
-                    "
-                  >
-                    {{ share.label }}
-                  </strong>
-                </el-space>
-              </template>
+                  </el-input>
+                </el-form-item>
+
+                <el-form-item v-if="!loading">
+                  <el-row justify="center" style="width: 100%">
+                    <el-button
+                      v-if="loaded"
+                      type="primary"
+                      @click="loaded = false"
+                    >
+                      Create another group
+                    </el-button>
+                    <el-button v-else type="primary" native-type="submit">
+                      Get Link
+                    </el-button>
+                  </el-row>
+                </el-form-item>
+              </el-form>
+              <template v-if="!loading"> </template>
             </el-space>
+          </el-space>
+        </el-col>
 
-            <hr style="margin: 8px; border: var(--el-border)" />
+        <el-col v-if="loaded || loading" :span="18">
+          <el-row justify="center">
+            <el-card
+              shadow="never"
+              :body-style="{ padding: 0 }"
+              :style="{
+                width: '320px',
+                maxWidth: '100%',
+              }"
+            >
+              <div ref="qrWrapper"></div>
+              <el-skeleton
+                v-if="loading"
+                animated
+                style="width: calc(100% - 24px); padding: 12px"
+                :style="{ height: loaderHeight }"
+              >
+                <template #template>
+                  <el-skeleton-item
+                    variant="rect"
+                    style="height: 100%"
+                  ></el-skeleton-item>
+                </template>
+              </el-skeleton>
+              <el-image v-if="loaded" :src="qrUrl"> </el-image>
+            </el-card>
+          </el-row>
+        </el-col>
+
+        <el-col>
+          <h3 align="center">"{{ quizTitle }}"</h3>
+        </el-col>
+
+        <el-col>
+          <p align="center" style="margin: 8px 0">Share to:</p>
+          <el-space wrap style="width: 100%; justify-content: center">
+            <template v-for="share in shares" :key="share.key">
+              <el-space
+                v-if="!share?.disabled"
+                direction="vertical"
+                :size="0"
+                @click="shareTo(share.key)"
+                style="padding: 8px"
+              >
+                <el-button
+                  circle
+                  plain
+                  :disabled="!loaded"
+                  :color="share.color"
+                  style="padding: 6px; height: 32px; width: 32px"
+                >
+                  <el-icon style="width: 100%; height: 100%">
+                    <svg-icon :name="share.icon" />
+                  </el-icon>
+                </el-button>
+                <strong
+                  style="
+                    white-space: nowrap;
+                    font-size: var(--el-font-size-small);
+                  "
+                >
+                  {{ share.label }}
+                </strong>
+              </el-space>
+            </template>
+          </el-space>
+
+          <hr style="margin: 8px; border: var(--el-border)" />
+
+          <el-space
+            wrap
+            alignment="start"
+            style="width: 100%; justify-content: center"
+          >
+            <el-space direction="vertical" style="padding: 2px" :size="0">
+              <el-button
+                circle
+                plain
+                :disabled="!loaded"
+                style="padding: 6px; height: 32px; width: 32px"
+                @click="copyLink()"
+              >
+                <el-icon style="width: 100%; height: 100%">
+                  <svg-icon name="duplicate" />
+                </el-icon>
+              </el-button>
+              <p align="center" style="font-size: var(--el-font-size-small)">
+                Copy Link
+              </p>
+            </el-space>
+            <el-space direction="vertical" style="padding: 2px" :size="0">
+              <el-button
+                circle
+                plain
+                :disabled="!loaded"
+                style="padding: 6px; height: 32px; width: 32px"
+                @click="downloadQR()"
+              >
+                <el-icon style="width: 100%; height: 100%">
+                  <svg-icon name="cloud-download" />
+                </el-icon>
+              </el-button>
+              <p align="center" style="font-size: var(--el-font-size-small)">
+                Download QR
+              </p>
+            </el-space>
 
             <el-space
-              wrap
-              alignment="start"
-              style="width: 100%; justify-content: center"
+              v-if="canShare"
+              direction="vertical"
+              style="padding: 2px"
+              :size="0"
             >
-              <el-space direction="vertical" style="padding: 2px" :size="0">
-                <el-button
-                  circle
-                  plain
-                  :disabled="!loaded"
-                  style="padding: 6px; height: 32px; width: 32px"
-                  @click="copyLink()"
-                >
-                  <el-icon style="width: 100%; height: 100%">
-                    <svg-icon name="duplicate" />
-                  </el-icon>
-                </el-button>
-                <p align="center" style="font-size: var(--el-font-size-small)">
-                  Copy Link
-                </p>
-              </el-space>
-              <el-space direction="vertical" style="padding: 2px" :size="0">
-                <el-button
-                  circle
-                  plain
-                  :disabled="!loaded"
-                  style="padding: 6px; height: 32px; width: 32px"
-                  @click="downloadQR()"
-                >
-                  <el-icon style="width: 100%; height: 100%">
-                    <svg-icon name="cloud-download" />
-                  </el-icon>
-                </el-button>
-                <p align="center" style="font-size: var(--el-font-size-small)">
-                  Download QR
-                </p>
-              </el-space>
-
-              <el-space
-                v-if="canShare"
-                direction="vertical"
-                style="padding: 2px"
-                :size="0"
+              <el-button
+                circle
+                plain
+                @click="moreShare()"
+                style="padding: 6px; height: 32px; width: 32px"
               >
-                <el-button
-                  circle
-                  plain
-                  @click="moreShare()"
-                  style="padding: 6px; height: 32px; width: 32px"
-                >
-                  <el-icon style="width: 100%; height: 100%">
-                    <svg-icon name="dots-horizontal" />
-                  </el-icon>
-                </el-button>
-                <p align="center" style="font-size: var(--el-font-size-small)">
-                  More
-                </p>
-              </el-space>
+                <el-icon style="width: 100%; height: 100%">
+                  <svg-icon name="dots-horizontal" />
+                </el-icon>
+              </el-button>
+              <p align="center" style="font-size: var(--el-font-size-small)">
+                More
+              </p>
             </el-space>
-          </el-col>
-        </el-row>
-      </el-card>
+          </el-space>
+        </el-col>
+      </el-row>
     </template>
   </el-drawer>
 </template>
