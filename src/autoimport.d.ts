@@ -86,6 +86,7 @@ declare global {
   const useField: typeof import('vee-validate')['useField']
   const useForm: typeof import('vee-validate')['useForm']
   const useMutation: typeof import('./composables/vue-query')['useMutation']
+  const useNotfoundStore: typeof import('./composables/store')['useNotfoundStore']
   const useQuery: typeof import('./composables/vue-query')['useQuery']
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouter: typeof import('vue-router')['useRouter']

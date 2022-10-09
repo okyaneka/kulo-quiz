@@ -1,13 +1,12 @@
 /**
  * Question mode config
  *
- * - 0: Random
- * - 1: Custom
+ * - Sequences (Classic)
+ * - Random
  */
 export enum QuestionMode {
   'Sequences (Classic)',
   Random,
-  Custom,
 }
 
 /**

@@ -7,7 +7,6 @@ meta:
 
 <script setup lang="ts">
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
-  import QuizForm from '../../../components/quiz/quiz-form.vue'
 
   defineProps<{
     disabled?: boolean

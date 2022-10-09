@@ -9,7 +9,6 @@ meta:
   import { addQuiz } from '~/apps/quiz/quiz.repositories'
   import { QuizStatus } from '~/apps/quiz/quiz.schemes'
   import type { QuizPayload } from '~/apps/quiz/quiz.types'
-  import QuizForm from '../../components/quiz/quiz-form.vue'
 
   const router = useRouter()
 

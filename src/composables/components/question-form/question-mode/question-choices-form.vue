@@ -1,42 +1,37 @@
 <script setup lang="ts">
   import { Close, QuestionFilled } from '@element-plus/icons-vue'
-  import type { ChoicesQuestionPayload } from '~/apps/question/question.types'
+  import type {
+    Choice,
+    ChoicesQuestionPayload,
+  } from '~/apps/question/question.types'
 
-  type QOptionsPayload = Pick<ChoicesQuestionPayload, 'question' | 'choices'>
-  type ChoicesQuestionPayloadData = Partial<ChoicesQuestionPayload>
+  type PayloadData = Partial<ChoicesQuestionPayload>
 
-  const blankChoice: ChoicesQuestionPayload['choices'][0] = {
+  const blankChoice: Choice = {
+    key: 0,
     text: '',
-    is_true: false,
     image_url: null,
   }
 
   const props = defineProps<{
-    value: ChoicesQuestionPayloadData
+    value: PayloadData
     errors?: { [key: string]: string }
   }>()
 
-  // const emit =
   defineEmits<{
-    (e: 'update:value', value: ChoicesQuestionPayloadData): void
+    (e: 'update:value', value: PayloadData): void
   }>()
 
   const choiceInput = ref()
 
-  // const values = computed({
-  //   get() {
-  //     return props.value ?? { question: '', choices: [] }
-  //   },
-  //   set(value) {
-  //     if (value != undefined) emit('update:value', value)
-  //   },
-  // })
-
-  const { value: question } = useField<QOptionsPayload['question']>('question')
-  const { value: choices } = useField<QOptionsPayload['choices']>('choices')
+  const { value: question } = useField<PayloadData['question']>('question')
+  const { value: choices } = useField<PayloadData['choices']>('choices')
+  const { value: correct_answer } =
+    useField<PayloadData['correct_answer']>('correct_answer')
 
   function handleAddOption() {
-    if (choices.value) choices.value.push({ ...blankChoice })
+    if (choices.value)
+      choices.value.push({ ...blankChoice, key: choices.value.length })
     else choices.value = [{ ...blankChoice }]
     nextTick().then(() => {
       const input = choiceInput.value.slice().pop() as HTMLInputElement
@@ -45,20 +40,30 @@
   }
 
   function handleDeleteOption(index: number) {
-    if (choices.value) choices.value.splice(index, 1)
+    if (choices.value) {
+      choices.value.splice(index, 1)
+      choices.value.slice(index).forEach((choice, i) => {
+        choice.key = index + i
+      })
+    }
   }
 
-  // watch(question, (value) => {
-  //   values.value.question = value
-  // })
+  const correctAnswerValue = ref<boolean[]>([])
 
-  // watch(choices, (value) => {
-  //   values.value.choices = value
-  // })
+  function setCorrectAnswer() {
+    correct_answer.value = correctAnswerValue.value
+      .map((v, i) => ({ value: i, selected: v }))
+      .filter((v) => v.selected)
+      .map((v) => v.value)
+  }
 
   onMounted(() => {
     question.value = props.value?.question ?? ''
     choices.value = props.value?.choices ?? [{ ...blankChoice }]
+    choices.value.forEach((v) => {
+      correctAnswerValue.value[v.key] =
+        props.value.correct_answer?.includes(v.key) ?? false
+    })
   })
 </script>
 
@@ -67,14 +72,14 @@
     <el-input v-model="question" type="textarea"></el-input>
   </el-form-item>
 
-  <template v-if="errors?.choices">
+  <template v-if="errors?.choices || errors?.correct_answer">
     <p
       style="
         color: var(--el-color-error);
         font-size: var(--el-font-size-extra-small);
       "
     >
-      {{ errors?.choices }}
+      {{ errors?.choices || errors?.correct_answer }}
     </p>
   </template>
 
@@ -92,7 +97,10 @@
       >
         <template #append>
           <el-space>
-            <el-checkbox v-model="option.is_true" />
+            <el-checkbox
+              v-model="correctAnswerValue[option.key]"
+              @change="setCorrectAnswer"
+            ></el-checkbox>
             <el-tooltip effect="dark" content="Choose the correct answer!">
               <el-icon>
                 <question-filled />

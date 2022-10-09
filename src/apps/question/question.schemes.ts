@@ -10,9 +10,12 @@ const QuestionPayloadShape = z.object({
   point: z.number().min(1),
   mode: z.nativeEnum(QuestionMode),
   seq: z.number().min(0),
-  guide: z.string().nullable(),
-  image_url: z.string().nullable(),
-  timer: z.number().nullable(),
+  guide: z.preprocess((arg) => (arg ? arg : null), z.string().nullable()),
+  image_url: z.preprocess((arg) => (arg ? arg : null), z.string().nullable()),
+  timer: z.preprocess(
+    (arg) => (!isNaN(parseInt(arg as string)) ? (arg as number) : null),
+    z.number().nullable()
+  ),
 })
 
 const QuestionPayloadScheme: z.ZodType<
@@ -22,7 +25,7 @@ const QuestionPayloadScheme: z.ZodType<
 
 const ChoiceShape = z.object({
   text: z.string().min(1),
-  is_true: z.boolean(),
+  key: z.number(),
   image_url: z.string().nullable(),
 })
 
@@ -35,10 +38,13 @@ const ChoicesQuestionPayloadShape = z.object({
   ...QuestionPayloadScheme._def.shape(),
   question: z.string().min(1),
   choices: z.preprocess((arg) => {
+    if (!arg) return false
     const choices = arg as Choice[]
-    if (choices.some((choice) => choice.is_true)) return choices
-    else return false
-  }, z.array(z.object(ChoiceScheme._def.shape()), { invalid_type_error: 'must_have_correct_answer' }).min(1)),
+    const keys = choices.map((v) => v.key)
+    if (new Set(keys).size != choices.length) return false
+    return choices
+  }, z.array(z.object(ChoiceScheme._def.shape()), { invalid_type_error: 'key_must_no_duplicate' }).min(1)),
+  correct_answer: z.number().array().min(1, 'Correct answer is required'),
 })
 
 const ChoicesQuestionPayloadScheme: z.ZodType<

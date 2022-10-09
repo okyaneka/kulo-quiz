@@ -22,10 +22,10 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  server: { https: true },
-  preview: { https: true },
+  // server: { https: true },
+  // preview: { https: true },
   plugins: [
-    basicSsl(),
+    // basicSsl(),
     vue(),
     vueJsx(),
     AutoImport({

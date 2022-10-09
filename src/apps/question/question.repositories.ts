@@ -2,9 +2,10 @@ import { runTransaction } from 'firebase/firestore'
 import type { ResponseRowsPayload } from '~/composables/types/interfaces'
 import { useColRef, useDocRef, useFirestore } from '~/plugins/firebase'
 import { TimerMode } from '../config/config.types'
-import { useQuizDocRef, useQuizStore } from '../quiz/quiz.repositories'
+import { getQuiz, useQuizDocRef, useQuizStore } from '../quiz/quiz.repositories'
 import type { Quiz } from '../quiz/quiz.types'
 import type {
+  Question,
   QuestionFilterable,
   QuestionOrderable,
   Questions,
@@ -34,7 +35,9 @@ export async function getQuestion(id: string) {
   return await getDocument(useQuestionDocRef(id))
 }
 
-export async function getQuestionByQuiz(quiz_id: string) {
+export async function getQuestionByQuiz<T = Partial<Questions>>(
+  quiz_id: string
+) {
   const { rows } = await getDocumentList<
     Partial<Questions>,
     QuestionFilterable,
@@ -48,7 +51,7 @@ export async function getQuestionByQuiz(quiz_id: string) {
   if (rows.length == 0) questions.value = [{}]
   else questions.value = rows
 
-  return rows
+  return rows as T[]
 }
 
 export async function getQuestionList(
@@ -60,10 +63,13 @@ export async function getQuestionList(
   })
 }
 
-export async function setQuestions(payload: Partial<Questions>[]) {
-  const { quiz } = useQuizStore()
+export async function setQuestions(
+  quiz_id: string,
+  payload: Partial<Questions>[]
+) {
+  const quiz = await getQuiz(quiz_id)
   if (quiz == undefined) throw new Error('quiz_undefined')
-  let max_duration = quiz.max_duration ?? 0
+  const data: Partial<Quiz> = {}
 
   payload.forEach((question, seq) => {
     payload[seq].seq = seq
@@ -77,7 +83,7 @@ export async function setQuestions(payload: Partial<Questions>[]) {
     payload.forEach((question, index) => {
       if (!question.id) {
         addEmptyQuestion().then((doc) => {
-          question = { ...question, ...doc }
+          Object.assign(question, doc)
           if (++created == newQuestion.length) res(true)
           payload[index].id = doc.id
         })
@@ -85,13 +91,15 @@ export async function setQuestions(payload: Partial<Questions>[]) {
     })
   })
 
-  let max_point = 0
+  data.max_point = 0
 
   const rows = await runTransaction(useFirestore(), async (transaction) => {
     const rows: Partial<Questions>[] = []
     payload.forEach(async (question) => {
       if (question.id == undefined) throw new Error('question_undefined')
-      max_point += question.point ?? 0
+
+      data.max_point = (data.max_point ?? 0) + (question.point ?? 0)
+      data.max_duration = (data.max_duration ?? 0) + (question.timer ?? 0)
 
       transaction.set(
         useQuestionDocRef(question.id),
@@ -103,10 +111,7 @@ export async function setQuestions(payload: Partial<Questions>[]) {
     return rows
   })
 
-  if (quiz.config?.timer_mode == TimerMode['Question timer'])
-    max_duration = rows.reduce((c, v) => c + (v.timer ?? 0), 0)
-
-  await setDocument(useQuizDocRef<Quiz>(quiz.id), { max_point, max_duration })
+  await setDocument(useQuizDocRef<Quiz>(quiz.id), data)
 
   return rows
 }

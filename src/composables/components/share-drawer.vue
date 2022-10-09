@@ -68,7 +68,8 @@
 
   const props = defineProps<{
     modelValue: boolean
-    quiz: Pick<Quiz, 'id' | 'title'>
+    quizId: string
+    quizTitle: string
   }>()
   defineEmits(['update:modelValue'])
 
@@ -86,7 +87,7 @@
   )
 
   const caption = computed<string>(() => {
-    return `Take a look. This "${props.quiz.title}" quiz is quite interesting. Follow this link: ${shareUrl.value}`
+    return `Take a look. This "${props.quizTitle}" quiz is quite interesting. Follow this link: ${shareUrl.value}`
   })
 
   const {
@@ -110,7 +111,7 @@
   useField<string>('name')
 
   const { mutateAsync: setGroup } = useMutation({
-    mutationFn: (payload: GroupPayload) => _setGroup(props.quiz.id, payload),
+    mutationFn: (payload: GroupPayload) => _setGroup(props.quizId, payload),
   })
 
   const {
@@ -122,7 +123,7 @@
       canShare.value = !!navigator.share
       const url = new URL(import.meta.env.VITE_APP_BASE_URL ?? location.origin)
 
-      if (shareAs.value == 'public') url.pathname = `/q/${props.quiz.id}`
+      if (shareAs.value == 'public') url.pathname = `/q/${props.quizId}`
       else if (shareAs.value == 'group')
         url.pathname = `/g/${(await setGroup(group)).id}`
 
@@ -162,8 +163,6 @@
   }
 
   function shareTo(app: ShareWith) {
-    console.log(app)
-
     if (app == ShareWith['wa']) return shareToWa()
     if (app == ShareWith['ig-feed']) return
     if (app == ShareWith['ig-story']) return
@@ -218,14 +217,14 @@
     const anchor = useAnchor()
     anchor.href = qrUrl.value ?? ''
     anchor.target = 'download'
-    anchor.download = props.quiz.title + ' quiz'
+    anchor.download = props.quizTitle + ' quiz'
     anchor.click()
   }
 
   async function moreShare() {
     if (qrUrl.value == undefined) throw new Error('qr_code_not_generated')
     const blob = await (await fetch(qrUrl.value)).blob()
-    const file = new File([blob], props.quiz.title + ' quiz.png')
+    const file = new File([blob], props.quizTitle + ' quiz.png')
     navigator.share({ text: caption.value, files: [file] })
   }
 </script>
@@ -324,7 +323,7 @@
           </el-col>
 
           <el-col>
-            <h3 align="center">"{{ quiz.title }}"</h3>
+            <h3 align="center">"{{ quizTitle }}"</h3>
           </el-col>
 
           <el-col>

@@ -1,13 +1,12 @@
 <route lang="yaml">
-name: edit-questions
 meta:
   layout: private
   requireAuth: true
 </route>
 
 <script setup lang="ts">
+  import type QuestionForm from '~/composables/components/question-form/question-form.vue'
   import { Plus, Close } from '@element-plus/icons-vue'
-  import QuestionForm from '~/components/question/question-form.vue'
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
   import { deleteQuestion } from '~/apps/question/question.repositories'
 
@@ -17,6 +16,7 @@ meta:
   }>()
 
   const { questions } = storeToRefs(useQuizStore())
+  const forms = ref<(InstanceType<typeof QuestionForm> | null)[]>([])
 
   const lastScrollPos = ref<number>(0)
   const isShowNav = ref<boolean>(true)
@@ -61,6 +61,22 @@ meta:
     lastScrollPos.value = currentScrollPos
   }
 
+  function validate() {
+    // return new Promise((res) => {
+
+    forms.value.forEach((v) => {
+      if (v != null) v.validate()
+    })
+    // })
+  }
+
+  watch(isValidate, (value) => {
+    validate()
+    nextTick().then(() => emit('update:validate', false))
+  })
+
+  defineExpose({ validate })
+
   onMounted(() => {
     if (questions.value.length == 0) handleAddQuestion()
     window.addEventListener('scroll', onscroll)
@@ -83,7 +99,8 @@ meta:
         :title="`Pertanyaan #${index + 1}`"
       >
         <template #title>
-          <h5>Question {{ index + 1 }}</h5>
+          <!-- <h5>Question {{ index + 1 }}</h5> -->
+          <h5>{{ question.id }}</h5>
           <el-popover v-if="questionsValid[index] == false">
             <template #reference>
               <el-icon
@@ -119,8 +136,8 @@ meta:
         </template>
 
         <question-form
+          ref="forms"
           v-model:value="questions[index]"
-          v-model:validate="isValidate"
           v-model:is-valid="questionsValid[index]"
           :disabled="disabled"
         ></question-form>

@@ -62,6 +62,24 @@ export async function setShare(payload: SharePayload) {
   return setDocument(useShareDocRef(id), sharePayload, true)
 }
 
-export async function getShare(id: string) {
-  return await getDocument(useShareDocRef(id))
+export async function getShare(id?: string) {
+  if (id != undefined) return await getDocument(useShareDocRef(id))
+  const base_url = import.meta.env.VITE_APP_BASE_URL ?? location.origin
+
+  const { count, rows } = await getDocumentList(useShareColRef(), {
+    filter: { urlout: base_url + location.pathname },
+  })
+
+  if (count != 1) {
+    const { isNotFound } = storeToRefs(useNotfoundStore())
+    isNotFound.value = true
+    throw new Error('document_not_found')
+  }
+
+  return rows[0]
+}
+
+export async function setClickShare(id: string) {
+  const share = await getShare(id)
+  return setDocument(useShareDocRef(id), { click: share.click + 1 })
 }

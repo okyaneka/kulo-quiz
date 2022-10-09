@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import ChoiceQuestionMode from './mode/choice-question-mode.vue'
   import {
     QuestionMode,
     type ChoicesQuestion,
@@ -14,15 +13,11 @@
 
   const props = defineProps<{
     value: Partial<QuestionPayloads>
-    validate?: boolean
-    isValid?: boolean
     disabled?: boolean
   }>()
 
   const emit = defineEmits<{
     (e: 'update:value', value: Partial<QuestionPayloads>): void
-    (e: 'update:validate', value: boolean): void
-    (e: 'update:isValid', value: boolean): void
   }>()
 
   const validator = computed(() => {
@@ -38,21 +33,13 @@
     return toFormValidator(z.object(validator))
   })
 
-  const isValidate = computed({
-    get: () => {
-      return props.validate ?? false
-    },
-    set: (value: boolean) => {
-      emit('update:validate', value)
-    },
-  })
-
   const { values, errors, setValues, validate } = useForm<
     Partial<QuestionPayloads>
   >({
     validationSchema: validator,
     initialValues: {
       image_url: null,
+      correct_answer: null,
     },
   })
   useField<number>('point')
@@ -71,13 +58,7 @@
     }
   })
 
-  watch(isValidate, (value) => {
-    if (value) {
-      validate().then(() => {
-        isValidate.value = false
-      })
-    }
-  })
+  defineExpose({ validate })
 
   onMounted(() => {
     setValues(props.value)
@@ -117,10 +98,11 @@
         style="border: 1px solid var(--el-border-color); margin-bottom: 0.5rem"
       />
 
-      <choice-question-mode
+      <question-choices-form
+        v-if="values.mode == QuestionMode.Choices"
         v-model:value="values"
         :errors="errors"
-      ></choice-question-mode>
+      ></question-choices-form>
     </template>
   </el-form>
 </template>

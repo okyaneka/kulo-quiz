@@ -11,8 +11,6 @@ meta:
     QuizThumbnail,
     SearchPayload,
   } from '~/apps/quiz/quiz.repositories'
-  import QuizFilterDrawer from '~/components/quiz/quiz-filter-drawer.vue'
-  import QuizProductThumbnail from '../../components/quiz/quiz-product-thumbnail.vue'
 
   const search = ref<SearchPayload>({})
   const query = ref<string>()

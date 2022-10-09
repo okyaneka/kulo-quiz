@@ -3,7 +3,7 @@ import type {
   useId,
   useTimestamps,
 } from '~/composables/types/interfaces'
-import type { UseQuestion } from '../question/question.types'
+import type { Choice, UseQuestion } from '../question/question.types'
 import type { useQuiz } from '../quiz/quiz.types'
 
 export interface Result extends useId, useTimestamps, useAuthor, useQuiz {
@@ -19,14 +19,26 @@ export interface useResult {
   result: Pick<Result, 'id' | 'quiz'>
 }
 
-export interface AnswerPayload extends UseQuestion {
-  answer: string | string[]
-}
-
-export interface Answer extends AnswerPayload, useId, useTimestamps, useResult {
+interface AnswerCore extends useId, useTimestamps, useAuthor, useResult {
   is_correct: boolean
-  correct_answer: string | string[]
+  correct_answer: Choice[]
   seq: number
   feedback_true?: string
   feedback_false?: string
 }
+
+export interface AnswerPayload extends UseQuestion {
+  answer: null
+}
+
+export interface ChoicesAnswerAnswerPayload extends UseQuestion {
+  answer: Choice
+}
+
+export type AnswersPayload = AnswerPayload | ChoicesAnswerAnswerPayload
+
+export type NullAnswer = AnswerCore & AnswerPayload
+
+export type ChoicesAnswer = AnswerCore & ChoicesAnswerAnswerPayload
+
+export type Answer = NullAnswer | ChoicesAnswer
