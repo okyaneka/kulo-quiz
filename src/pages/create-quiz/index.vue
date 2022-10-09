@@ -33,7 +33,7 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px">
+  <el-row style="padding: 20px 0">
     <el-col>
       <h1 align="center">Create Your Own Quiz</h1>
     </el-col>
