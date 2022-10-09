@@ -72,7 +72,7 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px 0">
+  <el-row>
     <el-col>
       <quiz-preview
         :title="quiz?.title"
@@ -83,11 +83,13 @@ meta:
       >
         <template #footer>
           <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 10">
-            <router-link :to="{ name: 'p-id-play' }">
-              <el-button type="primary" style="width: 100%"
-                >START PREVIEW QUIZ</el-button
-              >
-            </router-link>
+            <el-card shadow="never">
+              <router-link :to="{ name: 'p-id-play' }">
+                <el-button type="primary" style="width: 100%"
+                  >START PREVIEW QUIZ</el-button
+                >
+              </router-link>
+            </el-card>
           </el-col>
         </template>
       </quiz-preview>

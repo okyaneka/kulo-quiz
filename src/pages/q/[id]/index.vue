@@ -86,21 +86,23 @@ meta:
       >
         <template #footer>
           <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 10">
-            <el-row style="flex-wrap: nowrap">
-              <router-link
-                :to="{ name: 'q-id-play' }"
-                style="width: 100%; margin-right: 16px"
-              >
-                <el-button type="primary" style="width: 100%"
-                  >START QUIZ</el-button
+            <el-card shadow="never">
+              <el-row style="flex-wrap: nowrap">
+                <router-link
+                  :to="{ name: 'q-id-play' }"
+                  style="width: 100%; margin-right: 16px"
                 >
-              </router-link>
-              <el-button circle @click="showShareDrawer = true">
-                <el-icon>
-                  <svg-icon name="share"></svg-icon>
-                </el-icon>
-              </el-button>
-            </el-row>
+                  <el-button type="primary" style="width: 100%"
+                    >START QUIZ</el-button
+                  >
+                </router-link>
+                <el-button circle @click="showShareDrawer = true">
+                  <el-icon>
+                    <svg-icon name="share"></svg-icon>
+                  </el-icon>
+                </el-button>
+              </el-row>
+            </el-card>
           </el-col>
         </template>
       </quiz-preview>
