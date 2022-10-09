@@ -42,7 +42,7 @@ meta:
       },
       {
         name: 'working_duration',
-        value: quiz.value?.max_duration + ' Seconds',
+        value: durationHumanized(quiz.value?.max_duration),
       },
       {
         name: 'time_limit_to_repeat',
@@ -85,7 +85,7 @@ meta:
         :spesification="tableData"
       >
         <template #footer>
-          <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 1">
+          <el-col style="position: sticky; bottom: 64px; top: 8px; z-index: 10">
             <el-row style="flex-wrap: nowrap">
               <router-link
                 :to="{ name: 'q-id-play' }"

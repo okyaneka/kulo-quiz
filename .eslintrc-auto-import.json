@@ -17,6 +17,7 @@
     "deleteDoc": true,
     "deleteDocument": true,
     "doc": true,
+    "durationHumanized": true,
     "effectScope": true,
     "getActivePinia": true,
     "getAuthor": true,
