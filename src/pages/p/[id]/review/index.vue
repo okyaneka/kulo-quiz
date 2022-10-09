@@ -94,7 +94,7 @@ meta:
       v-if="!resultLoading && !resultsLoading && !standingsLoading"
       style="position: sticky; bottom: 56px; z-index: 10"
     >
-      <el-card :body-style="{ padding: '20px' }">
+      <el-card shadow="never" :body-style="{ padding: '20px' }">
         <el-row justify="space-between" align="middle">
           <router-link :to="{ name: 'p-id' }">
             <el-button type="primary">Retest Preview?</el-button>

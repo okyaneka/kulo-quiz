@@ -41,7 +41,7 @@ meta:
     </el-col>
 
     <el-col style="position: sticky; bottom: 56px; margin-top: auto">
-      <el-card :body-style="{ padding: '20px' }">
+      <el-card shadow="never" :body-style="{ padding: '20px' }">
         <el-row justify="space-between" align="middle">
           <router-link :to="{ name: 'q-id-review' }">
             <el-button type="primary">Back</el-button>
