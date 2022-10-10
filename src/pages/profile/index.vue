@@ -107,7 +107,7 @@ meta:
                     content="View Quiz"
                   >
                     <router-link
-                      :to="{ name: 'q-id', params: { id: quiz.id } }"
+                      :to="{ name: 'q-id-play', params: { id: quiz.id } }"
                     >
                       <el-button circle>
                         <template #icon>

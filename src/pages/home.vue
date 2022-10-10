@@ -15,7 +15,7 @@ meta:
 </script>
 
 <template>
-  <el-row :gutter="24" style="padding: 20px 0">
+  <el-row style="padding: 20px 0">
     <el-col :span="24">
       <el-card>
         <el-space :size="32" direction="vertical" fill style="width: 100%">

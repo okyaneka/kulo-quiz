@@ -59,7 +59,7 @@
   })
 
   defineExpose({ validate })
-
+  const uploadedFile = ref()
   onMounted(() => {
     setValues(props.value)
   })
@@ -85,6 +85,15 @@
 
     <el-form-item :error="errors.guide" label="Question guide">
       <el-input v-model="values.guide" type="textarea"></el-input>
+    </el-form-item>
+
+    <el-form-item label="Image guide">
+      <el-col>
+        <select-image
+          v-model="values.image_url"
+          style="width: 100%"
+        ></select-image>
+      </el-col>
     </el-form-item>
 
     <el-form-item :error="errors.timer" label="Timer">

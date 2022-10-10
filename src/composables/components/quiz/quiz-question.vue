@@ -5,7 +5,7 @@
     type Questions,
   } from '~/apps/question/question.types'
 
-  defineProps<{
+  const props = defineProps<{
     question?: Questions
     answer: number | null
   }>()
@@ -13,6 +13,18 @@
   defineEmits<{
     (e: 'update:answer', value: number): void
   }>()
+
+  const questionImageUrl = computed(() => {
+    return props.question?.image_url
+  })
+
+  const { data: imageUrl } = useQuery({
+    queryKey: ['image', questionImageUrl],
+    queryFn: () => {
+      if (questionImageUrl.value) return getFile(questionImageUrl.value)
+    },
+    refetchOnWindowFocus: false,
+  })
 </script>
 
 <template>
@@ -21,6 +33,14 @@
       <p align="center">
         {{ question.guide }}
       </p>
+    </el-col>
+
+    <el-col v-if="question.image_url" style="height: 33vh">
+      <el-image
+        :src="imageUrl"
+        fit="contain"
+        style="height: 100%; width: 100%"
+      ></el-image>
     </el-col>
 
     <el-col>
