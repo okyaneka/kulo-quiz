@@ -87,6 +87,15 @@
       <el-input v-model="values.guide" type="textarea"></el-input>
     </el-form-item>
 
+    <el-form-item label="Image guide">
+      <el-col>
+        <select-image
+          v-model="values.image_url"
+          style="width: 100%"
+        ></select-image>
+      </el-col>
+    </el-form-item>
+
     <el-form-item :error="errors.timer" label="Timer">
       <el-input v-model.number="values.timer" type="number">
         <template #append>second</template>

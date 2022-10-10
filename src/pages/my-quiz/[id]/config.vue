@@ -15,7 +15,6 @@ meta:
     type Config,
   } from '~/apps/config/config.types'
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
-  // import { getFile, uploadFile } from '~/composables/repositories'
 
   const props = defineProps<{ disabled?: boolean; validate?: boolean }>()
   const emit = defineEmits<{

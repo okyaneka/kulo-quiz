@@ -23,6 +23,14 @@
       </p>
     </el-col>
 
+    <el-col v-if="question.image_url" style="height: 33vh">
+      <el-image-firestore
+        :src="question.image_url"
+        fit="contain"
+        style="height: 100%; width: 100%"
+      ></el-image-firestore>
+    </el-col>
+
     <el-col>
       <question-choices-mode
         v-if="question.mode == QuestionMode.Choices"

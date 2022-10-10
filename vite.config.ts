@@ -18,7 +18,7 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import path from 'path'
 
 // basicSsl
-import basicSsl from '@vitejs/plugin-basic-ssl'
+// import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vitejs.dev/config/
 export default defineConfig({

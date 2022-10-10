@@ -7,7 +7,6 @@ import type {
   CustomFilter,
   ResponseRows,
   ResponseRowsPayload,
-  useId,
 } from './types/interfaces'
 import {
   getDownloadURL,
@@ -118,16 +117,26 @@ export const deleteDocument = async (ref: DocumentReference) => {
   return await deleteDoc(ref)
 }
 
-export const uploadFile = async (file: File) => {
+export const uploadFile = async (file: File, _collection?: string) => {
   const storage = useStorage()
-  const ref = storageRef(storage, 'test/' + file.name)
+  const time = new Date().toISOString()
+  const fullpath = `${_collection ?? ''}/${time
+    .slice(0, 10)
+    .replaceAll('-', '')}/${time.slice(11, 19).replaceAll(':', '')}-${
+    file.name
+  }`
+  const ref = storageRef(storage, fullpath)
 
   return await uploadBytes(ref, file)
 }
 
-export const getFile = async (ref: string) => {
+export const getFile = async (fullpath: string) => {
   const storage = useStorage()
-  const sRef = storageRef(storage, ref)
+  const ref = storageRef(
+    storage,
+    // import.meta.env.VITE_STORAGE_BUCKET + '/' +
+    fullpath
+  )
 
-  return await getDownloadURL(sRef)
+  return await getDownloadURL(ref)
 }

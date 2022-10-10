@@ -5,7 +5,6 @@
   import { useAuthStore } from '~/apps/auth/auth.repository'
   import { setGroup as _setGroup } from '~/apps/group/group.repositories'
   import type { GroupPayload } from '~/apps/group/group.types'
-  import type { Quiz } from '~/apps/quiz/quiz.types'
   import { setShare } from '~/apps/share/share.repositories'
 
   enum ShareWith {

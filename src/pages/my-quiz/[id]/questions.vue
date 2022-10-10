@@ -70,9 +70,10 @@ meta:
     // })
   }
 
-  watch(isValidate, (value) => {
+  watch(isValidate, async () => {
     validate()
-    nextTick().then(() => emit('update:validate', false))
+    await nextTick()
+    emit('update:validate', false)
   })
 
   defineExpose({ validate })
