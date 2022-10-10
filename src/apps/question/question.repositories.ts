@@ -1,11 +1,9 @@
 import { runTransaction } from 'firebase/firestore'
 import type { ResponseRowsPayload } from '~/composables/types/interfaces'
 import { useColRef, useDocRef, useFirestore } from '~/plugins/firebase'
-import { TimerMode } from '../config/config.types'
 import { getQuiz, useQuizDocRef, useQuizStore } from '../quiz/quiz.repositories'
 import type { Quiz } from '../quiz/quiz.types'
 import type {
-  Question,
   QuestionFilterable,
   QuestionOrderable,
   Questions,

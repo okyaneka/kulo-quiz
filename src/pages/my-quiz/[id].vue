@@ -62,7 +62,7 @@ meta:
   })
 
   // set quiz
-  const { mutateAsync: setQuiz, isLoading: setQuizLoading } = useMutation({
+  const { mutateAsync: setQuiz } = useMutation({
     mutationFn: (payload: Partial<QuizPayload>) =>
       _setQuiz(route.params.id as string, payload),
   })

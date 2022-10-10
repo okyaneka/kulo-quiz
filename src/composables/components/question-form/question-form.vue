@@ -59,7 +59,7 @@
   })
 
   defineExpose({ validate })
-  const uploadedFile = ref()
+
   onMounted(() => {
     setValues(props.value)
   })
