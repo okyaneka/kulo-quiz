@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.0.9",
+    "@sentry/tracing": "^7.15.0",
+    "@sentry/vue": "^7.15.0",
     "@tinymce/tinymce-vue": "^4",
     "@vee-validate/zod": "^4.6.7",
     "animejs": "^3.2.1",
