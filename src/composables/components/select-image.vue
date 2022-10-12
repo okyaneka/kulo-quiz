@@ -1,8 +1,14 @@
 <script setup lang="ts">
-  const props = defineProps<{
-    collection: string
-    modelValue: string
-  }>()
+  const props = withDefaults(
+    defineProps<{
+      collection: string
+      modelValue: string
+      maxSize?: number
+    }>(),
+    {
+      maxSize: 1024,
+    }
+  )
 
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void
@@ -16,15 +22,13 @@
   const inputFile = ref<HTMLInputElement>()
   const isDragActive = ref(false)
 
-  const { data: imageUrl } = useQuery({
-    queryKey: ['image', model],
-    queryFn: () => {
-      if (model.value) return getFile(model.value)
-    },
-  })
-
   const { isLoading, mutateAsync: _uploadFile } = useMutation({
-    mutationFn: (file: File) => uploadFile(file, props.collection ?? ''),
+    mutationFn: (file: File) => {
+      if (file.size > props.maxSize * 1024)
+        throw new Error(`Max size is ${props.maxSize}KB`)
+
+      return uploadFile(file, props.collection ?? '')
+    },
     onSuccess: (data) => {
       model.value = data.metadata.fullPath
     },
@@ -67,33 +71,38 @@
     @drop.prevent="handleDrop"
   >
     <el-row
-      style="position: relative; height: 100%"
-      align="middle"
+      :align="model ? 'bottom' : 'middle'"
       justify="center"
+      style="position: relative; height: 100%"
     >
-      <el-image
-        v-if="imageUrl != undefined"
-        :src="imageUrl"
+      <el-image-firestore
+        v-if="model"
+        :src="model"
         fit="contain"
         style="height: 100%"
-      ></el-image>
-      <el-space :size="0" direction="vertical" style="position: absolute">
+      ></el-image-firestore>
+
+      <el-space
+        :size="0"
+        direction="vertical"
+        style="position: absolute; padding: 8px"
+      >
         <el-space>
           <el-button
             size="large"
-            :class="imageUrl != undefined ? 'overlay' : ''"
+            :class="!model ? 'overlay' : ''"
             circle
             @click="openSelectFile"
           >
             <template #icon>
               <svg-icon
-                :name="imageUrl ? 'arrow-swap-horizontal' : 'add-outline'"
+                :name="model ? 'arrow-swap-horizontal' : 'add-outline'"
               ></svg-icon>
             </template>
           </el-button>
 
           <el-button
-            v-if="imageUrl != undefined"
+            v-if="!!model"
             size="large"
             class="overlay"
             type="danger"
@@ -109,7 +118,7 @@
           </el-button>
         </el-space>
 
-        <span v-if="imageUrl == undefined">Add picture or drop here!</span>
+        <span v-if="!model">Add picture or drop here!</span>
       </el-space>
     </el-row>
   </el-card>

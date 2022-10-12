@@ -109,7 +109,12 @@
           </el-space>
         </template>
       </el-input>
-      <el-button size="small" circle @click="handleDeleteOption(index)">
+      <el-button
+        size="small"
+        circle
+        @click="handleDeleteOption(index)"
+        tabindex="-1"
+      >
         <template #icon>
           <el-icon :size="12" color="var(--el-text-color-primary)">
             <close />

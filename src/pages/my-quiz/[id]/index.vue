@@ -16,14 +16,12 @@ meta:
 </script>
 
 <template>
-  <el-card>
-    <h3 style="margin-bottom: 16px">Data</h3>
+  <h3 style="margin-bottom: 16px">Data</h3>
 
-    <quiz-form
-      v-if="quiz != undefined"
-      v-model:data="quiz"
-      :disabled="disabled"
-      hide-submit
-    />
-  </el-card>
+  <quiz-form
+    v-if="quiz != undefined"
+    v-model:data="quiz"
+    :disabled="disabled"
+    hide-submit
+  />
 </template>
