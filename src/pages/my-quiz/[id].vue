@@ -219,26 +219,28 @@ meta:
 </script>
 
 <template>
-  <el-row style="padding: 20px 20px 56px">
+  <el-row style="padding: 0 0 56px">
     <el-col>
-      <h1 align="center">Quiz Details</h1>
-    </el-col>
-
-    <el-col>
-      <el-card v-if="pageLoading">
-        <el-skeleton animated>
+      <el-card shadow="never">
+        <el-skeleton v-if="pageLoading" animated>
           <template #template>
             <el-skeleton-item variant="rect" style="height: 240px">
             </el-skeleton-item>
           </template>
         </el-skeleton>
+        <el-row v-else>
+          <el-col>
+            <h1 align="center">Quiz Details</h1>
+          </el-col>
+          <el-col>
+            <router-view
+              ref="view"
+              v-model:validate="isValidate"
+              :disabled="isPublish"
+            />
+          </el-col>
+        </el-row>
       </el-card>
-      <router-view
-        v-else
-        ref="view"
-        v-model:validate="isValidate"
-        :disabled="isPublish"
-      />
     </el-col>
   </el-row>
 
