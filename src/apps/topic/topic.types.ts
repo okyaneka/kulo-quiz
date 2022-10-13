@@ -1,4 +1,5 @@
 import type {
+  CustomFilter,
   useAuthor,
   useId,
   useTimestamps,
@@ -19,7 +20,10 @@ export interface Topic extends TopicExtends, TopicPayload {
   fulltitle: string
 }
 
-export type TopicFilterable = Pick<Topic, 'title' | 'status'>
+export type TopicFilterable = {
+  title: string | CustomFilter
+  status: string | CustomFilter<TopicStatus>
+}
 
 export type TopicOrderable =
   | 'title'

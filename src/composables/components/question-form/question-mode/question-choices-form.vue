@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import draggable from 'vuedraggable'
   import { Close, QuestionFilled } from '@element-plus/icons-vue'
   import type {
     Choice,
@@ -34,8 +35,7 @@
       choices.value.push({ ...blankChoice, key: choices.value.length })
     else choices.value = [{ ...blankChoice }]
     nextTick().then(() => {
-      const input = choiceInput.value.slice().pop() as HTMLInputElement
-      input.focus()
+      choiceInput.value?.focus()
     })
   }
 
@@ -83,52 +83,54 @@
     </p>
   </template>
 
-  <el-form-item
-    v-for="(option, index) in choices"
-    :key="`option-${index}`"
-    :error="errors ? errors[`choices[${index}].text`] : ''"
-    :label="index == 0 ? 'Options' : ''"
+  <el-form-item label="Options" style="margin-bottom: 4px"></el-form-item>
+  <draggable
+    v-if="choices != undefined"
+    v-model="choices"
+    handle=".el-input-group__prepend"
+    tag="transition-group"
+    :animation="200"
   >
-    <el-row align="middle" style="width: 100%; flex-wrap: nowrap">
-      <el-input
-        ref="choiceInput"
-        v-model="option.text"
-        style="width: 100%; margin-right: 16px"
-      >
-        <template #append>
-          <el-space>
-            <el-checkbox
-              v-model="correctAnswerValue[option.key]"
-              @change="setCorrectAnswer"
-            ></el-checkbox>
-            <el-tooltip effect="dark" content="Choose the correct answer!">
-              <el-icon>
-                <question-filled />
+    <template #item="{ index }">
+      <el-form-item :error="errors ? errors[`choices[${index}].text`] : ''">
+        <el-row align="middle" style="width: 100%; flex-wrap: nowrap">
+          <el-input
+            ref="choiceInput"
+            v-model="choices[index].text"
+            style="width: 100%; margin-right: 16px"
+          >
+            <template #prepend>
+              <el-icon><svg-icon name="arrow-swap" /></el-icon>
+            </template>
+            <template #append>
+              <el-space>
+                <el-checkbox
+                  v-model="correctAnswerValue[choices[index].key]"
+                  @change="setCorrectAnswer"
+                ></el-checkbox>
+                <el-tooltip effect="dark" content="Choose the correct answer!">
+                  <el-icon>
+                    <question-filled />
+                  </el-icon>
+                </el-tooltip>
+              </el-space>
+            </template>
+          </el-input>
+          <el-button
+            size="small"
+            circle
+            @click="handleDeleteOption(index)"
+            tabindex="-1"
+          >
+            <template #icon>
+              <el-icon :size="12" color="var(--el-text-color-primary)">
+                <close />
               </el-icon>
-            </el-tooltip>
-          </el-space>
-        </template>
-      </el-input>
-      <el-button
-        size="small"
-        circle
-        @click="handleDeleteOption(index)"
-        tabindex="-1"
-      >
-        <template #icon>
-          <el-icon :size="12" color="var(--el-text-color-primary)">
-            <close />
-          </el-icon>
-        </template>
-      </el-button>
-    </el-row>
-  </el-form-item>
-
+            </template>
+          </el-button>
+        </el-row>
+      </el-form-item>
+    </template>
+  </draggable>
   <el-button @click="handleAddOption">Add Options</el-button>
 </template>
-
-<style scoped>
-  .el-input-group__append {
-    padding: 30px;
-  }
-</style>

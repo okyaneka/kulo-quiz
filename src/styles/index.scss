@@ -32,6 +32,10 @@ $headings: (
   }
 }
 
+html {
+  user-select: none;
+}
+
 body {
   background-color: var(--el-bg-color);
   font-family: 'Lato', sans-serif;

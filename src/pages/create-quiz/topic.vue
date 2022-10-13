@@ -21,7 +21,7 @@ meta:
   const options = computed<OptionType[]>(() => {
     return parentOptions.value?.rows
       ? parentOptions.value.rows.map((topic) => ({
-          value: topic.id,
+          value: topic,
           label: topic.fulltitle,
         }))
       : []
@@ -33,7 +33,12 @@ meta:
     queryFn: async () =>
       await getTopicList({
         per_page: 0,
-        filter: { status: TopicStatus.approved },
+        filter: {
+          status: {
+            value: TopicStatus.rejected,
+            operator: '!=',
+          },
+        },
         orders: [['fulltitle', 'asc']],
       }),
   })
@@ -106,12 +111,29 @@ meta:
               :disabled="!options.length"
               :loading="parentOptionsLoading"
               :options="options"
+              value-key="value.id"
               filterable
               clearable
               @clear="values.parent = null"
               @change="handleChangeParent"
               style="width: 100%"
             >
+              <template #default="{ item }">
+                <el-row
+                  justify="space-between"
+                  align="middle"
+                  style="margin-right: 8px"
+                >
+                  <span style="margin-right: 8px">{{ item.label }}</span>
+
+                  <el-tag
+                    v-if="(item.value as Topic).status != TopicStatus.approved"
+                    type="warning"
+                  >
+                    {{ TopicStatus[(item.value as Topic).status] }}
+                  </el-tag>
+                </el-row>
+              </template>
             </el-select-v2>
           </el-form-item>
 
@@ -119,7 +141,7 @@ meta:
             :error="errors.description"
             label="Description (reason why this topic should be exists)"
           >
-            <el-input v-model="values.description" type="textarea"></el-input>
+            <el-input v-model="values.description" type="textarea"> </el-input>
           </el-form-item>
 
           <el-form-item style="margin-bottom: 0">

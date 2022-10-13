@@ -3,6 +3,7 @@ import type { ResponseRowsPayload } from '~/composables/types/interfaces'
 import { useColRef, useDocRef } from '~/plugins/firebase'
 import {
   QuestionMode as ConfigQuestionMode,
+  TimerMode,
   type Config,
 } from '../config/config.types'
 import {
@@ -120,6 +121,12 @@ export async function getQuizData(id: string): Promise<QuizData> {
   else selectedQuestions.push(...questions.splice(0, config.question_displayed))
 
   const quizData = { ...quiz, questions: selectedQuestions }
+  if (quizData.config?.timer_mode == TimerMode['Question timer'])
+    quizData.max_duration = selectedQuestions.reduce(
+      (c, v) => c + (v?.timer ?? 0),
+      0
+    )
+
   return quizData
 }
 
@@ -197,6 +204,7 @@ export const useQuizStore = defineStore('quiz', () => {
           id: q.id,
           mode: q.mode,
           question: q.question,
+          image_url: q.image_url,
         },
       }
     }

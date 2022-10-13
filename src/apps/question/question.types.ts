@@ -55,7 +55,7 @@ export type QuestionFilterable = Pick<
 }
 
 export type useChoicesQuestion = {
-  question: Pick<ChoicesQuestion, 'id' | 'mode' | 'question'>
+  question: Pick<ChoicesQuestion, 'id' | 'mode' | 'image_url' | 'question'>
 }
 
 export type UseQuestion = useChoicesQuestion

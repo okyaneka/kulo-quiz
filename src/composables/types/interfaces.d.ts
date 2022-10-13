@@ -45,7 +45,7 @@ export interface ResponseRowsPayload<
   filter?: Partial<Filterable>
 }
 
-export interface CustomFilter {
-  value: string
+export interface CustomFilter<T = string> {
+  value: T
   operator: WhereFilterOp
 }

@@ -5,6 +5,7 @@ meta:
 
 <script setup lang="ts">
   import QuizFloatingActions from '../../composables/components/quiz/quiz-floating-actions.vue'
+  import draggable from 'vuedraggable'
 
   function randomBackground(): string {
     function randomHex(): string {
@@ -16,6 +17,29 @@ meta:
     return `#${r}${g}${b}`
   }
 
+  const drag = ref(false)
+
+  const list = ref<{ name: string; id: number }[]>([
+    {
+      name: 'Edgard',
+      id: 6,
+    },
+    {
+      name: 'Juan 7',
+      id: 7,
+    },
+    {
+      name: 'Juan 8',
+      id: 8,
+    },
+  ])
+
+  const dragOptions = ref({
+    animation: 200,
+    group: 'description',
+    disabled: false,
+    ghostClass: 'ghost',
+  })
   onMounted(() => {
     document.documentElement.style.scrollSnapType = 'y mandatory'
   })
@@ -23,6 +47,33 @@ meta:
 
 <template>
   <el-row>
+    <el-col>
+      <draggable v-model="list" tag="transition-group" item-key="order">
+        <template #item="{ element }">
+          <div>{{ element.name }}</div>
+        </template>
+      </draggable>
+    </el-col>
+
+    <el-col>
+      <draggable v-model="list" tag="transition-group" :animation="200">
+        <template #item="{ element }">
+          <li class="list-group-item">
+            <i
+              :class="
+                element.fixed ? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'
+              "
+              @click="element.fixed = !element.fixed"
+              aria-hidden="true"
+            ></i>
+            {{ element.name }}
+          </li>
+        </template>
+      </draggable>
+    </el-col>
+  </el-row>
+
+  <el-row v-if="false">
     <el-col
       class="content"
       v-for="i in 3"

@@ -31,6 +31,11 @@
         >
           <h4 style="margin-bottom: 16px">Question #{{ index + 1 }}</h4>
           <el-space :size="16" fill style="width: 100%">
+            <p v-if="answer.question.image_url" align="center">
+              <el-image-firestore
+                :src="answer.question.image_url"
+              ></el-image-firestore>
+            </p>
             <p>{{ answer.question.question }}</p>
             <el-card shadow="never" :body-style="{ padding: '12px' }">
               <el-space fill :size="8">

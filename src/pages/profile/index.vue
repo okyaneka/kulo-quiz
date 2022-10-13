@@ -19,7 +19,13 @@ meta:
   const { data: quizList, isLoading } = useQuery({
     queryKey: ['quiz-list'],
     queryFn: () =>
-      getQuizList({ filter: { 'author.uid': authStore.user?.uid } }),
+      getQuizList({
+        filter: { 'author.uid': authStore.user?.uid },
+        orders: [
+          ['status', 'asc'],
+          ['created_at', 'desc'],
+        ],
+      }),
   })
 </script>
 

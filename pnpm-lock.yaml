@@ -43,6 +43,7 @@ specifiers:
   vue-router: ^4.1.3
   vue-tsc: ^0.39.5
   vue3-smooth-scroll: ^0.8.1
+  vuedraggable: ^4.1.0
   zod: ^3.18.0
 
 dependencies:
@@ -62,6 +63,7 @@ dependencies:
   vue-query: 1.26.0_vue@3.2.38
   vue-router: 4.1.5_vue@3.2.38
   vue3-smooth-scroll: 0.8.1
+  vuedraggable: 4.1.0_vue@3.2.38
   zod: 3.19.0
 
 devDependencies:
@@ -4582,6 +4584,10 @@ packages:
       - supports-color
     dev: true
 
+  /sortablejs/1.14.0:
+    resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==}
+    dev: false
+
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
@@ -5304,6 +5310,15 @@ packages:
 
   /vue3-smooth-scroll/0.8.1:
     resolution: {integrity: sha512-9EN1aiBT2RtkIe1MoGiyGjUoLmqmlJ96R9/QVCylaiurHQ7oGu1SPzEoGJyxdhCa1q3qyMcX/pne1oTAn1UaoQ==}
+    dev: false
+
+  /vuedraggable/4.1.0_vue@3.2.38:
+    resolution: {integrity: sha512-FU5HCWBmsf20GpP3eudURW3WdWTKIbEIQxh9/8GE806hydR9qZqRRxRE3RjqX7PkuLuMQG/A7n3cfj9rCEchww==}
+    peerDependencies:
+      vue: ^3.0.1
+    dependencies:
+      sortablejs: 1.14.0
+      vue: 3.2.38
     dev: false
 
   /webidl-conversions/3.0.1:

@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     CollapseTransition: typeof import('./composables/components/collapse-transition.vue')['default']
     CustomProgress: typeof import('./composables/components/custom-progress.vue')['default']
+    Draggable: typeof import('./composables/components/draggable.vue')['default']
     Editor: typeof import('./composables/components/editor.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
