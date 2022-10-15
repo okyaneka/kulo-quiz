@@ -14,29 +14,12 @@ import {
 } from 'firebase/auth'
 import { defineStore } from 'pinia'
 import type { Subject } from '~/composables/types/interfaces'
-
-export interface RegisterPayload {
-  email: string
-  password: string
-  password_confirmation: string
-}
-
-export interface LoginPayload {
-  email: string
-  password: string
-}
-
-export interface GuestLoginPayload {
-  name: string
-}
-
-export interface ForgotPasswordPayload {
-  email: string
-}
-
-export interface AuthObserverCallback {
-  (user: User | null): void
-}
+import type {
+  RegisterPayload,
+  LoginPayload,
+  GuestLoginPayload,
+  ForgotPasswordPayload,
+} from './auth.types'
 
 export function useAuth() {
   const { app } = useAppStore()
@@ -91,14 +74,16 @@ export async function getAuthUser(): Promise<User | null> {
 }
 
 export function logout() {
-  return signOut(useAuth())
+  signOut(useAuth())
+  const store = useAuthStore()
+  store.user = null
 }
 
 export function forgetPassword(payload: ForgotPasswordPayload) {
   return sendPasswordResetEmail(useAuth(), payload.email)
 }
 
-export function authObserver(callback: AuthObserverCallback) {
+export function authObserver(callback: (user: User | null) => void) {
   return onAuthStateChanged(useAuth(), (user: User | null) => {
     callback(user)
   })
