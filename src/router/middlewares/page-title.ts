@@ -1,10 +1,10 @@
-import type { RouteLocationNormalized } from 'vue-router'
+import type { Middleware } from '~/composables/types/interfaces'
 
-export default async function (
-  to: RouteLocationNormalized
-): Promise<(() => void) | void | undefined> {
-  to.name
-  document.title = to.meta.title
-    ? to.meta.title + ' - ' + import.meta.env.VITE_APP_NAME
-    : import.meta.env.VITE_APP_NAME
+const _default: Middleware = async (to) => {
+  if (to.name)
+    document.title = to.meta.title
+      ? to.meta.title + ' - ' + import.meta.env.VITE_APP_NAME
+      : import.meta.env.VITE_APP_NAME
 }
+
+export default _default

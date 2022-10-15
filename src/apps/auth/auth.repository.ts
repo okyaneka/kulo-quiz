@@ -73,8 +73,8 @@ export async function getAuthUser(): Promise<User | null> {
   })
 }
 
-export function logout() {
-  signOut(useAuth())
+export async function logout() {
+  await signOut(useAuth())
   const store = useAuthStore()
   store.user = null
 }

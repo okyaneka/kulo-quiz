@@ -4,6 +4,13 @@ import type {
   Timestamp,
   WhereFilterOp,
 } from 'firebase/firestore'
+import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
+
+export type Middleware = (
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => Promise<(() => void) | void | undefined>
 
 export type Subject = Pick<User, 'uid' | 'email' | 'displayName' | 'photoURL'>
 
