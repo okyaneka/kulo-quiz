@@ -5,10 +5,12 @@ meta:
 </route>
 
 <script setup lang="ts">
+  import draggable from 'vuedraggable'
   import type QuestionForm from '~/composables/components/question-form/question-form.vue'
   import { Plus, Close } from '@element-plus/icons-vue'
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
   import { deleteQuestion } from '~/apps/question/question.repositories'
+  import SvgIcon from '../../../composables/components/svg-icon.vue'
 
   const props = defineProps<{ validate?: boolean; disabled?: boolean }>()
   const emit = defineEmits<{
@@ -92,60 +94,79 @@ meta:
   <h3 style="margin-bottom: 16px">Questions</h3>
 
   <el-collapse class="custom-header" v-model="openQuestion" accordion>
-    <el-collapse-item
-      v-for="(question, index) in questions"
-      :key="`question-${index}`"
-      :name="`question-${index}`"
-      :title="`Pertanyaan #${index + 1}`"
+    <draggable
+      v-model="questions"
+      item-key="id"
+      tag="el-collapse"
+      :animation="200"
+      handle=".handle"
     >
-      <template #title>
-        <el-tooltip>
-          <h5>Question {{ index + 1 }}</h5>
-          <template #content>
-            <span>{{ question.question }}</span>
-          </template>
-        </el-tooltip>
-        <el-popover v-if="questionsValid[index] == false">
-          <template #reference>
-            <el-icon
-              :size="20"
-              style="margin-left: 1rem"
-              color="#1a73e8"
-              @click.stop=""
-            >
-              <svg-icon name="info-circle" />
-            </el-icon>
-          </template>
-          <p align="center">This question is not valid yet.</p>
-        </el-popover>
-
-        <el-popconfirm
-          hide-icon
-          title="Are you sure to delete this?"
-          @confirm="handleDeleteQuestion(index)"
+      <template #item="{ index }">
+        <el-collapse-item
+          :name="`question-${index}`"
+          :title="`Pertanyaan #${index + 1}`"
         >
-          <template #reference>
+          <template #title>
             <el-button
-              size="small"
+              class="handle"
               circle
-              plain
-              type="danger"
-              style="margin-left: auto"
+              style="margin-right: 8px; border: none"
               @click.stop=""
-              :icon="Close"
             >
+              <el-icon>
+                <svg-icon name="arrow-swap"></svg-icon>
+              </el-icon>
             </el-button>
-          </template>
-        </el-popconfirm>
-      </template>
 
-      <question-form
-        ref="forms"
-        v-model:value="questions[index]"
-        v-model:is-valid="questionsValid[index]"
-        :disabled="disabled"
-      ></question-form>
-    </el-collapse-item>
+            <h5>Question {{ index + 1 }}</h5>
+            <!-- <el-tooltip>
+              <template #content>
+                <span>{{ questions[index].question }}</span>
+              </template>
+            </el-tooltip> -->
+            <el-popover v-if="questionsValid[index] == false">
+              <template #reference>
+                <el-icon
+                  :size="20"
+                  style="margin-left: 1rem"
+                  color="#1a73e8"
+                  @click.stop=""
+                >
+                  <svg-icon name="info-circle" />
+                </el-icon>
+              </template>
+              <p align="center">This question is not valid yet.</p>
+            </el-popover>
+
+            <el-popconfirm
+              hide-icon
+              title="Are you sure to delete this?"
+              @confirm="handleDeleteQuestion(index)"
+            >
+              <template #reference>
+                <el-button
+                  size="small"
+                  circle
+                  plain
+                  type="danger"
+                  style="margin-left: auto"
+                  @click.stop=""
+                  :icon="Close"
+                >
+                </el-button>
+              </template>
+            </el-popconfirm>
+          </template>
+
+          <question-form
+            ref="forms"
+            v-model:value="questions[index]"
+            v-model:is-valid="questionsValid[index]"
+            :disabled="disabled"
+          ></question-form>
+        </el-collapse-item>
+      </template>
+    </draggable>
   </el-collapse>
 
   <el-button

@@ -7,7 +7,11 @@ meta:
 <script setup lang="ts">
   import { MoreFilled } from '@element-plus/icons-vue'
   import { getQuestionByQuiz } from '~/apps/question/question.repositories'
-  import type { Questions } from '~/apps/question/question.types'
+  import type {
+    ChoicesQuestionPayload,
+    QuestionPayloads,
+    Questions,
+  } from '~/apps/question/question.types'
   import {
     getQuiz,
     setQuiz as _setQuiz,
@@ -21,6 +25,7 @@ meta:
   import type { Config } from '~/apps/config/config.types'
   import { ConfigScheme } from '~/apps/config/config.scheme'
   import { QuestionPayloadSchemes } from '~/apps/question/question.schemes'
+  import type { ZodError } from 'zod'
 
   const { quiz, questions, config } = storeToRefs(useQuizStore())
   const route = useRoute()
@@ -31,7 +36,6 @@ meta:
   const isShowNav = ref<boolean>(true)
   const isShowOption = ref<boolean>(false)
   const isShowDrawer = ref<boolean>(false)
-  const lastScrollPos = ref<number>(window.scrollY)
   const isValidate = ref<boolean>(false)
   const view = ref<any>(null)
 
@@ -115,8 +119,25 @@ meta:
           router.push({ name: 'edit-config' })
           active.value = 'edit-config'
         }
-        failedCallback = () => {
-          ElMessage.error('questions_is_not_valid')
+        failedCallback = (error: ZodError) => {
+          const children = [
+            h('p', null, h('strong', null, 'Some question is not valid')),
+          ]
+          const e = error as ZodError<QuestionPayloads[]>
+
+          e.errors.forEach((v) => {
+            children.push(
+              h(
+                'p',
+                null,
+                `Question ${(v.path[0] as number) + 1}: ${v.message}`
+              )
+            )
+          })
+          const el = h('div', { class: 'el-message__content' }, children)
+          ElMessage.error({
+            message: el,
+          })
         }
       } else if (current == 'edit-config') {
         parsed = () => parseConfig()
@@ -134,13 +155,14 @@ meta:
           ElMessage.error('config_is_not_valid')
         }
       }
+
       if (!parsed || !successCallback || !failedCallback)
         return ElMessage.error('some_data_is_not_valid')
 
       const data = parsed()
 
       if (data.success) return await successCallback(data.data)
-      return failedCallback()
+      return failedCallback(data.error)
     },
   })
 
@@ -172,19 +194,6 @@ meta:
     active.value = name
   }
 
-  function onscroll() {
-    const currentScrollPos = window.scrollY
-    const isBottomOfPage =
-      window.scrollY + window.innerHeight == document.body.scrollHeight
-
-    if (lastScrollPos.value > currentScrollPos || isBottomOfPage) {
-      isShowNav.value = true
-    } else {
-      isShowNav.value = false
-    }
-    lastScrollPos.value = currentScrollPos
-  }
-
   function parseQuiz() {
     return QuizScheme.safeParse(quiz.value)
   }
@@ -206,20 +215,15 @@ meta:
   onMounted(() => {
     isShowDrawer.value = route.query.new == '1'
     active.value = route.name as string
-    window.addEventListener('scroll', onscroll)
     autoSaveInterval.value = setInterval(async () => {
       await saveDraft()
       ElMessage.success('Saved to draft.')
     }, 5 * 6 * 1e4)
   })
-
-  onUnmounted(() => {
-    window.removeEventListener('scroll', onscroll)
-  })
 </script>
 
 <template>
-  <el-row style="padding: 0 0 56px">
+  <el-row style="padding: 0 0 40px">
     <el-col>
       <el-card shadow="never">
         <el-skeleton v-if="pageLoading" animated>
@@ -243,6 +247,28 @@ meta:
       </el-card>
     </el-col>
   </el-row>
+
+  <el-tabs
+    v-model="active"
+    stretch
+    @tab-change="handleTabClick"
+    :style="{ bottom: '56px' }"
+    style="
+      z-index: 998;
+      position: fixed;
+      width: calc(100% - 2 * var(--global-layout-padding));
+      margin-bottom: -15px;
+      left: var(--global-layout-padding);
+      transition: bottom 0.3s ease-in;
+      background: var(--el-fill-color-blank);
+      overflow-x: auto;
+    "
+  >
+    <el-tab-pane name="edit-quiz" label="1. Data"> </el-tab-pane>
+    <el-tab-pane name="my-quiz-id-questions" label="2. Questions">
+    </el-tab-pane>
+    <el-tab-pane name="edit-config" label="3. Config"> </el-tab-pane>
+  </el-tabs>
 
   <el-popover
     v-if="!isPublish"
@@ -279,28 +305,6 @@ meta:
       >
     </el-space>
   </el-popover>
-
-  <el-tabs
-    v-model="active"
-    stretch
-    @tab-change="handleTabClick"
-    :style="{ bottom: isShowNav ? '56px' : '0' }"
-    style="
-      z-index: 998;
-      position: fixed;
-      width: calc(100% - 2 * var(--global-layout-padding));
-      margin-bottom: -15px;
-      left: var(--global-layout-padding);
-      transition: bottom 0.3s ease-in;
-      background: var(--el-fill-color-blank);
-      overflow-x: auto;
-    "
-  >
-    <el-tab-pane name="edit-quiz" label="1. Data"> </el-tab-pane>
-    <el-tab-pane name="my-quiz-id-questions" label="2. Questions">
-    </el-tab-pane>
-    <el-tab-pane name="edit-config" label="3. Config"> </el-tab-pane>
-  </el-tabs>
 
   <el-drawer v-model="isShowDrawer" direction="btt" :size="320">
     <el-result

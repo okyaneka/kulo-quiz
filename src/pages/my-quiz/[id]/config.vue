@@ -52,8 +52,6 @@ meta:
   })
 
   watch(isValidate, (value) => {
-    console.log(value)
-
     if (value)
       validate().then(() => {
         isValidate.value = false

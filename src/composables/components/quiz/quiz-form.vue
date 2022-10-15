@@ -67,6 +67,12 @@
     queryFn: async () =>
       await getTopicList({
         per_page: 0,
+        filter: {
+          status: {
+            value: TopicStatus.rejected,
+            operator: '!=',
+          },
+        },
         orders: [['fulltitle', 'asc']],
       }),
   })

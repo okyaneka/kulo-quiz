@@ -137,7 +137,7 @@ async function __setResult(
           ...getAuthor(),
           ...getQuestion(question),
           ...getTimestamps(),
-          seq: question.seq,
+          seq: index,
           correct_answer: correct_answer
             .map((v) => question.choices.find((w) => v == w.key))
             .filter((v) => v != undefined) as Choice[],
