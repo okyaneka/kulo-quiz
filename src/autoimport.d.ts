@@ -100,4 +100,5 @@ declare global {
   const watchSyncEffect: typeof import('vue')['watchSyncEffect']
   const where: typeof import('firebase/firestore')['where']
   const writeBatch: typeof import('firebase/firestore')['writeBatch']
+  const z: typeof import('zod')['z']
 }
