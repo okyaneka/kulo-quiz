@@ -6,7 +6,28 @@ import type {
 import type { Config } from '../config/config.types'
 import type { Questions } from '../question/question.types'
 import type { useTopic } from '../topic/topic.types'
-import type { QuizGrade, QuizLevel, QuizStatus } from './quiz.schemes'
+
+export enum QuizGrade {
+  'Novice',
+  'Elementary',
+  'Junior High',
+  'Senior High',
+  'College',
+  'Master',
+}
+
+export enum QuizLevel {
+  'Very Easy',
+  'Easy',
+  'Medium',
+  'Hard',
+  'Very Hard',
+}
+
+export enum QuizStatus {
+  'Draft',
+  'Publish',
+}
 
 type QuizExtends = useId & useAuthor & useTimestamps
 
@@ -17,7 +38,9 @@ export interface QuizPayload extends useTopic {
   status: QuizStatus
 }
 
-export interface Quiz extends QuizPayload, QuizExtends {
+export interface QuizItem extends QuizPayload, QuizExtends {}
+
+export interface Quiz extends QuizItem {
   max_point: number
   max_duration: number
   config: Config | Partial<Config> | null

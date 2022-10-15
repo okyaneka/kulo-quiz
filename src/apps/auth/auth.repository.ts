@@ -13,7 +13,7 @@ import {
   // RecaptchaVerifier,
 } from 'firebase/auth'
 import { defineStore } from 'pinia'
-import type { Author } from '~/composables/types/interfaces'
+import type { Subject } from '~/composables/types/interfaces'
 
 export interface RegisterPayload {
   email: string
@@ -144,12 +144,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const useAuthor = (): Author => {
+  const useAuthor = (): Subject => {
     if (user.value == undefined) throw new Error('user_undefined')
     return {
       email: user.value.email,
       uid: user.value.uid,
       displayName: user.value.displayName,
+      photoURL: user.value.photoURL,
     }
   }
 

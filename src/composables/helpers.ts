@@ -9,6 +9,7 @@ export const getAuthor = (): useAuthor => {
       uid: user.uid,
       email: user.email,
       displayName: user.displayName,
+      photoURL: user.photoURL,
     },
   }
 }
@@ -34,7 +35,19 @@ export const durationHumanized = (maxDuration?: number) => {
     const seconds = maxDuration % 60
     text += seconds + ' ' + Units[0] + ' '
   }
-  console.log(text)
-
   return text.trim()
+}
+
+export const randomBackground = (): string => {
+  function randomHex(): string {
+    return Math.round(Math.random() * 256).toString(16)
+  }
+  const r = randomHex()
+  const g = randomHex()
+  const b = randomHex()
+  return `#${r}${g}${b}`
+}
+
+export const XOR = (a: boolean, b: boolean) => {
+  return (a || b) && !(a && b)
 }

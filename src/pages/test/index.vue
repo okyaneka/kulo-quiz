@@ -1,100 +1,134 @@
 <route lang="yaml">
-meta:
-  layout: private
+# meta:
+#   layout: private
 </route>
 
 <script setup lang="ts">
   import QuizFloatingActions from '../../composables/components/quiz/quiz-floating-actions.vue'
-  import draggable from 'vuedraggable'
+  import type { AnswersPayload } from '~/apps/results/results.types'
+  import { getQuizData } from '~/apps/quiz/quiz.repositories'
+  import type { Quiz } from '~/apps/quiz/quiz.types'
+  import {
+    addResultPreview,
+    setResultPreview as __setResult,
+  } from '~/apps/results/results.repositories'
+  import {
+    fetchQuizMeta,
+    likeQuiz,
+    unlikeQuiz,
+  } from '~/apps/quiz-inter/quiz-inter.repositories'
+  import type { QuizMeta } from '~/apps/quiz-inter/quiz-inter.types'
 
-  function randomBackground(): string {
-    function randomHex(): string {
-      return Math.round(Math.random() * 256).toString(16)
-    }
-    const r = randomHex()
-    const g = randomHex()
-    const b = randomHex()
-    return `#${r}${g}${b}`
+  const quiz_id = 'iY86BtGhKkdbEaqIZWuf'
+
+  const route = useRoute()
+  const router = useRouter()
+  const floatingActions = ref<InstanceType<typeof QuizFloatingActions> | null>(
+    null
+  )
+
+  const showFloatingAction = ref(false)
+  const answers = ref<Partial<AnswersPayload>[]>([])
+  const quizMeta = ref<QuizMeta>()
+
+  const {
+    data: quiz,
+    isFetching: loading,
+    refetch: fetchQuizData,
+  } = useQuery({
+    queryKey: ['quiz'],
+    queryFn: () => getQuizData(quiz_id),
+    enabled: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    onSuccess: () => {
+      showFloatingAction.value = true
+    },
+    onError: (e: Error) => {
+      ElMessage.error(e.message)
+      // router.push('/')
+    },
+  })
+
+  const { refetch: _fetchQuizMeta } = useQuery({
+    queryKey: ['quiz-meta'],
+    queryFn: () => fetchQuizMeta(quiz_id),
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    onSuccess(data) {
+      quizMeta.value = data
+    },
+  })
+
+  const { data: result, mutateAsync: createResult } = useMutation({
+    mutationFn: (payload: Quiz) => addResultPreview(payload),
+    onSuccess: () => {
+      floatingActions.value?.hide()
+    },
+  })
+
+  const { mutateAsync: setResult, isLoading: submitLoading } = useMutation({
+    mutationFn: async (payload: AnswersPayload[]) => {
+      if (result.value == undefined) throw new Error('result_undefined')
+      await __setResult(result.value.id, payload)
+      ElMessage.success('answer_submitted')
+      router.push({ name: 'p-id-review', params: { id: quiz_id } })
+    },
+  })
+
+  const { mutateAsync: toggleLikeQuiz, isLoading } = useMutation({
+    mutationFn: (quiz_id: string) => {
+      if (quizMeta.value != undefined) {
+        if (quizMeta.value.has_like) {
+          quizMeta.value.has_like = false
+          quizMeta.value.like_count--
+          return unlikeQuiz(quiz_id)
+        } else {
+          quizMeta.value.has_like = true
+          quizMeta.value.like_count++
+          return likeQuiz(quiz_id)
+        }
+      }
+      return Promise.resolve(undefined)
+    },
+    // onSuccess(data) {
+    //   _fetchQuizMeta.value()
+    // },
+  })
+
+  function handleLikeQuiz(quiz_id: string) {
+    toggleLikeQuiz(quiz_id)
   }
 
-  const drag = ref(false)
-
-  const list = ref<{ name: string; id: number }[]>([
-    {
-      name: 'Edgard',
-      id: 6,
-    },
-    {
-      name: 'Juan 7',
-      id: 7,
-    },
-    {
-      name: 'Juan 8',
-      id: 8,
-    },
-  ])
-
-  const dragOptions = ref({
-    animation: 200,
-    group: 'description',
-    disabled: false,
-    ghostClass: 'ghost',
-  })
   onMounted(() => {
-    document.documentElement.style.scrollSnapType = 'y mandatory'
+    fetchQuizData.value()
   })
 </script>
 
 <template>
-  <el-row>
+  <el-row style="min-height: calc(100vh - 56px); flex-direction: column">
     <el-col>
-      <draggable v-model="list" tag="transition-group" item-key="order">
-        <template #item="{ element }">
-          <div>{{ element.name }}</div>
-        </template>
-      </draggable>
+      <el-card v-loading="isLoading">
+        <pre>{{ quizMeta }}</pre>
+      </el-card>
     </el-col>
-
-    <el-col>
-      <draggable v-model="list" tag="transition-group" :animation="200">
-        <template #item="{ element }">
-          <li class="list-group-item">
-            <i
-              :class="
-                element.fixed ? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'
-              "
-              @click="element.fixed = !element.fixed"
-              aria-hidden="true"
-            ></i>
-            {{ element.name }}
-          </li>
-        </template>
-      </draggable>
-    </el-col>
-  </el-row>
-
-  <el-row v-if="false">
-    <el-col
-      class="content"
-      v-for="i in 3"
-      :key="i"
-      style="
-        height: calc(100vh - 56px);
-        overflow: hidden;
-        margin: 0;
-        position: relative;
-      "
-      :style="{ backgroundColor: randomBackground() }"
+    <quiz-play
+      v-model:answers="answers"
+      :loading="loading"
+      :submit-loading="submitLoading"
+      :quiz="quiz"
+      @started:quiz="createResult"
+      @ended:quiz="setResult"
     >
-      <el-row>
-        <el-col style="text-align: center">
-          <el-button v-for="i in 100" :key="i" style="margin: 8px"
-            >Angka {{ i }}</el-button
-          >
-        </el-col>
-      </el-row>
-      <quiz-floating-actions></quiz-floating-actions>
-    </el-col>
+    </quiz-play>
+    <quiz-floating-actions
+      v-if="showFloatingAction"
+      :quiz-id="quiz_id"
+      :meta="quizMeta"
+      ref="floatingActions"
+      @click:like="handleLikeQuiz"
+    ></quiz-floating-actions>
   </el-row>
 </template>
 

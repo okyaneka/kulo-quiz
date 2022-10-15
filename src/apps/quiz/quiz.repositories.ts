@@ -76,7 +76,7 @@ export interface QuizStandingData {
 
 ////////////////////////////////////////////////////////////////
 
-const QUIZS = 'quizs'
+export const QUIZS = 'quizs'
 
 const useQuizColRef = <T = Quiz>() => {
   return useColRef<T>(QUIZS)

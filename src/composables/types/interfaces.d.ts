@@ -1,11 +1,11 @@
-import type { User } from 'firebase/auth'
+import type { Auth, User } from 'firebase/auth'
 import type {
   OrderByDirection,
   Timestamp,
   WhereFilterOp,
 } from 'firebase/firestore'
 
-export type Author = Pick<User, 'uid' | 'email' | 'displayName'>
+export type Subject = Pick<User, 'uid' | 'email' | 'displayName' | 'photoURL'>
 
 /**
  * Set id to object
@@ -18,7 +18,14 @@ export interface useId {
  * Set author to object
  */
 export interface useAuthor {
-  author: Author
+  author: Subject
+}
+
+/**
+ * Set subject/user
+ */
+export interface useSubject {
+  subject: Subject
 }
 
 /**
