@@ -40,7 +40,7 @@ meta:
         :body-style="{ padding: '2rem 1.5rem' }"
         style="margin-bottom: 20px"
       >
-        <el-space :size="32" direction="vertical" fill>
+        <el-space :size="32" direction="vertical" fill style="width: 100%">
           <template v-if="!sent">
             <h1 align="center">Forget password.</h1>
 
