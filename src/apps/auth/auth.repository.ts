@@ -10,6 +10,13 @@ import {
   type UserCredential,
   updateProfile,
   sendPasswordResetEmail,
+  sendSignInLinkToEmail,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
   // RecaptchaVerifier,
 } from 'firebase/auth'
 import { defineStore } from 'pinia'
@@ -26,14 +33,14 @@ export function useAuth() {
   return getAuth(app)
 }
 
-export function register(payload: RegisterPayload) {
-  return createUserWithEmailAndPassword(
-    useAuth(),
-    payload.email,
-    payload.password
-  ).then(async (userCredential: UserCredential) => {
-    await getAuthUser()
-    return userCredential
+export async function register(payload: RegisterPayload) {
+  return await sendSignInLinkToEmail(useAuth(), payload.email, {
+    url: import.meta.env.VITE_APP_BASE_URL + '/auth-processing',
+    handleCodeInApp: true,
+    dynamicLinkDomain: 'quiz.kulooky.my.id',
+  }).then(() => {
+    localStorage.setItem('emailForSignIn', payload.email)
+    console.log(localStorage)
   })
 }
 
@@ -56,6 +63,20 @@ export function guestLogin(payload: GuestLoginPayload) {
       return userCredential
     }
   )
+}
+
+export async function processAuth() {
+  if (isSignInWithEmailLink(useAuth(), window.location.href)) {
+    const email = window.localStorage.getItem('emailForSignIn')
+    if (email == null) throw new Error('email undefined')
+
+    await signInWithEmailLink(useAuth(), email, window.location.href).then(
+      () => {
+        localStorage.removeItem('emailForSignIn')
+      }
+    )
+    await getAuthUser()
+  }
 }
 
 export async function getAuthUser(): Promise<User | null> {

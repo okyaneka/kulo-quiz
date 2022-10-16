@@ -1,4 +1,4 @@
-import type { ZodObjectDef, ZodType, ZodTypeDef } from 'zod'
+import type { ZodType } from 'zod'
 import type {
   ForgotPasswordPayload,
   GuestLoginPayload,
@@ -14,12 +14,14 @@ export const name = z
 export const email = z.string().email()
 export const password = z.string().min(6)
 
-const RegisterScheme = z
-  .object({ email, password, password_confirmation: password })
-  .refine(
-    ({ password, password_confirmation }) => password === password_confirmation,
-    { message: 'Password is not match.', path: ['password'] }
-  )
+const RegisterScheme = z.object({
+  email,
+  //  password, password_confirmation: password
+})
+// .refine(
+//   ({ password, password_confirmation }) => password === password_confirmation,
+//   { message: 'Password is not match.', path: ['password'] }
+// )
 
 const GuestLoginScheme = z.object({ name })
 

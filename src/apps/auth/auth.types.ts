@@ -1,7 +1,7 @@
 export interface RegisterPayload {
   email: string
-  password: string
-  password_confirmation: string
+  // password: string
+  // password_confirmation: string
 }
 
 export interface LoginPayload {
