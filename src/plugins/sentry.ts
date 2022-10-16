@@ -10,7 +10,7 @@ export default function (app: Vue, router: Router) {
     integrations: [
       new BrowserTracing({
         routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-        tracingOrigins: ['localhost', 'kulo-quiz.web.app', /^\//],
+        tracingOrigins: ['kulo-quiz.web.app', /^\//],
       }),
     ],
     // Set tracesSampleRate to 1.0 to capture 100%

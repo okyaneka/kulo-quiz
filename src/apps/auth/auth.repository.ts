@@ -10,47 +10,37 @@ import {
   type UserCredential,
   updateProfile,
   sendPasswordResetEmail,
+  sendSignInLinkToEmail,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
   // RecaptchaVerifier,
 } from 'firebase/auth'
 import { defineStore } from 'pinia'
 import type { Subject } from '~/composables/types/interfaces'
-
-export interface RegisterPayload {
-  email: string
-  password: string
-  password_confirmation: string
-}
-
-export interface LoginPayload {
-  email: string
-  password: string
-}
-
-export interface GuestLoginPayload {
-  name: string
-}
-
-export interface ForgotPasswordPayload {
-  email: string
-}
-
-export interface AuthObserverCallback {
-  (user: User | null): void
-}
+import type {
+  RegisterPayload,
+  LoginPayload,
+  GuestLoginPayload,
+  ForgotPasswordPayload,
+} from './auth.types'
 
 export function useAuth() {
   const { app } = useAppStore()
   return getAuth(app)
 }
 
-export function register(payload: RegisterPayload) {
-  return createUserWithEmailAndPassword(
-    useAuth(),
-    payload.email,
-    payload.password
-  ).then(async (userCredential: UserCredential) => {
-    await getAuthUser()
-    return userCredential
+export async function register(payload: RegisterPayload) {
+  return await sendSignInLinkToEmail(useAuth(), payload.email, {
+    url: import.meta.env.VITE_APP_BASE_URL + '/auth-processing',
+    handleCodeInApp: true,
+    dynamicLinkDomain: 'quiz.kulooky.my.id',
+  }).then(() => {
+    localStorage.setItem('emailForSignIn', payload.email)
+    console.log(localStorage)
   })
 }
 
@@ -75,6 +65,20 @@ export function guestLogin(payload: GuestLoginPayload) {
   )
 }
 
+export async function processAuth() {
+  if (isSignInWithEmailLink(useAuth(), window.location.href)) {
+    const email = window.localStorage.getItem('emailForSignIn')
+    if (email == null) throw new Error('email undefined')
+
+    await signInWithEmailLink(useAuth(), email, window.location.href).then(
+      () => {
+        localStorage.removeItem('emailForSignIn')
+      }
+    )
+    await getAuthUser()
+  }
+}
+
 export async function getAuthUser(): Promise<User | null> {
   return new Promise((res, rej) => {
     const unsubscribe = authObserver((user: User | null) => {
@@ -90,15 +94,17 @@ export async function getAuthUser(): Promise<User | null> {
   })
 }
 
-export function logout() {
-  return signOut(useAuth())
+export async function logout() {
+  await signOut(useAuth())
+  const store = useAuthStore()
+  store.user = null
 }
 
 export function forgetPassword(payload: ForgotPasswordPayload) {
   return sendPasswordResetEmail(useAuth(), payload.email)
 }
 
-export function authObserver(callback: AuthObserverCallback) {
+export function authObserver(callback: (user: User | null) => void) {
   return onAuthStateChanged(useAuth(), (user: User | null) => {
     callback(user)
   })

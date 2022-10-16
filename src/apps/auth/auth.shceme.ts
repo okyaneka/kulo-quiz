@@ -1,28 +1,50 @@
-import * as zod from 'zod'
-import { toFormValidator } from '@vee-validate/zod'
+import type { ZodType } from 'zod'
+import type {
+  ForgotPasswordPayload,
+  GuestLoginPayload,
+  LoginPayload,
+  RegisterPayload,
+} from './auth.types'
 
-export const name = zod
+export const name = z
   .string()
   .trim()
   .regex(/^[a-zA-Z0-9 ]*$/, 'Alphanumeric only.')
   .min(1, 'Required')
+export const email = z.string().email()
+export const password = z.string().min(6)
 
-export const email = zod.string().email()
+const RegisterScheme = z.object({
+  email,
+  //  password, password_confirmation: password
+})
+// .refine(
+//   ({ password, password_confirmation }) => password === password_confirmation,
+//   { message: 'Password is not match.', path: ['password'] }
+// )
 
-export const password = zod.string().min(6)
+const GuestLoginScheme = z.object({ name })
 
-export const RegisterScheme = toFormValidator(
-  zod
-    .object({ email, password, password_confirmation: password })
-    .refine(
-      ({ password, password_confirmation }) =>
-        password === password_confirmation,
-      { message: 'Password is not match.', path: ['password'] }
-    )
-)
+const LoginScheme = z.object({ email, password })
 
-export const GuestLoginScheme = toFormValidator(zod.object({ name }))
+const ForgotPasswordScheme = z.object({ email })
 
-export const LoginScheme = toFormValidator(zod.object({ email, password }))
+export const useRegisterScheme = (): ZodType<
+  RegisterPayload,
+  typeof RegisterScheme._def
+> => RegisterScheme
 
-export const ForgotPasswordScheme = toFormValidator(zod.object({ email }))
+export const useGuestLoginScheme = (): ZodType<
+  GuestLoginPayload,
+  typeof GuestLoginScheme._def
+> => GuestLoginScheme
+
+export const useLoginScheme = (): ZodType<
+  LoginPayload,
+  typeof LoginScheme._def
+> => LoginScheme
+
+export const useForgotPasswordScheme = (): ZodType<
+  ForgotPasswordPayload,
+  typeof ForgotPasswordScheme._def
+> => ForgotPasswordScheme

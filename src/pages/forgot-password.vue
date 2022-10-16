@@ -4,16 +4,14 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import LOGO from '~/assets/images/logo-text.png'
-
-  import {
-    forgetPassword,
-    type ForgotPasswordPayload,
-  } from '~/apps/auth/auth.repository'
-  import { ForgotPasswordScheme } from '~/apps/auth/auth.shceme'
+  import { forgetPassword } from '~/apps/auth/auth.repository'
+  import { useForgotPasswordScheme } from '~/apps/auth/auth.shceme'
+  import type { ForgotPasswordPayload } from '~/apps/auth/auth.types'
 
   const { errors, validate, values } = useForm<ForgotPasswordPayload>({
-    validationSchema: ForgotPasswordScheme,
+    validationSchema: toFormValidator(
+      z.object(useForgotPasswordScheme()._def.shape())
+    ),
   })
   const { value: email } = useField<string>('email')
 
@@ -35,23 +33,16 @@ meta:
 </script>
 
 <template>
-  <el-row
-    align="middle"
-    justify="center"
-    style="min-height: 100vh; padding: var(--el-main-padding) 0"
-  >
-    <el-col :span="24" :md="20">
-      <el-card v-loading="isLoading">
-        <el-space :size="32" direction="vertical" fill>
-          <el-space />
-          <el-row justify="center">
-            <el-col :span="16">
-              <el-image :src="LOGO" style="" />
-            </el-col>
-          </el-row>
-
+  <el-row align="middle" justify="center" style="min-height: 100vh">
+    <el-col :span="24" :md="20" style="max-width: 480px">
+      <el-card
+        v-loading="isLoading"
+        :body-style="{ padding: '2rem 1.5rem' }"
+        style="margin-bottom: 20px"
+      >
+        <el-space :size="32" direction="vertical" fill style="width: 100%">
           <template v-if="!sent">
-            <h1 align="center">Oh, you forget your password.</h1>
+            <h1 align="center">Forget password.</h1>
 
             <el-form @submit.prevent="handleSubmit()">
               <el-form-item :error="errors.email">
@@ -90,7 +81,7 @@ meta:
         </el-space>
       </el-card>
 
-      <p align="center" style="margin-top: 32px">
+      <p align="center">
         Or you can <router-link to="/login">Login</router-link> /
         <router-link to="/">Register</router-link>.
       </p>

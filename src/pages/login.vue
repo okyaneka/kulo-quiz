@@ -6,13 +6,14 @@ meta:
 <script setup lang="ts">
   import LOGO from '~/assets/images/logo-text.png'
   import { Hide, View } from '@element-plus/icons-vue'
-  import { login, type LoginPayload } from '~/apps/auth/auth.repository'
-  import { LoginScheme } from '~/apps/auth/auth.shceme'
+  import { login } from '~/apps/auth/auth.repository'
+  import type { LoginPayload } from '~/apps/auth/auth.types'
+  import { useLoginScheme } from '~/apps/auth/auth.shceme'
 
   const router = useRouter()
 
   const { errors, validate, values } = useForm<LoginPayload>({
-    validationSchema: LoginScheme,
+    validationSchema: toFormValidator(z.object(useLoginScheme()._def.shape())),
   })
   const { value: email } = useField<string>('email')
   const { value: password } = useField<string>('password')
@@ -35,22 +36,15 @@ meta:
 </script>
 
 <template>
-  <el-row
-    align="middle"
-    justify="center"
-    style="min-height: 100vh; padding: var(--el-main-padding) 0"
-  >
-    <el-col :span="24" :md="20">
-      <el-card v-loading="isLoading">
-        <el-space :size="32" direction="vertical" fill>
-          <el-space />
-          <el-row justify="center">
-            <el-col :span="16">
-              <el-image :src="LOGO" style="" />
-            </el-col>
-          </el-row>
-
-          <h1 align="center">Hei, I miss you so much! Let's go back!</h1>
+  <el-row align="middle" justify="center" style="min-height: 100vh">
+    <el-col :span="24" :md="20" style="max-width: 480px">
+      <el-card
+        v-loading="isLoading"
+        :body-style="{ padding: '2rem 1.5rem' }"
+        style="margin-bottom: 20px"
+      >
+        <el-space :size="24" direction="vertical" fill style="width: 100%">
+          <h1 align="center">Login with password</h1>
 
           <el-form @submit.prevent="handleSubmit()">
             <el-form-item :error="errors.email">
@@ -74,6 +68,11 @@ meta:
                 </template>
               </el-input>
             </el-form-item>
+            <p align="right">
+              <router-link to="/forgot-password">
+                I forget my password
+              </router-link>
+            </p>
 
             <el-space
               direction="vertical"
@@ -81,12 +80,8 @@ meta:
               :fill-ratio="100"
               style="width: 100%; margin-top: 18px"
             >
-              <el-button type="primary" native-type="submit">Login</el-button>
-              <p align="center">
-                <router-link to="/forgot-password">
-                  I forget my password
-                </router-link>
-              </p>
+              <el-button type="primary" native-type="submit">Send</el-button>
+
               <p
                 align="center"
                 style="
@@ -104,7 +99,7 @@ meta:
         </el-space>
       </el-card>
 
-      <p align="center" style="margin-top: 32px">
+      <p align="center">
         Doesn't have an account?
         <router-link to="/">Register here.</router-link>
       </p>

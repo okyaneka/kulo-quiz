@@ -1,14 +1,12 @@
-import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '~/apps/auth/auth.repository'
+import type { Middleware } from '~/composables/types/interfaces'
 
-export default async function (
-  to: RouteLocationNormalized,
-  from: RouteLocationNormalized,
-  next: NavigationGuardNext
-): Promise<(() => void) | void | undefined> {
+const _default: Middleware = async (to, from, next) => {
   const isLoggedIn = await useAuthStore().isLoggedIn()
 
-  if (to.meta.requireAuth && !isLoggedIn) return () => next('/')
+  if (to.meta.requireAuth && !isLoggedIn) return () => next('/login')
 
   if (to.meta.noRequireAuth && isLoggedIn) return () => next('/home')
 }
+
+export default _default

@@ -5,15 +5,24 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import { useAuthStore } from '~/apps/auth/auth.repository'
+  import { logout, useAuthStore } from '~/apps/auth/auth.repository'
 
   const { user: authUser } = storeToRefs(useAuthStore())
+
+  const router = useRouter()
 
   const active = ref<string>('my')
 
   const avatar = ref<HTMLDivElement>()
 
   const avatarWidth = ref(0)
+
+  const { mutateAsync: handleLogout } = useMutation({
+    mutationFn: () => logout(),
+    onSuccess: () => {
+      router.push('/login')
+    },
+  })
 
   function setAvatarWidth() {
     setTimeout(() => {
@@ -52,6 +61,9 @@ meta:
         <el-button>Edit Profil</el-button>
         <el-button circle>
           <template #icon> <svg-icon name="setting-2" /> </template
+        ></el-button>
+        <el-button circle @click="handleLogout()">
+          <template #icon> <svg-icon name="logout-1" /> </template
         ></el-button>
       </el-col>
     </el-row>

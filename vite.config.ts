@@ -42,6 +42,7 @@ export default defineConfig({
         'vue-router',
         'pinia',
         {
+          zod: ['z'],
           '@vee-validate/zod': ['toFormValidator'],
           'firebase/firestore': [
             'addDoc',
