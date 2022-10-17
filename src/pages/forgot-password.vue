@@ -1,5 +1,6 @@
 <route lang="yaml">
 meta:
+  name: Forget Password
   noRequireAuth: true
 </route>
 
@@ -34,7 +35,7 @@ meta:
 
 <template>
   <el-row align="middle" justify="center" style="min-height: 100vh">
-    <el-col :span="24" :md="20" style="max-width: 480px">
+    <el-col :span="24" :md="20" style="max-width: 480px; padding: 20px">
       <el-card
         v-loading="isLoading"
         :body-style="{ padding: '2rem 1.5rem' }"
