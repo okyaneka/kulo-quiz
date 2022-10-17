@@ -21,8 +21,8 @@
     justify="center"
     style="min-height: 100vh; padding: var(--el-main-padding) 0"
   >
-    <el-col :span="24" :md="20">
-      <el-card>
+    <el-col :span="24" :md="20" style="max-width: 480px; padding: 20px">
+      <el-card :body-style="{ padding: '20px' }">
         <el-row>
           <el-col v-loading="isLoading"></el-col>
         </el-row>
