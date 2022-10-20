@@ -72,10 +72,10 @@
         @mousemove="resetHold"
         @mouseleave="resetHold"
         @mouseup="endHold"
-        @touchstart="startHold"
-        @touchmove="resetHold"
-        @touchcancel="resetHold"
-        @touchend="endHold"
+        @touchstart.prevent="startHold"
+        @touchmove.prevent="resetHold"
+        @touchcancel.prevent="resetHold"
+        @touchend.prevent="endHold"
       >
         <template #icon>
           <svg-icon
