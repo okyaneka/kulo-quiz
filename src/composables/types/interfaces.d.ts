@@ -1,4 +1,4 @@
-import type { Auth, User } from 'firebase/auth'
+import type { User } from 'firebase/auth'
 import type {
   OrderByDirection,
   Timestamp,
