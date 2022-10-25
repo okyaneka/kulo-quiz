@@ -5,7 +5,6 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import LOGO from '~/assets/images/logo-text.png'
   import { Hide, View } from '@element-plus/icons-vue'
   import { login } from '~/apps/auth/auth.repository'
   import type { LoginPayload } from '~/apps/auth/auth.types'

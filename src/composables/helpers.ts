@@ -51,3 +51,30 @@ export const randomBackground = (): string => {
 export const XOR = (a: boolean, b: boolean) => {
   return (a || b) && !(a && b)
 }
+const AlphaNums =
+  '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' as const
+
+export function ntan(number: number): string {
+  const res = Math.floor(number / AlphaNums.length)
+  const dig = AlphaNums[number % AlphaNums.length]
+  if (res > 1) return dig + ntan(res)
+  return dig
+}
+
+export function antn(text: string): number {
+  if (!text.match(/^(?=.*^[0-9a-zA-Z]+$)/))
+    throw new Error('unsupported_character')
+  return text
+    .split('')
+    .reduce(
+      (car, cur, i) =>
+        car + Math.pow(AlphaNums.length, i) * AlphaNums.indexOf(cur),
+      0
+    )
+}
+
+export function setDocTitle(title?: string) {
+  document.title = title
+    ? title + ' - ' + import.meta.env.VITE_APP_NAME
+    : import.meta.env.VITE_APP_NAME
+}

@@ -5,8 +5,6 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import LOGO from '~/assets/images/logo-text.png'
-
   import { guestLogin } from '~/apps/auth/auth.repository'
   import { useGuestLoginScheme } from '~/apps/auth/auth.shceme'
   import type { GuestLoginPayload } from '~/apps/auth/auth.types'

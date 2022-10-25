@@ -5,13 +5,9 @@ meta:
 </route>
 
 <script setup lang="ts">
-  import LOGO from '~/assets/images/logo-text.png'
-  import { Hide, View } from '@element-plus/icons-vue'
   import { register } from '~/apps/auth/auth.repository'
   import { useRegisterScheme } from '~/apps/auth/auth.shceme'
   import type { RegisterPayload } from '~/apps/auth/auth.types'
-
-  const router = useRouter()
 
   const { errors, validate, values, resetForm } = useForm<RegisterPayload>({
     validationSchema: toFormValidator(
@@ -19,10 +15,6 @@ meta:
     ),
   })
   const { value: email } = useField<string>('email')
-  // const { value: password } = useField<string>('password')
-  // const { value: password_confirmation } = useField<string>(
-  //   'password_confirmation'
-  // )
 
   const { mutate, isLoading } = useMutation({
     mutationFn: (payload: RegisterPayload) => register(payload),
@@ -31,9 +23,6 @@ meta:
       resetForm()
     },
   })
-
-  const showPassword = ref<boolean>(false)
-  const showConfirmPassword = ref<boolean>(false)
 
   async function handleSubmit() {
     if ((await validate()).valid) {

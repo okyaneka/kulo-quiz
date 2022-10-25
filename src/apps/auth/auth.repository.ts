@@ -1,4 +1,4 @@
-import { useAppStore } from '~/plugins/firebase'
+import { useAppStore, useColRef, useDocRef } from '~/plugins/firebase'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -8,7 +8,7 @@ import {
   onAuthStateChanged,
   type User,
   type UserCredential,
-  updateProfile,
+  updateProfile as __updateProfile,
   sendPasswordResetEmail,
   sendSignInLinkToEmail,
   signInWithPopup,
@@ -26,7 +26,12 @@ import type {
   LoginPayload,
   GuestLoginPayload,
   ForgotPasswordPayload,
+  UserWithUserData,
+  UserData,
+  EditProfilePayload,
 } from './auth.types'
+
+const USERS = 'users'
 
 export function useAuth() {
   const { app } = useAppStore()
@@ -58,7 +63,7 @@ export function login(payload: LoginPayload) {
 export function guestLogin(payload: GuestLoginPayload) {
   return signInAnonymously(useAuth()).then(
     async (userCredential: UserCredential) => {
-      await updateProfile(userCredential.user, { displayName: payload.name })
+      await __updateProfile(userCredential.user, { displayName: payload.name })
       await getAuthUser()
       return userCredential
     }
@@ -80,17 +85,58 @@ export async function processAuth() {
 }
 
 export async function getAuthUser(): Promise<User | null> {
-  return new Promise((res, rej) => {
+  const user = await new Promise<User>((res, rej) => {
     const unsubscribe = authObserver((user: User | null) => {
       unsubscribe()
       if (user == null) {
         logout()
-        rej('user_is_null')
+        return rej('user_is_null')
       }
-      const store = useAuthStore()
-      store.user = user as User
+
       res(user)
     })
+  })
+
+  const data = await getDocumentList(useColRef<UserData>(USERS), {
+    filter: { user_id: user.uid },
+  })
+
+  const userData = ref<UserData>()
+
+  if (data.count == 0) {
+    userData.value = await addDocument(
+      useColRef<UserData>(USERS),
+      {
+        user_id: user.uid,
+        username: 'user' + ntan(data.total + 1).padStart(4, '0'),
+      },
+      { withoutAuthor: true }
+    )
+  } else if (data.count > 1) {
+    data.rows.forEach((v, i) => {
+      if (i == 0) return
+      deleteDocument(useDocRef(USERS, v.id))
+    })
+    userData.value = data.rows[0]
+  } else {
+    userData.value = data.rows[0]
+  }
+
+  const store = useAuthStore()
+  store.user = Object.assign(user, userData.value)
+  return store.user
+}
+
+export async function updateProfile(payload: EditProfilePayload) {
+  const user = useAuthUser()
+  await __updateProfile(user, {
+    displayName: payload.displayName,
+    photoURL: payload.photoURL,
+  })
+
+  await setDocument(useDocRef<UserData>(USERS, user.id), {
+    username: payload.username,
+    gender: payload.gender,
   })
 }
 
@@ -132,14 +178,24 @@ export function authObserver(callback: (user: User | null) => void) {
 //   )
 // }
 
-export function useAuthUser(): User {
+export function useAuthUser(): UserWithUserData {
   const { user } = useAuthStore()
   if (user == null) throw new Error('Unauthorized.')
   return user
 }
 
+export async function checkUsername(username: string): Promise<boolean> {
+  const user = useAuthUser()
+  if (username == user.username) return true
+  const { empty, docs } = await getDocs(
+    query(useColRef<UserData>(USERS), where('username', '==', username))
+  )
+  if (empty) return true
+  return false
+}
+
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>()
+  const user = ref<UserWithUserData | null>()
 
   const isLoggedIn = async (): Promise<boolean> => {
     try {
