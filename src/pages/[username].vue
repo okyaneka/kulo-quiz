@@ -11,8 +11,16 @@ meta:
     getUserWithMeta,
   } from '~/apps/user-inter/user-inter.repositories'
 
+  enum Tabs {
+    index,
+    draft,
+    saved,
+  }
+
   const route = useRoute()
   const router = useRouter()
+
+  const active = ref<Tabs>(0)
   const avatar = ref<HTMLDivElement>()
   const avatarWidth = ref(0)
   const { user: authUser } = storeToRefs(useAuthStore())
@@ -25,7 +33,12 @@ meta:
     refetch: handleGetUserWithMeta,
   } = useQuery({
     queryKey: ['user'],
-    queryFn: () => getUserWithMeta(route.params.username as string),
+    queryFn: () =>
+      getUserWithMeta(route.params.username as string).then((res) => {
+        const name = res.displayName
+        setDocTitle(name ? `${name} Profiles` : undefined)
+        return res
+      }),
   })
 
   // follow
@@ -51,7 +64,6 @@ meta:
   )
 
   // logout
-
   const { mutateAsync: handleLogout } = useMutation({
     mutationFn: () => logout(),
     onSuccess: () => {
@@ -65,10 +77,25 @@ meta:
     }, 10)
   }
 
+  function goToActive() {
+    const activeTab = active.value == Tabs.index ? '' : `-${Tabs[active.value]}`
+    router.push({ name: `username${activeTab}` })
+  }
+
+  watch(active, () => goToActive())
+
   onMounted(() => {
+    const path = route.path.split('/').pop()
+
+    if (path != undefined)
+      Object.keys(Tabs).some((key: any) => {
+        if (path == Tabs[key]) {
+          active.value = parseInt(key)
+          return true
+        }
+      })
+
     window.addEventListener('resize', setAvatarWidth)
-    const name = user.value?.displayName
-    setDocTitle(name ? `${name} Profiles` : undefined)
     setAvatarWidth()
   })
 
@@ -114,5 +141,19 @@ meta:
       </template>
     </el-dropdown>
   </user-profile-card>
+
+  <el-card
+    shadow="never"
+    style="--el-card-border-radius: 0"
+    :body-style="{ padding: 0 }"
+  >
+    <el-tabs v-model="active" stretch class="no-margin-tabs">
+      <el-tab-pane :name="Tabs.index" label="Quiz"> </el-tab-pane>
+      <el-tab-pane v-if="isMe" :name="Tabs.draft" label="Draft"> </el-tab-pane>
+      <el-tab-pane v-if="isMe" :name="Tabs.saved" label="Saved"> </el-tab-pane>
+    </el-tabs>
+    <router-view></router-view>
+  </el-card>
+
   <pre>{{ user }}</pre>
 </template>
