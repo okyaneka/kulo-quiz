@@ -84,12 +84,15 @@ declare module '@vue/runtime-core' {
     QuizScoreHistory: typeof import('./composables/components/result/quiz-score-history.vue')['default']
     QuizStanding: typeof import('./composables/components/result/quiz-standing.vue')['default']
     QuizSummary: typeof import('./composables/components/quiz/quiz-summary.vue')['default']
+    QuizThumbnail: typeof import('./composables/components/quiz/quiz-thumbnail.vue')['default']
     QuizTimerIndicator: typeof import('./composables/components/quiz/quiz-timer-indicator.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectImage: typeof import('./composables/components/select-image.vue')['default']
     ShareDrawer: typeof import('./composables/components/share-drawer.vue')['default']
     SvgIcon: typeof import('./composables/components/svg-icon.vue')['default']
+    UserContent: typeof import('./composables/components/user/user-content.vue')['default']
+    UserProfileCard: typeof import('./composables/components/user/user-profile-card.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

@@ -8,6 +8,7 @@ meta:
 <script setup lang="ts">
   import {
     checkUsername,
+    getAuthUser,
     updateProfile,
     useAuthStore,
   } from '~/apps/auth/auth.repository'
@@ -15,7 +16,9 @@ meta:
   import { Gender, type EditProfilePayload } from '~/apps/auth/auth.types'
 
   const router = useRouter()
-  const { user: authUser } = storeToRefs(useAuthStore())
+  const { user: user } = storeToRefs(useAuthStore())
+
+  const isUsername = ref(true)
 
   const { errors, values, setValues, setFieldError, validate } =
     useForm<EditProfilePayload>({
@@ -26,21 +29,26 @@ meta:
   const { value: username } = useField<string>('username')
   useField('displayName')
   useField('photoURL')
-  // useField('phoneNumber')
+  useField('bio')
   useField('gender')
 
-  const { refetch: handleCheckUsername } = useQuery({
+  const { refetch: handleCheckUsername, isLoading } = useQuery({
     queryKey: ['username', username],
     queryFn: () => checkUsername(username.value),
-
     onSuccess: (value) => {
-      if (!value) setFieldError('username', 'Username is unavailable')
+      if (!value) {
+        isUsername.value = false
+        setFieldError('username', 'Username is unavailable')
+      } else isUsername.value = true
     },
     enabled: false,
   })
 
   const { mutateAsync: handleUpdateProfile, isLoading: loading } = useMutation({
-    mutationFn: (payload: EditProfilePayload) => updateProfile(payload),
+    mutationFn: async (payload: EditProfilePayload) => {
+      await updateProfile(useEditProfileScheme().parse(payload))
+      await getAuthUser()
+    },
   })
 
   const inputTimeout = ref()
@@ -53,15 +61,18 @@ meta:
   }
 
   async function handleSubmit() {
-    if ((await validate()).valid) {
+    if (isUsername.value && (await validate()).valid) {
       await handleUpdateProfile(values)
       ElMessage.success('Profile updated successfully 😄')
-      router.push({ name: 'profile' })
+      router.push({
+        name: 'username',
+        params: { username: user.value?.username },
+      })
     }
   }
 
   onMounted(() => {
-    setValues(useEditProfileScheme().parse(authUser.value))
+    setValues(useEditProfileScheme().parse(user.value))
   })
 </script>
 
@@ -117,12 +128,27 @@ meta:
             </el-select>
           </el-form-item>
 
+          <el-form-item label="Bio" :error="errors.bio">
+            <el-input
+              v-model="values.bio"
+              type="textarea"
+              show-word-limit
+            ></el-input>
+          </el-form-item>
+
           <el-space style="margin-top: 8px">
             <el-button v-if="loading" disabled>Back</el-button>
-            <router-link v-else :to="{ name: 'profile' }">
+            <router-link
+              v-else
+              :to="{ name: 'username', params: { username: user?.username } }"
+            >
               <el-button>Back</el-button>
             </router-link>
-            <el-button :loading="loading" type="primary" native-type="submit"
+            <el-button
+              :disabled="isLoading"
+              :loading="loading"
+              type="primary"
+              native-type="submit"
               >Save</el-button
             >
           </el-space>

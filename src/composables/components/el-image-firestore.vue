@@ -18,5 +18,5 @@
 </script>
 
 <template>
-  <el-image :src="imageUrl" v-bind="$attrs"> </el-image>
+  <el-image :src="imageUrl" v-bind="$attrs" lazy> </el-image>
 </template>

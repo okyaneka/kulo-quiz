@@ -97,29 +97,34 @@ export async function getAuthUser(): Promise<User | null> {
     })
   })
 
-  const data = await getDocumentList(useColRef<UserData>(USERS), {
-    filter: { user_id: user.uid },
-  })
+  const { size: total } = await getDocs(query(useColRef<UserData>(USERS)))
+  const { size, docs } = await getDocs(
+    query(useColRef<UserData>(USERS), where('user_id', '==', user.uid))
+  )
 
   const userData = ref<UserData>()
 
-  if (data.count == 0) {
+  if (size == 0) {
     userData.value = await addDocument(
       useColRef<UserData>(USERS),
       {
+        displayName: user.displayName,
+        photoURL: user.photoURL,
         user_id: user.uid,
-        username: 'user' + ntan(data.total + 1).padStart(4, '0'),
+        username_set: false,
+        username: 'user' + ntan(total + 1).padStart(4, '0'),
       },
       { withoutAuthor: true }
     )
-  } else if (data.count > 1) {
-    data.rows.forEach((v, i) => {
-      if (i == 0) return
-      deleteDocument(useDocRef(USERS, v.id))
-    })
-    userData.value = data.rows[0]
   } else {
-    userData.value = data.rows[0]
+    const data = docs[0]
+    if (size > 1) {
+      docs.forEach((v, i) => {
+        if (i == 0) return
+        deleteDocument(useDocRef(USERS, v.id))
+      })
+    }
+    userData.value = { ...data.data(), id: data.id }
   }
 
   const store = useAuthStore()
@@ -135,8 +140,12 @@ export async function updateProfile(payload: EditProfilePayload) {
   })
 
   await setDocument(useDocRef<UserData>(USERS, user.id), {
+    displayName: payload.displayName,
+    photoURL: payload.photoURL ?? null,
     username: payload.username,
     gender: payload.gender,
+    bio: payload.bio,
+    username_set: true,
   })
 }
 

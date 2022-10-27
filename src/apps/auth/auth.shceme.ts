@@ -1,4 +1,4 @@
-import type { ZodType } from 'zod'
+import type { ZodObjectDef, ZodType } from 'zod'
 import {
   Gender,
   type EditProfilePayload,
@@ -44,18 +44,29 @@ export const useForgotPasswordScheme = (): ZodType<
   typeof ForgotPasswordScheme._def
 > => ForgotPasswordScheme
 
-const EditProfileScheme = z.object({
+const EditProfileScheme = {
   displayName: z.string().min(1, 'Display Name cannot be empty'),
   photoURL: z.preprocess((arg) => (arg ? arg : null), z.nullable(z.string())),
   // phoneNumber: z.preprocess(
   //   (arg) => (arg ? arg : null),
   //   z.nullable(z.string().regex(/^\d+$/, 'numeric'))
   // ),
-  username: z.optional(z.string().min(1, 'Username cannot be empty')),
-  gender: z.optional(z.nativeEnum(Gender)),
-})
+  username: z
+    .string()
+    .min(1, 'Username cannot be empty.')
+    .min(3, 'Username at least has 3 characters.')
+    .regex(/^[a-z0-9_]*$/, 'Numeric and lowercase with underscore only.'),
+  gender: z.nativeEnum(Gender).optional(),
+  bio: z.preprocess(
+    (arg) => arg ?? null,
+    z
+      .string()
+      .max(160, 'Bio must less than or equal 160 characters.')
+      .nullable()
+  ),
+}
 
 export const useEditProfileScheme = (): ZodType<
   EditProfilePayload,
-  typeof EditProfileScheme._def
-> => EditProfileScheme
+  ZodObjectDef<typeof EditProfileScheme>
+> => z.object(EditProfileScheme)

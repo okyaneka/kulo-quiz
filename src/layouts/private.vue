@@ -1,15 +1,7 @@
 <script lang="ts" setup>
-  import type { Component, CSSProperties } from 'vue'
   import { onBeforeRouteLeave } from 'vue-router'
   import { useAuthStore } from '~/apps/auth/auth.repository'
   import SvgIcon from '~/composables/components/svg-icon.vue'
-
-  interface MenuItem {
-    title: string
-    slug: string
-    icon: Component
-    style?: CSSProperties | string
-  }
 
   const activeIndex = ref<string>()
   const padding = ref<string>('0')
@@ -59,7 +51,15 @@
     <el-main style="overflow: visible; max-width: 100%">
       <router-view />
     </el-main>
-    <el-footer style="position: sticky; bottom: 0; padding: 0; z-index: 999">
+    <el-footer
+      style="
+        position: sticky;
+        bottom: 0;
+        padding: 0;
+        z-index: 999;
+        border-top: 1px solid var(--el-border-color-light);
+      "
+    >
       <el-menu
         :ellipsis="false"
         :default-active="activeIndex"
@@ -151,7 +151,9 @@
           </router-link>
 
           <!-- Profile -->
-          <router-link to="/profile">
+          <router-link
+            :to="{ name: 'username', params: { username: user?.username } }"
+          >
             <el-menu-item index="profile">
               <span>
                 <el-space
@@ -163,7 +165,7 @@
                     <el-badge
                       is-dot
                       style="height: 100%"
-                      :hidden="!user?.username.includes('user')"
+                      :hidden="user?.username_set"
                     >
                       <svg-icon name="profile-circle" />
                     </el-badge>

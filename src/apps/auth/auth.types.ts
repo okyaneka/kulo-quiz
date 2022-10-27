@@ -27,14 +27,18 @@ export enum Gender {
 export interface UserData extends useId, useTimestamps {
   user_id: string
   username: string
-  gender?: Gender
+  gender: Gender
+  displayName: string | null
+  photoURL: string | null
+  username_set: boolean
+  bio: string | null
 }
 
-export interface UserWithUserData extends User, UserData {}
+export type UserWithUserData = User & Omit<UserData, 'displayName' | ''>
 
 export type EditProfilePayload = Partial<
   Pick<
     UserWithUserData,
-    'displayName' | 'photoURL' | 'phoneNumber' | 'username' | 'gender'
+    'displayName' | 'photoURL' | 'username' | 'gender' | 'bio'
   >
 >
