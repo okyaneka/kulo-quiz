@@ -3,8 +3,6 @@ import { useAuthStore } from '../auth/auth.repository'
 import type { Share, SharePayload } from './share.types'
 
 const SHARES = 'shares'
-const AlphaNums =
-  '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' as const
 
 function useShareColRef() {
   return useColRef<Share>(SHARES)
@@ -12,25 +10,6 @@ function useShareColRef() {
 
 function useShareDocRef(id: string) {
   return useDocRef<Share>(SHARES, id)
-}
-
-export function ntan(number: number): string {
-  const res = Math.floor(number / AlphaNums.length)
-  const dig = AlphaNums[number % AlphaNums.length]
-  if (res > 1) return dig + ntan(res)
-  return dig
-}
-
-export function antn(text: string): number {
-  if (!text.match(/^(?=.*^[0-9a-zA-Z]+$)/))
-    throw new Error('unsupported_character')
-  return text
-    .split('')
-    .reduce(
-      (car, cur, i) =>
-        car + Math.pow(AlphaNums.length, i) * AlphaNums.indexOf(cur),
-      0
-    )
 }
 
 async function getShareIfExist(

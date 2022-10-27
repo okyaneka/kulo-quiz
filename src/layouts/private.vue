@@ -1,42 +1,13 @@
 <script lang="ts" setup>
-  import type { Component, CSSProperties } from 'vue'
   import { onBeforeRouteLeave } from 'vue-router'
+  import { useAuthStore } from '~/apps/auth/auth.repository'
   import SvgIcon from '~/composables/components/svg-icon.vue'
-
-  interface MenuItem {
-    title: string
-    slug: string
-    icon: Component
-    style?: CSSProperties | string
-  }
 
   const activeIndex = ref<string>()
   const padding = ref<string>('0')
   const route = useRoute()
-  const menus = ref<MenuItem[]>([
-    {
-      title: 'Home',
-      slug: 'home',
-      icon: () => h(SvgIcon, { name: 'home' }),
-      style: { position: 'sticky', left: 0, zIndex: 1 },
-    },
-    {
-      title: 'Search',
-      slug: 'quiz',
-      icon: () => h(SvgIcon, { name: 'search-status' }),
-    },
-    {
-      title: 'Add',
-      slug: 'create-quiz',
-      icon: () => h(SvgIcon, { name: 'add' }),
-    },
-    {
-      title: 'Profile',
-      slug: 'profile',
-      icon: () => h(SvgIcon, { name: 'profile-circle' }),
-    },
-    // { title: 'My Quiz', slug: 'my-quiz', icon: Document },
-  ])
+
+  const { user } = storeToRefs(useAuthStore())
 
   function setMinWidth() {
     if (
@@ -80,7 +51,15 @@
     <el-main style="overflow: visible; max-width: 100%">
       <router-view />
     </el-main>
-    <el-footer style="position: sticky; bottom: 0; padding: 0; z-index: 999">
+    <el-footer
+      style="
+        position: sticky;
+        bottom: 0;
+        padding: 0;
+        z-index: 999;
+        border-top: 1px solid var(--el-border-color-light);
+      "
+    >
       <el-menu
         :ellipsis="false"
         :default-active="activeIndex"
@@ -96,13 +75,9 @@
           }"
           style="min-width: 100%"
         >
-          <router-link
-            v-for="menu in menus"
-            :key="menu.slug"
-            :to="`/${menu.slug}`"
-            :style="menu.style"
-          >
-            <el-menu-item :index="menu.slug">
+          <!-- Home -->
+          <router-link to="/home">
+            <el-menu-item index="home">
               <span>
                 <el-space
                   :size="4"
@@ -110,7 +85,7 @@
                   style="margin-bottom: 4px"
                 >
                   <el-icon style="margin: 0">
-                    <component :is="menu.icon" />
+                    <svg-icon name="home" />
                   </el-icon>
                   <div
                     style="
@@ -118,7 +93,90 @@
                       font-size: var(--el-font-size-extra-small);
                     "
                   >
-                    {{ menu.title }}
+                    Home
+                  </div>
+                </el-space>
+              </span>
+            </el-menu-item>
+          </router-link>
+
+          <!-- Search -->
+          <router-link to="/q">
+            <el-menu-item index="q">
+              <span>
+                <el-space
+                  :size="4"
+                  direction="vertical"
+                  style="margin-bottom: 4px"
+                >
+                  <el-icon style="margin: 0">
+                    <svg-icon name="search-status" />
+                  </el-icon>
+                  <div
+                    style="
+                      line-height: 1;
+                      font-size: var(--el-font-size-extra-small);
+                    "
+                  >
+                    Search
+                  </div>
+                </el-space>
+              </span>
+            </el-menu-item>
+          </router-link>
+
+          <!-- Add -->
+          <router-link to="/create-quiz">
+            <el-menu-item index="create-quiz">
+              <span>
+                <el-space
+                  :size="4"
+                  direction="vertical"
+                  style="margin-bottom: 4px"
+                >
+                  <el-icon style="margin: 0">
+                    <svg-icon name="add" />
+                  </el-icon>
+                  <div
+                    style="
+                      line-height: 1;
+                      font-size: var(--el-font-size-extra-small);
+                    "
+                  >
+                    Add
+                  </div>
+                </el-space>
+              </span>
+            </el-menu-item>
+          </router-link>
+
+          <!-- Profile -->
+          <router-link
+            :to="{ name: 'username', params: { username: user?.username } }"
+          >
+            <el-menu-item index="profile">
+              <span>
+                <el-space
+                  :size="4"
+                  direction="vertical"
+                  style="margin-bottom: 4px"
+                >
+                  <el-icon style="margin: 0">
+                    <el-badge
+                      is-dot
+                      style="height: 100%"
+                      :hidden="user?.username_set"
+                    >
+                      <svg-icon name="profile-circle" />
+                    </el-badge>
+                  </el-icon>
+                  <div
+                    style="
+                      line-height: 1;
+                      font-size: var(--el-font-size-extra-small);
+                    "
+                  >
+                    Profile
                   </div>
                 </el-space>
               </span>
