@@ -45,6 +45,7 @@ export interface useTimestamps {
 
 export interface ResponseRows<T = unknown> {
   total: number
+  total_filtered: number
   count: number
   rows: T[]
 }

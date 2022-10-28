@@ -13,7 +13,7 @@
     setResultPreview as __setResult,
   } from '~/apps/results/results.repositories'
   import {
-    fetchQuizMeta,
+    getQuizMeta,
     likeQuiz,
     unlikeQuiz,
   } from '~/apps/quiz-inter/quiz-inter.repositories'
@@ -51,9 +51,9 @@
     },
   })
 
-  const { refetch: _fetchQuizMeta } = useQuery({
+  const { refetch: handleGetQuizMeta } = useQuery({
     queryKey: ['quiz-meta'],
-    queryFn: () => fetchQuizMeta(quiz_id),
+    queryFn: () => getQuizMeta(quiz_id),
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     onSuccess(data) {
@@ -93,7 +93,7 @@
       return Promise.resolve(undefined)
     },
     // onSuccess(data) {
-    //   _fetchQuizMeta.value()
+    //   handleGetQuizMeta.value()
     // },
   })
 

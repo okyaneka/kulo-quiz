@@ -9,7 +9,7 @@
 
 <template>
   <el-col :span="12">
-    <router-link :to="{ name: 'quiz-detail', params: { id: data.id } }">
+    <router-link :to="{ name: 'quiz-id', params: { id: data.id } }">
       <el-card shadow="hover" :body-style="{ padding: 0 }">
         <el-image :src="data.thumbnail_url" />
 

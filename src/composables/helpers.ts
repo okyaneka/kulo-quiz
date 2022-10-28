@@ -38,14 +38,12 @@ export const durationHumanized = (maxDuration?: number) => {
   return text.trim()
 }
 
-export const randomBackground = (): string => {
-  function randomHex(): string {
-    return Math.round(Math.random() * 256).toString(16)
-  }
-  const r = randomHex()
-  const g = randomHex()
-  const b = randomHex()
-  return `#${r}${g}${b}`
+export const randomBackground = (opacity?: number): string => {
+  const random256 = (): number => Math.round(Math.random() * 256)
+  const r = random256()
+  const g = random256()
+  const b = random256()
+  return `rgba(${r}, ${g}, ${b}, ${opacity ?? 1})`
 }
 
 export const XOR = (a: boolean, b: boolean) => {

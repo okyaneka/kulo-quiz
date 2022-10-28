@@ -16,7 +16,10 @@ import {
   type Questions,
   type UseQuestion,
 } from '../question/question.types'
+import { QuizWithMetaScheme } from '../quiz-inter/quiz-inter.schemes'
+import type { QuizWithMeta } from '../quiz-inter/quiz-inter.types'
 import { QuizStatus } from './quiz.schemes'
+import { getQuizMeta } from '../quiz-inter/quiz-inter.repositories'
 import type {
   QuizPayload,
   Quiz,
@@ -94,9 +97,10 @@ export async function addQuiz(payload: QuizPayload) {
 }
 
 export async function getQuizList(
-  payload?: ResponseRowsPayload<QuizFilterable, QuizOrderable>
+  payload?: ResponseRowsPayload<QuizFilterable, QuizOrderable>,
+  idOnly?: boolean
 ) {
-  return await getDocumentList(useQuizColRef(), payload)
+  return await getDocumentList(useQuizColRef(), payload, idOnly)
 }
 
 export async function getQuiz(id: string) {
@@ -128,6 +132,16 @@ export async function getQuizData(id: string): Promise<QuizData> {
     )
 
   return quizData
+}
+
+export async function getQuizWithMeta(id: string): Promise<QuizWithMeta> {
+  const quiz = await getQuiz(id)
+  const quizMeta = await getQuizMeta(id)
+  return QuizWithMetaScheme.parse({
+    ...quiz,
+    ...quizMeta,
+    image_url: quiz.config?.image_url,
+  })
 }
 
 export async function setQuiz(id: string, payload: Partial<QuizPayload>) {

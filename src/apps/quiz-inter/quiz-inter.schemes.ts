@@ -1,5 +1,12 @@
-import { z } from 'zod'
-import type { QuizMeta } from './quiz-inter.types'
+import type { Timestamp } from 'firebase/firestore'
+import { z, ZodType, type ZodObjectDef } from 'zod'
+import type {
+  useAuthor,
+  useId,
+  useTimestamps,
+} from '~/composables/types/interfaces'
+import type { QuizMeta, QuizWithMeta } from './quiz-inter.types'
+import { quizShape } from '../quiz/quiz.schemes'
 
 // like_count: number
 // comment_count: number
@@ -12,6 +19,7 @@ import type { QuizMeta } from './quiz-inter.types'
 // has_share: boolean
 // has_did: boolean
 
+const preprocessString = () => z.preprocess((arg) => arg ?? '', z.string())
 const preprocessNumber = () =>
   z.preprocess((arg) => (typeof arg == 'number' ? arg : 0), z.number())
 const preprocessBoolean = () => z.preprocess((arg) => arg ?? false, z.boolean())
@@ -35,7 +43,38 @@ const QuizMetaShape = {
   has_save: preprocessBoolean(),
 }
 
-export const QuizWithMetaScheme: z.ZodType<
+export const QuizMetaScheme: z.ZodType<
   QuizMeta,
   z.ZodObjectDef<typeof QuizMetaShape>
 > = z.object(QuizMetaShape)
+const coreShape = {
+  id: preprocessString(),
+  author: z.object({
+    uid: preprocessString(),
+    email: preprocessString(),
+    displayName: preprocessString(),
+    photoURL: preprocessString(),
+  }),
+  created_at: z.any() as ZodType<Timestamp>,
+  updated_at: z.any() as ZodType<Timestamp>,
+}
+
+const quizWithMetaShape = {
+  ...QuizMetaShape,
+  ...coreShape,
+  ...quizShape,
+  image_url: z.preprocess(
+    (arg) => (arg == undefined ? null : arg),
+    z.string().nullable()
+  ),
+}
+
+export const CoreScheme: ZodType<
+  useId & useAuthor & useTimestamps,
+  ZodObjectDef<typeof coreShape>
+> = z.object(coreShape)
+
+export const QuizWithMetaScheme: ZodType<
+  QuizWithMeta,
+  ZodObjectDef<typeof quizWithMetaShape>
+> = z.object(quizWithMetaShape)

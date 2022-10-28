@@ -1,3 +1,4 @@
+import type { ZodObjectDef, ZodType } from 'zod'
 import * as z from 'zod'
 import {
   QuestionMode,
@@ -8,27 +9,37 @@ import {
 } from './config.types'
 
 const ObjectScheme = (maxQuestion: number) => {
-  return z.object({
-    description: z.string().default(''),
-    user_guide: z.string().default(''),
-    question_displayed: z
-      .number()
-      .min(1)
-      .max(maxQuestion)
-      .nullable()
-      .default(null),
+  return {
+    image_url: z.preprocess(
+      (arg) => (arg == undefined ? null : arg),
+      z.string().nullable()
+    ),
+    description: z.preprocess((arg) => arg ?? '', z.string()),
+    user_guide: z.preprocess((arg) => arg ?? '', z.string()),
+    question_displayed: z.preprocess(
+      (arg) => arg ?? 0,
+      z.number().min(1).max(maxQuestion)
+    ),
     question_mode: z.nativeEnum(QuestionMode),
     quiz_mode: z.nativeEnum(QuizMode),
     timer_mode: z.nativeEnum(TimerMode),
-    timer: z.number().min(1).nullable().default(null),
-    timer_units: z.nativeEnum(Units).nullable().default(null),
+    timer: z.preprocess(
+      (arg) => (arg == undefined ? null : arg),
+      z.number().min(1).nullable()
+    ),
+    timer_units: z.preprocess(
+      (arg) => (arg == undefined ? null : arg),
+      z.nativeEnum(Units).nullable()
+    ),
     break: z.number().min(1),
     break_units: z.nativeEnum(Units),
-  })
+  }
 }
 
-export const ConfigScheme = (maxQuestion: number) =>
-  ObjectScheme(maxQuestion) as unknown as z.ZodType<Partial<Config>>
+export const ConfigScheme = (
+  maxQuestion: number
+): ZodType<Config, ZodObjectDef<ReturnType<typeof ObjectScheme>>> =>
+  z.object(ObjectScheme(maxQuestion))
 
 export const ConfigValidator = (maxQuestion: number) =>
-  toFormValidator(ObjectScheme(maxQuestion))
+  toFormValidator(z.object(ConfigScheme(maxQuestion)._def.shape()))

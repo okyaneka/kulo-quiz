@@ -18,8 +18,9 @@ import { useStorage } from '~/plugins/firebase'
 
 export const getDocumentList = async <T = unknown, F = unknown, O = string>(
   ref: CollectionReference<T>,
-  payload?: ResponseRowsPayload<F, O>
-): Promise<ResponseRows<T>> => {
+  payload?: ResponseRowsPayload<F, O>,
+  idOnly?: boolean
+): Promise<ResponseRows<T | string>> => {
   const page = payload?.page ?? 1
   const per_page = payload?.per_page ?? 10
   const filter = payload?.filter
@@ -44,6 +45,7 @@ export const getDocumentList = async <T = unknown, F = unknown, O = string>(
         q.push(orderBy(order[0] as unknown as string, order[1]))
       }
     })
+  const { size: total_filtered } = await getDocs(query(ref))
 
   if (orders)
     orders.forEach((order) =>
@@ -61,13 +63,14 @@ export const getDocumentList = async <T = unknown, F = unknown, O = string>(
     q.push(limit(per_page))
   }
 
-  const rows: T[] = []
+  const rows: (T | string)[] = []
   const snapshot = await getDocs(query(ref, ...q))
   snapshot.forEach((doc) => {
-    rows.push({ ...doc.data(), id: doc.id })
+    if (idOnly) rows.push(doc.id)
+    else rows.push({ ...doc.data(), id: doc.id })
   })
 
-  return { total, count, rows }
+  return { total, total_filtered, count, rows }
 }
 
 export const addDocument = async <T = unknown, P = Partial<T>>(

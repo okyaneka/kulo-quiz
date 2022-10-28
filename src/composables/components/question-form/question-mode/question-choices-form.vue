@@ -92,7 +92,10 @@
     :animation="200"
   >
     <template #item="{ index }">
-      <el-form-item :error="errors ? errors[`choices[${index}].text`] : ''">
+      <el-form-item
+        :key="choices[index].key"
+        :error="errors ? errors[`choices[${index}].text`] : ''"
+      >
         <el-row align="middle" style="width: 100%; flex-wrap: nowrap">
           <el-input
             ref="choiceInput"

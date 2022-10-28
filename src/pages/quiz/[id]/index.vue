@@ -1,5 +1,4 @@
 <route lang="yaml">
-name: quiz-detail
 meta:
   requireAuth: true
   layout: private

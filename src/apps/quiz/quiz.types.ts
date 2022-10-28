@@ -38,7 +38,9 @@ export interface QuizPayload extends useTopic {
   status: QuizStatus
 }
 
-export interface QuizItem extends QuizPayload, QuizExtends {}
+export interface QuizItem extends QuizPayload, QuizExtends {
+  image_url: string | null
+}
 
 export interface Quiz extends QuizItem {
   max_point: number

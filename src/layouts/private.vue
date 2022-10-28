@@ -28,15 +28,15 @@
   })
 
   onMounted(() => {
-    activeIndex.value = route.fullPath.split('/')[1]
+    if (user.value?.username == route.params.username)
+      activeIndex.value = 'profile'
+    else activeIndex.value = route.fullPath.split('/')[1]
+    window.addEventListener('resize', setMinWidth)
     setMinWidth()
-    window.onresize = () => {
-      setMinWidth()
-    }
   })
 
   onUnmounted(() => {
-    window.onresize = null
+    window.removeEventListener('resize', setMinWidth)
   })
 </script>
 
@@ -53,7 +53,8 @@
     </el-main>
     <el-footer
       style="
-        position: sticky;
+        position: fixed;
+        width: calc(100% - var(--global-layout-padding) * 2);
         bottom: 0;
         padding: 0;
         z-index: 999;

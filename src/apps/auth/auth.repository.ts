@@ -30,6 +30,7 @@ import type {
   UserData,
   EditProfilePayload,
 } from './auth.types'
+import type { UserWithMeta } from '../user-inter/user-inter.types'
 
 const USERS = 'users'
 
@@ -204,7 +205,7 @@ export async function checkUsername(username: string): Promise<boolean> {
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<UserWithUserData | null>()
+  const user = ref<UserWithUserData | null>(null)
 
   const isLoggedIn = async (): Promise<boolean> => {
     try {
