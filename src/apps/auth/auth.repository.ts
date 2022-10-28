@@ -35,7 +35,10 @@ export function useAuth() {
 
 export async function register(payload: RegisterPayload) {
   return await sendSignInLinkToEmail(useAuth(), payload.email, {
-    url: import.meta.env.VITE_APP_BASE_URL + '/auth-processing',
+    url:
+      import.meta.env.VITE_APP_BASE_URL +
+      '/auth-processing?_id=' +
+      payload.email,
     handleCodeInApp: true,
     dynamicLinkDomain: 'quiz.kulooky.my.id',
   }).then(() => {
@@ -67,14 +70,11 @@ export function guestLogin(payload: GuestLoginPayload) {
 
 export async function processAuth() {
   if (isSignInWithEmailLink(useAuth(), window.location.href)) {
-    const email = window.localStorage.getItem('emailForSignIn')
+    const url = new URL(location.toString())
+    const email = url.searchParams.get('email')
     if (email == null) throw new Error('email undefined')
 
-    await signInWithEmailLink(useAuth(), email, window.location.href).then(
-      () => {
-        localStorage.removeItem('emailForSignIn')
-      }
-    )
+    await signInWithEmailLink(useAuth(), email, window.location.href)
     await getAuthUser()
   }
 }
