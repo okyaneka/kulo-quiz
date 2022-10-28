@@ -1,7 +1,6 @@
-import { getAuth } from 'firebase/auth'
 import type { Query } from 'firebase/firestore'
 import { useColRef, useDocRef } from '~/plugins/firebase'
-import { getAuthUser, useAuthUser } from '../auth/auth.repository'
+import { useAuthUser } from '../auth/auth.repository'
 import type { UserData } from '../auth/auth.types'
 import { getQuiz, useQuizColRef, useQuizStore } from '../quiz/quiz.repositories'
 import { QuizStatus } from '../quiz/quiz.types'
@@ -88,6 +87,7 @@ export async function getUserWithMeta(username: string): Promise<UserWithMeta> {
   ]
 
   const userMeta = await new Promise<UserMeta>((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = {}
     let fetched = 0
 

@@ -8,7 +8,7 @@ meta:
   import { MoreFilled } from '@element-plus/icons-vue'
   import { getQuestionByQuiz } from '~/apps/question/question.repositories'
   import type {
-    ChoicesQuestionPayload,
+    // ChoicesQuestionPayload,
     QuestionPayloads,
     Questions,
   } from '~/apps/question/question.types'
@@ -37,6 +37,7 @@ meta:
   const isShowOption = ref<boolean>(false)
   const isShowDrawer = ref<boolean>(false)
   const isValidate = ref<boolean>(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const view = ref<any>(null)
 
   const isPublish = computed(() => quiz.value?.status == QuizStatus.Publish)

@@ -14,7 +14,7 @@ import 'virtual:svg-icons-register'
 const app = createApp(App)
 const pinia = createPinia()
 
-// useSentry(app, router)
+useSentry(app, router)
 
 app.use(router)
 app.use(VueQueryPlugin)

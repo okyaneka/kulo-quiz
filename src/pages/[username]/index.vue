@@ -94,6 +94,7 @@ meta:
     const path = route.path.split('/').pop()
 
     if (path != undefined)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Object.keys(Tabs).some((key: any) => {
         if (path === Tabs[key]) {
           active.value = parseInt(key)

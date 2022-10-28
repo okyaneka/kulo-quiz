@@ -1,7 +1,7 @@
 import { useAppStore, useColRef, useDocRef } from '~/plugins/firebase'
 import {
   getAuth,
-  createUserWithEmailAndPassword,
+  // createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInAnonymously,
   signOut,
@@ -11,10 +11,10 @@ import {
   updateProfile as __updateProfile,
   sendPasswordResetEmail,
   sendSignInLinkToEmail,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  // signInWithPopup,
+  // GoogleAuthProvider,
+  // signInWithRedirect,
+  // getRedirectResult,
   isSignInWithEmailLink,
   signInWithEmailLink,
   // RecaptchaVerifier,
@@ -30,7 +30,7 @@ import type {
   UserData,
   EditProfilePayload,
 } from './auth.types'
-import type { UserWithMeta } from '../user-inter/user-inter.types'
+// import type { UserWithMeta } from '../user-inter/user-inter.types'
 
 const USERS = 'users'
 
@@ -197,7 +197,7 @@ export function useAuthUser(): UserWithUserData {
 export async function checkUsername(username: string): Promise<boolean> {
   const user = useAuthUser()
   if (username == user.username) return true
-  const { empty, docs } = await getDocs(
+  const { empty } = await getDocs(
     query(useColRef<UserData>(USERS), where('username', '==', username))
   )
   if (empty) return true

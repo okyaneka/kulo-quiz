@@ -6,7 +6,7 @@ import type { QuizLikes, QuizMeta } from './quiz-inter.types'
 
 const QUIZ_METAS = 'quiz_metas'
 
-function useQuizMetaColRef() {
+export function useQuizMetaColRef() {
   return useColRef<QuizMeta>(QUIZ_METAS)
 }
 

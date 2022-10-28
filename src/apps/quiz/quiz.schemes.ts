@@ -1,4 +1,3 @@
-import type { TypeOf } from 'zod'
 import * as z from 'zod'
 import type { QuizPayload } from './quiz.types'
 
