@@ -47,7 +47,7 @@ export async function getQuestionByQuiz<T = Partial<Questions>>(
 
   const { questions } = storeToRefs(useQuizStore())
   if (rows.length == 0) questions.value = [{}]
-  else questions.value = rows
+  else questions.value = rows as Partial<Questions>[]
 
   return rows as T[]
 }

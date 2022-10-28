@@ -185,7 +185,7 @@ export async function getUserInter(quiz_id: string) {
   const { count, rows } = await getDocumentList(useUserIntersCol(), {
     filter: { 'quiz.id': quiz_id },
   })
-  if (count) return rows[0]
+  if (count) return rows[0] as UserInteraction
 
   const quiz = await getQuiz(quiz_id)
   const { getQuiz: _getQuiz } = useQuizStore()

@@ -5,8 +5,10 @@
     queryKey: ['share'],
     queryFn: () => getShare(),
     onSuccess: async (share) => {
-      await setClickShare(share.id)
-      location.replace(share.urlin)
+      if (typeof share != 'string') {
+        await setClickShare(share.id)
+        location.replace(share.urlin)
+      }
     },
   })
 </script>

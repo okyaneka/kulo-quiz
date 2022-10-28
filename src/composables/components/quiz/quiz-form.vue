@@ -43,10 +43,14 @@
   const topicOptions = computed<OptionType<Topic>[]>(() => {
     return (
       topics.value?.rows
-        .map((v) => ({
-          label: v.fulltitle,
-          value: v,
-        }))
+        .reduce((u: OptionType<Topic>[], v) => {
+          if (typeof v != 'string')
+            u.push({
+              label: v.fulltitle,
+              value: v,
+            })
+          return u
+        }, [])
         .filter((v) => {
           return v.label.toLowerCase().includes(topicQuery.value.toLowerCase())
         }) ?? []
@@ -78,8 +82,11 @@
   })
 
   function handleTopicChanged(id: string) {
-    const topic = (topics.value?.rows ?? []).find((v) => v.id == id)
-    if (topic) values.topic = { id: topic.id, title: topic.title }
+    const topic = (topics.value?.rows ?? []).find((v) => {
+      if (typeof v != 'string') return v.id == id
+    })
+    if (topic && typeof topic != 'string')
+      values.topic = { id: topic.id, title: topic.title }
   }
 
   async function handleSubmit() {
