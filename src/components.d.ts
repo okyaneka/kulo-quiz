@@ -9,7 +9,6 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     CollapseTransition: typeof import('./composables/components/collapse-transition.vue')['default']
     CustomProgress: typeof import('./composables/components/custom-progress.vue')['default']
-    Draggable: typeof import('./composables/components/draggable.vue')['default']
     Editor: typeof import('./composables/components/editor.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBadge: typeof import('element-plus/es')['ElBadge']
@@ -36,7 +35,6 @@ declare module '@vue/runtime-core' {
     ElImage: typeof import('element-plus/es')['ElImage']
     ElImageFirestore: typeof import('./composables/components/el-image-firestore.vue')['default']
     ElImageViewer: typeof import('element-plus/es')['ElImageViewer']
-    ElImgFirestore: typeof import('element-plus/es')['ElImgFirestore']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
     ElMain: typeof import('element-plus/es')['ElMain']
@@ -47,8 +45,6 @@ declare module '@vue/runtime-core' {
     ElPopconfirm: typeof import('element-plus/es')['ElPopconfirm']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElProgress: typeof import('element-plus/es')['ElProgress']
-    ElRadio: typeof import('element-plus/es')['ElRadio']
-    ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElResult: typeof import('element-plus/es')['ElResult']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElScrollbar: typeof import('element-plus/es')['ElScrollbar']
@@ -93,8 +89,11 @@ declare module '@vue/runtime-core' {
     SvgIcon: typeof import('./composables/components/svg-icon.vue')['default']
     UserContent: typeof import('./composables/components/user/user-content.vue')['default']
     UserProfileCard: typeof import('./composables/components/user/user-profile-card.vue')['default']
+    UserQuizDraft: typeof import('./composables/components/user/user-quiz-draft.vue')['default']
+    UserQuizPublished: typeof import('./composables/components/user/user-quiz-published.vue')['default']
   }
   export interface ComponentCustomProperties {
+    vInfiniteScroll: typeof import('element-plus/es')['ElInfiniteScroll']
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

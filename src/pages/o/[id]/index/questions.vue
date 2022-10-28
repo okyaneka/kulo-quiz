@@ -10,7 +10,7 @@ meta:
   import { Plus, Close } from '@element-plus/icons-vue'
   import { useQuizStore } from '~/apps/quiz/quiz.repositories'
   import { deleteQuestion } from '~/apps/question/question.repositories'
-  import SvgIcon from '../../../composables/components/svg-icon.vue'
+  import SvgIcon from '~/composables/components/svg-icon.vue'
 
   const props = defineProps<{ validate?: boolean; disabled?: boolean }>()
   const emit = defineEmits<{
@@ -105,6 +105,7 @@ meta:
         <el-collapse-item
           :name="`question-${index}`"
           :title="`Pertanyaan #${index + 1}`"
+          :key="questions[index].id"
         >
           <template #title>
             <el-button
@@ -171,16 +172,9 @@ meta:
 
   <el-button
     :icon="Plus"
-    ref="buttonRef"
     circle
     size="large"
-    :style="{ bottom: isShowNav ? '168px' : '128px' }"
-    style="
-      z-index: 998;
-      position: fixed;
-      right: 16px;
-      transition: bottom 0.3s ease-in;
-    "
+    style="z-index: 998; position: fixed; right: 16px; bottom: 168px"
     @click="handleAddQuestion"
   ></el-button>
 </template>

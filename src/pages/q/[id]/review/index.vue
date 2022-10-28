@@ -19,7 +19,7 @@ meta:
     queryKey: ['results'],
     queryFn: () => getResultList(route.params.id as string),
     onSuccess: (data) => {
-      result_id.value = data.rows[0].id
+      if (typeof data.rows[0] != 'string') result_id.value = data.rows[0].id
     },
   })
 

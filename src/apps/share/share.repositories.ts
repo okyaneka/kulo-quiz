@@ -20,7 +20,7 @@ async function getShareIfExist(
     const { rows } = await getDocumentList(useShareColRef(), {
       filter: { 'author.uid': user.uid, urlin: payload.urlin },
     })
-    if (rows.length) return rows[0]
+    if (rows.length && typeof rows[0] != 'string') return rows[0]
   }
 }
 
@@ -60,5 +60,6 @@ export async function getShare(id?: string) {
 
 export async function setClickShare(id: string) {
   const share = await getShare(id)
-  return setDocument(useShareDocRef(id), { click: share.click + 1 })
+  if (typeof share != 'string')
+    return setDocument(useShareDocRef(id), { click: share.click + 1 })
 }

@@ -1,9 +1,5 @@
-import type {
-  useId,
-  useSubject,
-  useTimestamps,
-} from '~/composables/types/interfaces'
-import type { Quiz, QuizItem, useQuiz } from '../quiz/quiz.types'
+import type { useId, useSubject } from '~/composables/types/interfaces'
+import type { QuizItem } from '../quiz/quiz.types'
 
 export interface QuizMeta {
   like_count: number

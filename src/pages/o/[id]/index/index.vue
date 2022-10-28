@@ -1,5 +1,4 @@
 <route lang="yaml">
-name: edit-quiz
 meta:
   layout: private
   requireAuth: true

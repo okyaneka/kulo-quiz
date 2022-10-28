@@ -20,10 +20,14 @@ meta:
 
   const options = computed<OptionType[]>(() => {
     return parentOptions.value?.rows
-      ? parentOptions.value.rows.map((topic) => ({
-          value: topic,
-          label: topic.fulltitle,
-        }))
+      ? parentOptions.value.rows.reduce((car: OptionType[], topic) => {
+          if (typeof topic != 'string')
+            car.push({
+              value: topic,
+              label: topic.fulltitle,
+            })
+          return car
+        }, [])
       : []
   })
 
@@ -68,8 +72,13 @@ meta:
   const parent = ref<string>()
 
   function handleChangeParent(id: string) {
-    const topic = parentOptions.value?.rows.find((topic) => topic.id == id)
-    values.parent = topic ? { id: topic.id, title: topic.title } : null
+    const topic = parentOptions.value?.rows.find((topic) => {
+      if (typeof topic != 'string') return topic.id == id
+    })
+    values.parent =
+      topic && typeof topic != 'string'
+        ? { id: topic.id, title: topic.title }
+        : null
   }
 
   async function handleSubmit() {

@@ -22,7 +22,7 @@ async function getGroupIfExist(
         name: payload.name,
       },
     })
-    if (rows.length) return rows[0]
+    if (rows.length && typeof rows[0] != 'string') return rows[0]
   }
 }
 

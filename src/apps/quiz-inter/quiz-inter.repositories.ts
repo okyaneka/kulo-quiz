@@ -1,12 +1,12 @@
 import { useColRef, useDocRef } from '~/plugins/firebase'
 import { useAuthUser } from '../auth/auth.repository'
 import { QUIZS } from '../quiz/quiz.repositories'
-import { QuizWithMetaScheme } from './quiz-inter.schemes'
+import { QuizMetaScheme } from './quiz-inter.schemes'
 import type { QuizLikes, QuizMeta } from './quiz-inter.types'
 
 const QUIZ_METAS = 'quiz_metas'
 
-function useQuizMetaColRef() {
+export function useQuizMetaColRef() {
   return useColRef<QuizMeta>(QUIZ_METAS)
 }
 
@@ -18,7 +18,7 @@ function useQuizLikesDocRef(quiz_id: string, id: string) {
   return useDocRef<QuizLikes>(`${QUIZS}/${quiz_id}/likes`, id)
 }
 
-export async function fetchQuizMeta(quiz_id: string) {
+export async function getQuizMeta(quiz_id: string) {
   const user = useAuthUser()
   const queryLikes = query(
     useQuizLikesColRef(quiz_id),
@@ -29,7 +29,7 @@ export async function fetchQuizMeta(quiz_id: string) {
     query(queryLikes, where('subject.uid', '==', user.uid))
   )
 
-  return QuizWithMetaScheme.parse({ like_count, has_like: !not_liked })
+  return QuizMetaScheme.parse({ like_count, has_like: !not_liked })
 }
 
 export async function likeQuiz(quiz_id: string) {

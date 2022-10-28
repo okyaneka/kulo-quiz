@@ -1,4 +1,5 @@
 <route lang="yaml">
+alias: ['/:username/draft', '/:username/saved']
 meta:
   layout: prefer-private
 </route>
@@ -11,13 +12,25 @@ meta:
     getUserWithMeta,
   } from '~/apps/user-inter/user-inter.repositories'
 
+  enum Tabs {
+    index,
+    draft,
+    saved,
+  }
+
   const route = useRoute()
   const router = useRouter()
+
+  const active = ref<Tabs>(0)
   const avatar = ref<HTMLDivElement>()
   const avatarWidth = ref(0)
   const { user: authUser } = storeToRefs(useAuthStore())
 
   const isMe = computed(() => route.params.username == authUser.value?.username)
+
+  const followLoading = computed(
+    () => followingLoading.value || unfollowingLoading.value
+  )
 
   const {
     data: user,
@@ -25,7 +38,12 @@ meta:
     refetch: handleGetUserWithMeta,
   } = useQuery({
     queryKey: ['user'],
-    queryFn: () => getUserWithMeta(route.params.username as string),
+    queryFn: () =>
+      getUserWithMeta(route.params.username as string).then((res) => {
+        const name = res.displayName
+        setDocTitle(name ? `${name} Profiles` : undefined)
+        return res
+      }),
   })
 
   // follow
@@ -46,12 +64,7 @@ meta:
       },
     })
 
-  const followLoading = computed(
-    () => followingLoading.value || unfollowingLoading.value
-  )
-
   // logout
-
   const { mutateAsync: handleLogout } = useMutation({
     mutationFn: () => logout(),
     onSuccess: () => {
@@ -65,10 +78,32 @@ meta:
     }, 10)
   }
 
+  function goToActive() {
+    if (user.value) {
+      const activeTab =
+        active.value == Tabs.index ? '' : `${Tabs[active.value]}`
+      router.push(`/${user.value.username}/${activeTab}`)
+    }
+  }
+
+  provide('user', user)
+
+  watch(active, () => goToActive())
+
   onMounted(() => {
+    const path = route.path.split('/').pop()
+
+    if (path != undefined)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Object.keys(Tabs).some((key: any) => {
+        if (path === Tabs[key]) {
+          active.value = parseInt(key)
+          return true
+        }
+      })
+    goToActive()
+
     window.addEventListener('resize', setAvatarWidth)
-    const name = user.value?.displayName
-    setDocTitle(name ? `${name} Profiles` : undefined)
     setAvatarWidth()
   })
 
@@ -114,5 +149,22 @@ meta:
       </template>
     </el-dropdown>
   </user-profile-card>
-  <pre>{{ user }}</pre>
+
+  <el-card
+    shadow="never"
+    style="--el-card-border-radius: 0"
+    :body-style="{ padding: 0 }"
+  >
+    <el-tabs v-model="active" stretch class="no-margin-tabs">
+      <el-tab-pane :name="Tabs.index" label="Quiz"> </el-tab-pane>
+      <el-tab-pane v-if="isMe" :name="Tabs.draft" label="Draft"> </el-tab-pane>
+      <!-- <el-tab-pane v-if="isMe" :name="Tabs.saved" label="Saved"> </el-tab-pane> -->
+    </el-tabs>
+  </el-card>
+
+  <router-view v-slot="{ Component }">
+    <keep-alive>
+      <component :is="Component"></component>
+    </keep-alive>
+  </router-view>
 </template>

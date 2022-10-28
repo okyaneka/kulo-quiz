@@ -1,5 +1,4 @@
 <route lang="yaml">
-name: edit-config
 meta:
   layout: private
   requireAuth: true
@@ -36,6 +35,7 @@ meta:
     validationSchema: ConfigValidator(questions.value.length),
     initialValues: config.value,
   })
+  useField('image_url')
   useField('description', undefined, { initialValue: '' })
   useField('user_guide', undefined, { initialValue: '' })
   useField('question_displayed', undefined, { initialValue: null })
@@ -68,6 +68,15 @@ meta:
   </el-row>
 
   <el-form v-model="values" :disabled="disabled" label-position="top">
+    <el-form-item label="Image guide" :error="errors.image_url">
+      <el-col>
+        <select-image
+          v-model="values.image_url"
+          style="width: 100%"
+        ></select-image>
+      </el-col>
+    </el-form-item>
+
     <el-form-item :error="errors.description" label="Description">
       <editor v-model="values.description" style="width: 100%" />
     </el-form-item>
@@ -124,7 +133,8 @@ meta:
         <template #append>
           <el-select
             :disabled="![0, 2].includes(values.timer_mode as number)"
-            v-model="values.timer_units"
+            :model-value="values.timer_units ?? undefined"
+            @update:model-value="values.timer_units = $event"
             placeholder="Units"
             style="width: 7rem"
           >

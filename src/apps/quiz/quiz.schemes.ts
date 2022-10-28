@@ -1,4 +1,3 @@
-import type { TypeOf } from 'zod'
 import * as z from 'zod'
 import type { QuizPayload } from './quiz.types'
 
@@ -24,7 +23,7 @@ export enum QuizStatus {
   'Publish',
 }
 
-const ObjectScheme = {
+export const quizShape = {
   title: z.string(),
   topic: z.object({ id: z.string(), title: z.string() }),
   grade: z.nativeEnum(QuizGrade),
@@ -34,7 +33,7 @@ const ObjectScheme = {
 
 export const QuizScheme: z.ZodType<
   QuizPayload,
-  z.ZodObjectDef<typeof ObjectScheme>
-> = z.object(ObjectScheme)
+  z.ZodObjectDef<typeof quizShape>
+> = z.object(quizShape)
 
-export const QuizValidator = toFormValidator(z.object(ObjectScheme))
+export const QuizValidator = toFormValidator(z.object(quizShape))

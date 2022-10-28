@@ -13,7 +13,6 @@
     setResultPreview as __setResult,
   } from '~/apps/results/results.repositories'
   import {
-    fetchQuizMeta,
     likeQuiz,
     unlikeQuiz,
   } from '~/apps/quiz-inter/quiz-inter.repositories'
@@ -21,7 +20,7 @@
 
   const quiz_id = 'iY86BtGhKkdbEaqIZWuf'
 
-  const route = useRoute()
+  // const route = useRoute()
   const router = useRouter()
   const floatingActions = ref<InstanceType<typeof QuizFloatingActions> | null>(
     null
@@ -51,15 +50,15 @@
     },
   })
 
-  const { refetch: _fetchQuizMeta } = useQuery({
-    queryKey: ['quiz-meta'],
-    queryFn: () => fetchQuizMeta(quiz_id),
-    refetchIntervalInBackground: false,
-    refetchOnWindowFocus: false,
-    onSuccess(data) {
-      quizMeta.value = data
-    },
-  })
+  // const { refetch: handleGetQuizMeta } = useQuery({
+  //   queryKey: ['quiz-meta'],
+  //   queryFn: () => getQuizMeta(quiz_id),
+  //   refetchIntervalInBackground: false,
+  //   refetchOnWindowFocus: false,
+  //   onSuccess(data) {
+  //     quizMeta.value = data
+  //   },
+  // })
 
   const { data: result, mutateAsync: createResult } = useMutation({
     mutationFn: (payload: Quiz) => addResultPreview(payload),
@@ -93,7 +92,7 @@
       return Promise.resolve(undefined)
     },
     // onSuccess(data) {
-    //   _fetchQuizMeta.value()
+    //   handleGetQuizMeta.value()
     // },
   })
 

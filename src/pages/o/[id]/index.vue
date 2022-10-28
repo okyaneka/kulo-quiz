@@ -8,7 +8,7 @@ meta:
   import { MoreFilled } from '@element-plus/icons-vue'
   import { getQuestionByQuiz } from '~/apps/question/question.repositories'
   import type {
-    ChoicesQuestionPayload,
+    // ChoicesQuestionPayload,
     QuestionPayloads,
     Questions,
   } from '~/apps/question/question.types'
@@ -37,6 +37,7 @@ meta:
   const isShowOption = ref<boolean>(false)
   const isShowDrawer = ref<boolean>(false)
   const isValidate = ref<boolean>(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const view = ref<any>(null)
 
   const isPublish = computed(() => quiz.value?.status == QuizStatus.Publish)
@@ -102,22 +103,22 @@ meta:
       isShowOption.value = false
       let parsed, successCallback, failedCallback
 
-      if (current == 'edit-quiz') {
+      if (current == 'o-id-index') {
         parsed = () => parseQuiz()
         successCallback = async (data: unknown) => {
           await setQuiz(data as QuizPayload)
-          router.push({ name: 'my-quiz-id-questions' })
-          active.value = 'my-quiz-id-questions'
+          router.push({ name: 'o-id-index-questions' })
+          active.value = 'o-id-index-questions'
         }
         failedCallback = () => {
           ElMessage.error('quiz_is_not_valid')
         }
-      } else if (current == 'my-quiz-id-questions') {
+      } else if (current == 'o-id-index-questions') {
         parsed = () => parseQuestions()
         successCallback = async (data: unknown) => {
           await setQuestions(data as Questions[])
-          router.push({ name: 'edit-config' })
-          active.value = 'edit-config'
+          router.push({ name: 'o-id-index-config' })
+          active.value = 'o-id-index-config'
         }
         failedCallback = (error: ZodError) => {
           const children = [
@@ -139,7 +140,7 @@ meta:
             message: el,
           })
         }
-      } else if (current == 'edit-config') {
+      } else if (current == 'o-id-index-config') {
         parsed = () => parseConfig()
         successCallback = async (data: unknown) => {
           await setConfig(data as Config)
@@ -241,34 +242,48 @@ meta:
               ref="view"
               v-model:validate="isValidate"
               :disabled="isPublish"
-            />
+              v-slot="{ Component }"
+            >
+              <keep-alive>
+                <component :is="Component"></component>
+              </keep-alive>
+            </router-view>
           </el-col>
         </el-row>
       </el-card>
     </el-col>
   </el-row>
 
-  <el-tabs
-    v-model="active"
-    stretch
-    @tab-change="handleTabClick"
-    :style="{ bottom: '56px' }"
+  <el-card
+    shadow="never"
     style="
+      --el-card-border-radius: 0;
       z-index: 998;
       position: fixed;
       width: calc(100% - 2 * var(--global-layout-padding));
-      margin-bottom: -15px;
       left: var(--global-layout-padding);
       transition: bottom 0.3s ease-in;
       background: var(--el-fill-color-blank);
       overflow-x: auto;
+      border-bottom: none;
+      border-left: none;
+      border-right: none;
+      bottom: 56px;
     "
+    :body-style="{ padding: 0 }"
   >
-    <el-tab-pane name="edit-quiz" label="1. Data"> </el-tab-pane>
-    <el-tab-pane name="my-quiz-id-questions" label="2. Questions">
-    </el-tab-pane>
-    <el-tab-pane name="edit-config" label="3. Config"> </el-tab-pane>
-  </el-tabs>
+    <el-tabs
+      v-model="active"
+      stretch
+      @tab-change="handleTabClick"
+      class="no-margin-tabs"
+    >
+      <el-tab-pane name="o-id-index" label="1. Data"> </el-tab-pane>
+      <el-tab-pane name="o-id-index-questions" label="2. Questions">
+      </el-tab-pane>
+      <el-tab-pane name="o-id-index-config" label="3. Config"> </el-tab-pane>
+    </el-tabs>
+  </el-card>
 
   <el-popover
     v-if="!isPublish"
@@ -315,10 +330,10 @@ meta:
     >
       <template #extra>
         <el-space fill style="width: 100%">
-          <el-button type="primary" @click="goTo('my-quiz-id-questions')"
+          <el-button type="primary" @click="goTo('o-id-index-questions')"
             >Let's add questions!</el-button
           >
-          <router-link to="/my-quiz">Back to my quiz</router-link>
+          <router-link to="/o">Back to my quiz</router-link>
         </el-space>
       </template>
     </el-result>

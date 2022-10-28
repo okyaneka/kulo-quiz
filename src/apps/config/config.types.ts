@@ -45,14 +45,15 @@ export enum Units {
 }
 
 export interface Config {
+  image_url: string | null
   description: string
   user_guide: string
   question_displayed: number
   question_mode: QuestionMode
   quiz_mode: QuizMode
   timer_mode: TimerMode
-  timer: number
-  timer_units: Units
+  timer: number | null
+  timer_units: Units | null
   break: number
   break_units: Units
 }
