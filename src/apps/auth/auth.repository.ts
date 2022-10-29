@@ -77,7 +77,7 @@ export function guestLogin(payload: GuestLoginPayload) {
 export async function processAuth() {
   if (isSignInWithEmailLink(useAuth(), window.location.href)) {
     const url = new URL(location.toString())
-    const email = url.searchParams.get('email')
+    const email = url.searchParams.get('_id')
     if (email == null) throw new Error('email undefined')
 
     await signInWithEmailLink(useAuth(), email, window.location.href)
