@@ -6,7 +6,7 @@
       maxSize?: number
     }>(),
     {
-      maxSize: 1024,
+      maxSize: 1024 * 10,
     }
   )
 
