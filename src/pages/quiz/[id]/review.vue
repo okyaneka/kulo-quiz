@@ -3,6 +3,7 @@ name: quiz-review
 meta:
   layout: private
   requireAuth: true
+  name: Preview Review Score
 </route>
 
 <script setup lang="ts">
@@ -10,36 +11,10 @@ meta:
   import type { QuizStandingData } from '~/apps/quiz/quiz.repositories'
 
   const score = ref(0)
-  // const scoreInterval = ref<any>()
   const description = ref<string>()
   const standingsData = ref<QuizStandingData[]>([])
-  // const isShowDescription = ref<boolean>(false)
-  // const isShowstandingsData = ref<boolean>(false)
-  // const standings = ref()
 
   const authStore = useAuthStore()
-
-  onMounted(() => {
-    // scoreInterval.value = setInterval(() => {
-    //   score.value += 1
-    //   if (score.value >= 87) {
-    //     clearInterval(scoreInterval.value)
-    //     scoreInterval.value = undefined
-    //     score.value = 87
-    //     description.value =
-    //       'Great! You are doing better than more than 2K other players.'
-    //     standingsData.value.push({
-    //       rank: 1,
-    //       user: {
-    //         uid: authStore.user?.uid as string,
-    //         name: authStore.user?.displayName as string,
-    //         email: authStore.user?.email as string,
-    //       },
-    //       score: 87,
-    //     })
-    //   }
-    // }, 300 / 87)
-  })
 </script>
 
 <template>

@@ -12,3 +12,7 @@
     },
   })
 </script>
+
+<template>
+  <el-skeleton animated> </el-skeleton>
+</template>

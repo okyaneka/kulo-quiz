@@ -66,20 +66,32 @@
 
 <template>
   <el-row v-infinite-scroll="loadMore" ref="wrapper">
-    <el-col
-      v-for="quiz in quizData"
-      :span="12"
-      :key="quiz.id"
-      style="margin: 0"
-    >
-      <quiz-thumbnail
-        :loading="quiz.loading"
-        :height="cardHeight"
-        :quiz="quiz.data"
-        :to="{ name: 'o-id', params: { id: quiz.id } }"
-        draft
+    <template v-if="quizData.length > 0">
+      <el-col
+        v-for="quiz in quizData"
+        :span="12"
+        :key="quiz.id"
+        style="margin: 0"
       >
-      </quiz-thumbnail>
+        <quiz-thumbnail
+          :loading="quiz.loading"
+          :height="cardHeight"
+          :quiz="quiz.data"
+          :to="{ name: 'o-id', params: { id: quiz.id } }"
+          draft
+        >
+        </quiz-thumbnail>
+      </el-col>
+    </template>
+    <el-col v-else>
+      <el-card shadow="never">
+        <el-space style="width: 100%" direction="vertical">
+          <p>Tidak ada quiz dalam draft.</p>
+          <router-link :to="{ name: 'q-add' }">
+            <el-button type="primary">Tambah quiz</el-button>
+          </router-link>
+        </el-space>
+      </el-card>
     </el-col>
   </el-row>
 </template>

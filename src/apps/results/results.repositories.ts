@@ -66,14 +66,15 @@ async function __setResult(
   const unfinishedResult = await __getUnfinishedResult(model, id)
   const result = await addDocument(
     useColRef<Result>(model.results),
-    unfinishedResult
+    unfinishedResult,
+    { withoutTimestamps: true }
   )
-  await deleteDocument(useDocRef(model.unfinished_results, result.id))
-
-  const { getQuestion } = useQuizStore()
   const duration = Math.floor(
     (Date.now() - result.created_at.toMillis()) / 1000
   )
+  deleteDocument(useDocRef(model.unfinished_results, id))
+
+  const { getQuestion } = useQuizStore()
 
   // create id first
   const payloadWithId = await new Promise<(AnswersPayload & useId)[]>((res) => {
@@ -126,7 +127,6 @@ async function __setResult(
       payloadWithId.forEach(async (answer, index) => {
         if (answer.id == undefined) throw new Error('answer_undefined')
         const question = questions[index] as ChoicesQuestion
-        // if (question == undefined) throw new Error('question_undefined')
 
         const { correct_answer, is_correct } = validateAnswer(question, answer)
 

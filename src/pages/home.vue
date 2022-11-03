@@ -23,6 +23,7 @@ meta:
         </el-space>
       </el-card>
     </el-col>
+    <router-link to="/asdqwe">kosong</router-link>
     <el-col :span="24">
       <h1 align="center">Welcome {{ user?.displayName ?? user?.email }}!</h1>
     </el-col>
