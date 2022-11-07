@@ -39,7 +39,7 @@ meta:
         per_page: 0,
         filter: {
           status: {
-            value: TopicStatus.rejected,
+            value: TopicStatus.Rejected,
             operator: '!=',
           },
         },
@@ -62,7 +62,7 @@ meta:
       title: '',
       parent: null,
       description: null,
-      status: TopicStatus.requesting,
+      status: TopicStatus.Trial,
     },
   })
   useField<Topic['title']>('title')
@@ -136,7 +136,7 @@ meta:
                   <span style="margin-right: 8px">{{ item.label }}</span>
 
                   <el-tag
-                    v-if="(item.value as Topic).status != TopicStatus.approved"
+                    v-if="(item.value as Topic).status != TopicStatus.Approved"
                     type="warning"
                   >
                     {{ TopicStatus[(item.value as Topic).status] }}
