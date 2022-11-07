@@ -33,11 +33,11 @@ $headings: (
 }
 
 html {
-  user-select: none;
+  // user-select: none;
 }
 
 body {
-  background-color: var(--el-bg-color);
+  background-color: var(--el-bg-color-page);
   font-family: 'Lato', sans-serif;
   color: var(--el-text-color-primary);
   font-size: 16px;

@@ -43,6 +43,7 @@ export async function getQuestionByQuiz<T = Partial<Questions>>(
   >(useQuestionColRef(), {
     filter: { 'quiz.id': quiz_id },
     orders: [['seq', 'asc']],
+    per_page: 0,
   })
 
   const { questions } = storeToRefs(useQuizStore())

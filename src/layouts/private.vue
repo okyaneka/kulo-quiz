@@ -30,6 +30,7 @@
   onMounted(() => {
     if (user.value?.username == route.params.username)
       activeIndex.value = 'profile'
+    else if (route.fullPath.includes('q/add')) activeIndex.value = 'q-add'
     else activeIndex.value = route.fullPath.split('/')[1]
     window.addEventListener('resize', setMinWidth)
     setMinWidth()
@@ -44,11 +45,12 @@
   <el-container
     style="padding: 0 var(--global-layout-padding); min-height: 100vh"
     :style="{
+      backgroundColor: 'var(--el-bg-color)',
       '--global-layout-padding': padding,
       '--global-main-height': 'calc(100vh - 56px)',
     }"
   >
-    <el-main style="overflow: visible; max-width: 100%">
+    <el-main style="overflow: visible; max-width: 100%; margin-bottom: 56px">
       <router-view />
     </el-main>
     <el-footer
@@ -127,8 +129,8 @@
           </router-link>
 
           <!-- Add -->
-          <router-link to="/create-quiz">
-            <el-menu-item index="create-quiz">
+          <router-link :to="{ name: 'q-add' }">
+            <el-menu-item index="q-add">
               <span>
                 <el-space
                   :size="4"
@@ -153,7 +155,7 @@
 
           <!-- Profile -->
           <router-link
-            :to="{ name: 'username', params: { username: user?.username } }"
+            :to="{ name: 'u-username', params: { username: user?.username } }"
           >
             <el-menu-item index="profile">
               <span>

@@ -149,11 +149,16 @@
       <quiz-summary
         :title="quiz?.title"
         :level="quiz?.level"
+        :grade="quiz?.grade"
         :question-displayed="config.question_displayed"
         :timer-mode="config.timer_mode"
         :max-duration="quiz?.max_duration"
         @click:ready="nextStep"
-      ></quiz-summary>
+      >
+        <template #footer>
+          <slot name="footer"></slot>
+        </template>
+      </quiz-summary>
     </el-col>
 
     <!-- counter -->

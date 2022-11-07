@@ -52,7 +52,7 @@ meta:
   const { isLoading: approvingLoading, mutate: handleApprove } = useMutation({
     mutationFn: async (id: string) => {
       topicId.value = id
-      return await setTopic(id, { status: TopicStatus.approved })
+      return await setTopic(id, { status: TopicStatus.Approved })
     },
     onSuccess: () => {
       ElMessage.success('Quiz topic approved.')
@@ -66,7 +66,7 @@ meta:
   const { isLoading: rejectingLoading, mutate: handleReject } = useMutation({
     mutationFn: async (id: string) => {
       topicId.value = id
-      return await setTopic(id, { status: TopicStatus.rejected })
+      return await setTopic(id, { status: TopicStatus.Rejected })
     },
     onSuccess: () => {
       ElMessage.success('Quiz topic rejected.')

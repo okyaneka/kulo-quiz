@@ -81,8 +81,11 @@ meta:
   function goToActive() {
     if (user.value) {
       const activeTab =
-        active.value == Tabs.index ? '' : `${Tabs[active.value]}`
-      router.push(`/${user.value.username}/${activeTab}`)
+        active.value == Tabs.index ? '' : `-${Tabs[active.value]}`
+      router.push({
+        name: `u-username${activeTab}`,
+        params: { username: user.value.username },
+      })
     }
   }
 

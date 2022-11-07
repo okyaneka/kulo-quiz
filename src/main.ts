@@ -5,6 +5,7 @@ import { VueQueryPlugin } from 'vue-query'
 import { createPinia } from 'pinia'
 import VueSmoothScroll from 'vue3-smooth-scroll'
 import useSentry from './plugins/sentry'
+import middlewares from './middlewares'
 
 import './styles/index.scss'
 
@@ -17,8 +18,10 @@ const pinia = createPinia()
 useSentry(app, router)
 
 app.use(router)
-app.use(VueQueryPlugin)
 app.use(pinia)
+app.use(VueQueryPlugin)
 app.use(VueSmoothScroll)
+
+middlewares()
 
 app.mount('#app')

@@ -2,6 +2,7 @@
 meta:
   layout: private
   requireAuth: true
+  name: Tambah Topik
 </route>
 
 <script setup lang="ts">
@@ -56,18 +57,15 @@ meta:
     },
   })
 
-  const { validate, values, errors, resetForm } = useForm<TopicPayload>({
+  const { validate, values, errors, resetForm } = useForm<
+    Partial<TopicPayload>
+  >({
     validationSchema: TopicValidator,
-    initialValues: {
-      title: '',
-      parent: null,
-      description: null,
-      status: TopicStatus.Trial,
-    },
+    initialValues: { status: TopicStatus.Trial },
   })
-  useField<Topic['title']>('title')
-  useField<Topic['description']>('description')
-  useField<Topic['parent']>('parent')
+  useField('title')
+  useField('description')
+  useField('parent')
 
   const parent = ref<string>()
 
@@ -97,24 +95,29 @@ meta:
     <el-row>
       <el-col>
         <el-space fill style="width: 100%">
-          <h1 align="center">Ask for New Topic</h1>
+          <h1 align="center">Permintaan Topik Baru</h1>
           <p
             align="center"
             style="color: var(--el-text-color-regular); padding: 0 20px"
           >
-            New topic request will be verified by our team. The process will
-            take for a while before you can use your topic. We will notify when
-            the new topic you requested has been verified.
+            Permintaan topik baru akan diverifikasi oleh tim kami. Prosesnya
+            akan memakan waktu beberapa saat. Topik bisa langsung kamu gunakan
+            dengan status uji coba. Kami akan memberi tahu ketika topik baru
+            yang Anda minta telah diverifikasi.
           </p>
         </el-space>
       </el-col>
+
       <el-col>
         <el-form label-position="top" @submit.prevent="handleSubmit">
-          <el-form-item :error="errors.title" label="Topic title">
+          <el-form-item :error="errors.title" label="Nama Topik">
             <el-input v-model="values.title" type="text"></el-input>
           </el-form-item>
 
-          <el-form-item :error="errors.parent" label="Parent Topic (if exists)">
+          <el-form-item
+            :error="errors.parent"
+            label="Kategori Topik (jika ditentukan)"
+          >
             <el-select-v2
               v-model="parent"
               :disabled="!options.length"
@@ -146,17 +149,12 @@ meta:
             </el-select-v2>
           </el-form-item>
 
-          <el-form-item
-            :error="errors.description"
-            label="Description (reason why this topic should be exists)"
-          >
+          <el-form-item :error="errors.description" label="Deskripsi Topik">
             <el-input v-model="values.description" type="textarea"> </el-input>
           </el-form-item>
 
           <el-form-item style="margin-bottom: 0">
-            <el-button type="primary" native-type="submit"
-              >Request new Topic</el-button
-            >
+            <el-button type="primary" native-type="submit">Kirim</el-button>
           </el-form-item>
         </el-form>
       </el-col>

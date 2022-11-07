@@ -44,7 +44,6 @@
           left: 0;
           heihgt: 100%;
           width: 100%;
-          opacity: 0.2;
           z-index: 0;
         "
       >
@@ -64,7 +63,7 @@
           width: 100%;
           align-self: flex-end;
           z-index: 1;
-          padding: 24px 8px 8px;
+          padding: 32px 8px 8px;
         "
       >
         <router-link v-if="quiz?.id" :to="to" style="color: white">
@@ -101,12 +100,12 @@
   .quiz-info {
     background: linear-gradient(
       0deg,
-      rgba(0, 0, 0, 0.5) 0%,
-      rgba(0, 0, 0, 0.15) 80%,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.2) 80%,
       rgba(0, 0, 0, 0) 100%
     );
   }
   .quiz-card:hover {
-    background-color: var(--el-fill-color);
+    opacity: 0.8;
   }
 </style>

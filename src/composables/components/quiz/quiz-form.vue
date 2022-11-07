@@ -73,7 +73,7 @@
         per_page: 0,
         filter: {
           status: {
-            value: TopicStatus.rejected,
+            value: TopicStatus.Rejected,
             operator: '!=',
           },
         },
@@ -111,11 +111,15 @@
     @submit.prevent="handleSubmit"
     :disabled="disabled"
   >
-    <el-form-item :error="errors.title" label="Quiz Title">
+    <el-form-item :error="errors.title" label="Judul Kuis">
       <el-input v-model="values.title" type="text" />
     </el-form-item>
 
-    <el-form-item v-loading="topicsLoading" :error="errors.topic" label="Topic">
+    <el-form-item
+      v-loading="topicsLoading"
+      :error="errors.topic"
+      label="Pilih Topik"
+    >
       <el-select-v2
         v-model="topic"
         filterable
@@ -135,7 +139,7 @@
             <span style="margin-right: 8px">{{ item.label }}</span>
 
             <el-tag
-              v-if="(item.value as Topic).status != TopicStatus.approved"
+              v-if="(item.value as Topic).status != TopicStatus.Approved"
               type="warning"
             >
               {{ TopicStatus[(item.value as Topic).status] }}
@@ -150,7 +154,7 @@
               <router-link
                 target="_blank"
                 :to="{
-                  name: 'create-quiz-topic',
+                  name: 'q-topic',
                   query: { title: topicQuery },
                 }"
                 >here</router-link
@@ -161,7 +165,7 @@
       </el-select-v2>
     </el-form-item>
 
-    <el-form-item :error="errors.grade" label="Grade">
+    <el-form-item :error="errors.grade" label="Jenjang">
       <el-select v-model="values.grade" style="width: 100%">
         <template v-for="i in QuizGrade" :key="`grade-${i}`">
           <el-option v-if="isNaN(i)" :label="i" :value="QuizGrade[i]" />
@@ -169,7 +173,7 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item :error="errors.level" label="Level">
+    <el-form-item :error="errors.level" label="Kesulitan">
       <el-select v-model="values.level" style="width: 100%">
         <template v-for="i in QuizLevel" :key="`level-${i}`">
           <el-option v-if="isNaN(i)" :label="i" :value="QuizLevel[i]" />
