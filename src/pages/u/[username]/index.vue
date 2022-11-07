@@ -17,7 +17,7 @@
     return wrapper.value?.$el ?? null
   })
 
-  useQuery({
+  const { isFetching } = useQuery({
     queryKey: ['published-list', cursor, user],
     queryFn: () => {
       if (user.value != null) {
@@ -65,7 +65,12 @@
 </script>
 
 <template>
-  <el-row v-infinite-scroll="loadMore" ref="wrapper">
+  <el-row
+    v-loading="isFetching"
+    v-infinite-scroll="loadMore"
+    ref="wrapper"
+    :style="{ minHeight: cardHeight + 'px' }"
+  >
     <template v-if="quizData.length > 0">
       <el-col
         v-for="quiz in quizData"
@@ -82,7 +87,7 @@
         </quiz-thumbnail>
       </el-col>
     </template>
-    <el-col v-else>
+    <el-col v-else-if="!isFetching">
       <el-card shadow="never">
         <el-space style="width: 100%" direction="vertical">
           <p>Tidak ada quiz dalam draft.</p>
