@@ -18,7 +18,7 @@ import {
 } from '../question/question.types'
 import { QuizWithMetaScheme } from '../quiz-inter/quiz-inter.schemes'
 import type { QuizWithMeta } from '../quiz-inter/quiz-inter.types'
-import { QuizStatus } from './quiz.schemes'
+import { QuizStatus } from './quiz.types'
 import { getQuizMeta } from '../quiz-inter/quiz-inter.repositories'
 import type {
   QuizPayload,
@@ -145,7 +145,7 @@ export async function getQuizWithMeta(id: string): Promise<QuizWithMeta> {
 }
 
 export async function setQuiz(id: string, payload: Partial<QuizPayload>) {
-  return await setDocument(useQuizDocRef(id), payload)
+  return await setDocument<Quiz>(useQuizDocRef(id), payload)
 }
 
 export async function setConfig(id: string, payload: Partial<Config>) {
@@ -169,7 +169,7 @@ export async function setConfig(id: string, payload: Partial<Config>) {
       ? quiz_max_duration
       : questions_max_duration
 
-  return await setDocument(useQuizDocRef<Quiz>(id), data)
+  return (await setDocument(useQuizDocRef<Quiz>(id), data)).config
 }
 
 export async function setDraft(

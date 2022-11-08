@@ -30,7 +30,6 @@ meta:
 
   function handleSubmit() {
     query.value = search.value.query
-    // console.log('code run here')
   }
 </script>
 

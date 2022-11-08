@@ -169,7 +169,7 @@
           </div>
         </el-col>
       </template>
+      <slot name="footer" />
     </el-row>
-    <slot name="footer" />
   </el-card>
 </template>

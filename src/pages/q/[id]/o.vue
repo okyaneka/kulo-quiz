@@ -1,4 +1,5 @@
 <route lang="yaml">
+alias: ['/q/:id/o/config', '/q/:id/o/questions']
 meta:
   layout: private
   requireAuth: true
@@ -14,14 +15,14 @@ meta:
   } from '~/apps/question/question.types'
   import {
     getQuiz,
-    setQuiz as _setQuiz,
+    setQuiz,
     useQuizStore,
-    setConfig as _setConfig,
+    setConfig,
     setDraft,
   } from '~/apps/quiz/quiz.repositories'
-  import { setQuestions as _setQuestions } from '~/apps/question/question.repositories'
-  import type { QuizPayload } from '~/apps/quiz/quiz.types'
-  import { QuizScheme, QuizStatus } from '~/apps/quiz/quiz.schemes'
+  import { setQuestions } from '~/apps/question/question.repositories'
+  import { type QuizPayload, QuizStatus } from '~/apps/quiz/quiz.types'
+  import { QuizScheme } from '~/apps/quiz/quiz.schemes'
   import type { Config } from '~/apps/config/config.types'
   import { ConfigScheme } from '~/apps/config/config.scheme'
   import { QuestionPayloadSchemes } from '~/apps/question/question.schemes'
@@ -67,21 +68,30 @@ meta:
   })
 
   // set quiz
-  const { mutateAsync: setQuiz } = useMutation({
+  const { mutateAsync: handleSetQuiz } = useMutation({
     mutationFn: (payload: Partial<QuizPayload>) =>
-      _setQuiz(route.params.id as string, payload),
+      setQuiz(route.params.id as string, payload),
+    onSuccess: (data) => {
+      quiz.value = data
+    },
   })
 
   // set questions
-  const { mutateAsync: setQuestions } = useMutation({
+  const { mutateAsync: handleSetQuestions } = useMutation({
     mutationFn: (payload: Partial<Questions>[]) =>
-      _setQuestions(route.params.id as string, payload),
+      setQuestions(route.params.id as string, payload),
+    onSuccess: (data) => {
+      questions.value = data
+    },
   })
 
   // set config
-  const { mutateAsync: setConfig } = useMutation({
+  const { mutateAsync: handleSetConfig } = useMutation({
     mutationFn: (payload: Partial<Config>) =>
-      _setConfig(route.params.id as string, payload),
+      setConfig(route.params.id as string, payload),
+    onSuccess: (data) => {
+      if (data != null) config.value = data
+    },
   })
 
   // save draft
@@ -89,7 +99,7 @@ meta:
     mutationFn: async () => {
       isShowOption.value = false
       if (quiz.value != undefined)
-        setDraft(route.params.id as string, quiz.value, questions.value)
+        return setDraft(route.params.id as string, quiz.value, questions.value)
     },
   })
 
@@ -103,22 +113,22 @@ meta:
       isShowOption.value = false
       let parsed, successCallback, failedCallback
 
-      if (current == 'o-id-index') {
+      if (current == 'q-id-o') {
         parsed = () => parseQuiz()
         successCallback = async (data: unknown) => {
-          await setQuiz(data as QuizPayload)
-          router.push({ name: 'o-id-index-questions' })
-          active.value = 'o-id-index-questions'
+          await handleSetQuiz(data as QuizPayload)
+          router.push({ name: 'q-id-o-questions' })
+          active.value = 'q-id-o-questions'
         }
         failedCallback = () => {
           ElMessage.error('quiz_is_not_valid')
         }
-      } else if (current == 'o-id-index-questions') {
+      } else if (current == 'q-id-o-questions') {
         parsed = () => parseQuestions()
         successCallback = async (data: unknown) => {
-          await setQuestions(data as Questions[])
-          router.push({ name: 'o-id-index-config' })
-          active.value = 'o-id-index-config'
+          await handleSetQuestions(data as Questions[])
+          router.push({ name: 'q-id-o-config' })
+          active.value = 'q-id-o-config'
         }
         failedCallback = (error: ZodError) => {
           const children = [
@@ -140,11 +150,11 @@ meta:
             message: el,
           })
         }
-      } else if (current == 'o-id-index-config') {
+      } else if (current == 'q-id-o-config') {
         parsed = () => parseConfig()
         successCallback = async (data: unknown) => {
-          await setConfig(data as Config)
-          await setQuiz({ status: QuizStatus.Publish })
+          await handleSetConfig(data as Config)
+          await handleSetQuiz({ status: QuizStatus.Publish })
           ElMessage.success('Quiz published.')
           router.push({
             name: 'q-id',
@@ -181,7 +191,7 @@ meta:
 
     const anchor = document.createElement('a')
     anchor.href = router.resolve({
-      name: 'p-id',
+      name: 'q-id-p',
       params: { id: route.params.id },
     }).href
     anchor.target = '_blank'
@@ -278,10 +288,9 @@ meta:
       @tab-change="handleTabClick"
       class="no-margin-tabs"
     >
-      <el-tab-pane name="o-id-index" label="1. Data"> </el-tab-pane>
-      <el-tab-pane name="o-id-index-questions" label="2. Questions">
-      </el-tab-pane>
-      <el-tab-pane name="o-id-index-config" label="3. Config"> </el-tab-pane>
+      <el-tab-pane name="q-id-o" label="1. Data"> </el-tab-pane>
+      <el-tab-pane name="q-id-o-questions" label="2. Questions"> </el-tab-pane>
+      <el-tab-pane name="q-id-o-config" label="3. Config"> </el-tab-pane>
     </el-tabs>
   </el-card>
 
@@ -321,16 +330,16 @@ meta:
     </el-space>
   </el-popover>
 
-  <el-drawer v-model="isShowDrawer" direction="btt" :size="320">
+  <el-drawer v-model="isShowDrawer" direction="btt" :size="360">
     <el-result
       icon="success"
-      title="Your Quiz has Created!"
+      title="Your Quiz has been Created!"
       sub-title="Now let's add questions to your quiz and then share to all."
       style="padding: 0"
     >
       <template #extra>
         <el-space fill style="width: 100%">
-          <el-button type="primary" @click="goTo('o-id-index-questions')"
+          <el-button type="primary" @click="goTo('q-id-o-questions')"
             >Let's add questions!</el-button
           >
           <router-link to="/o">Back to my quiz</router-link>

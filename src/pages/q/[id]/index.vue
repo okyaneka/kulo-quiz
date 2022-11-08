@@ -7,7 +7,7 @@ meta:
 <script setup lang="ts">
   import { useAuthStore } from '~/apps/auth/auth.repository'
   import { getQuiz } from '~/apps/quiz/quiz.repositories'
-  import { QuizLevel, QuizStatus } from '~/apps/quiz/quiz.schemes'
+  import { QuizLevel, QuizStatus } from '~/apps/quiz/quiz.types'
   import { QuestionMode, Units } from '~/apps/config/config.types'
 
   const { throwNotFound } = useNotfoundStore()

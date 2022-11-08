@@ -49,7 +49,6 @@ export async function register(payload: RegisterPayload) {
     dynamicLinkDomain: 'quiz.kulooky.my.id',
   }).then(() => {
     localStorage.setItem('emailForSignIn', payload.email)
-    console.log(localStorage)
   })
 }
 

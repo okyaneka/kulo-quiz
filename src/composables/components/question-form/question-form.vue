@@ -1,85 +1,81 @@
 <script setup lang="ts">
   import {
     QuestionMode,
-    type ChoicesQuestion,
-    type Question,
+    type QuestionPayload,
     type QuestionPayloads,
+    type Questions,
   } from '~/apps/question/question.types'
-  import {
-    ChoicesQuestionPayloadScheme,
-    QuestionPayloadScheme,
-  } from '~/apps/question/question.schemes'
-  import { z } from 'zod'
+  import { QuestionPayloadScheme } from '~/apps/question/question.schemes'
 
   const props = defineProps<{
-    value: Partial<QuestionPayloads>
+    value: Partial<Questions>
     disabled?: boolean
   }>()
 
   const emit = defineEmits<{
-    (e: 'update:value', value: Partial<QuestionPayloads>): void
+    (e: 'update:value', value: Partial<Questions>): void
   }>()
 
-  const validator = computed(() => {
-    let validator
-    switch (props.value.mode) {
-      case QuestionMode.Choices:
-        validator = ChoicesQuestionPayloadScheme._def.shape()
-        break
-      default:
-        validator = QuestionPayloadScheme._def.shape()
-        break
-    }
-    return toFormValidator(z.object(validator))
-  })
+  const emitTimeout = ref()
 
-  const { values, errors, setValues, validate, setFieldValue } = useForm<
-    Partial<QuestionPayloads>
-  >({
-    validationSchema: validator,
-    initialValues: {
-      image_url: null,
-      correct_answer: null,
-    },
-  })
-  useField<number>('point')
-  useField<QuestionMode>('mode')
-  useField<string>('guide')
-  useField<number>('timer')
-
-  watch(values, (value) => {
-    if (value.mode == QuestionMode.Choices) {
-      emit('update:value', {
-        ...props.value,
-        ...value,
-      } as Partial<ChoicesQuestion>)
-    } else {
-      emit('update:value', { ...props.value, ...value } as Partial<Question>)
-    }
-  })
-
-  defineExpose({ validate })
-
-  onMounted(() => {
-    setValues(props.value)
-    if (props.value.point != undefined)
-      quickPoint.value = quickValues.includes(props.value.point as number)
-        ? props.value.point
-        : 'custom'
-    if (props.value.timer != undefined)
-      quickTimer.value = quickValues.includes(props.value.timer as number)
-        ? props.value.timer
-        : 'custom'
-  })
-
-  const quickValues = [5, 10, 20, 50, 100, 'custom']
+  const quickValues = [5, 10, 20, 50, 'custom']
   const quickPoint = ref<string | number>()
   const quickTimer = ref<string | number | null>()
-  watch(quickPoint, (value) => {
-    if (value && typeof value == 'number') setFieldValue('point', value)
+
+  const { values, errors, setValues } = useForm<QuestionPayload>({
+    validationSchema: toFormValidator(
+      z.object(QuestionPayloadScheme._def.shape())
+    ),
   })
+  const { value: point } = useField<number | null>('point')
+  const { value: mode } = useField<QuestionMode | null>('mode')
+  const { value: guide } = useField<string | null>('guide')
+  const { value: timer } = useField<number | null>('timer')
+  const { value: image_url } = useField<string | null>('image_url')
+
+  function updateModel(data?: Partial<Questions>) {
+    clearTimeout(emitTimeout.value)
+    emitTimeout.value = undefined
+    emitTimeout.value = setTimeout(() => {
+      const value = Object.assign({}, props.value, values, data)
+      emit('update:value', value)
+    }, 3e2)
+  }
+
+  watch(quickPoint, (value) => {
+    if (value && typeof value == 'number') point.value = value
+  })
+
+  watch(point, () => updateModel())
+
+  watch(mode, () => updateModel())
+
+  watch(image_url, () => updateModel())
+
+  watch(guide, () => updateModel())
+
   watch(quickTimer, (value) => {
-    if (value && typeof value == 'number') setFieldValue('timer', value)
+    if (value && typeof value == 'number') timer.value = value
+  })
+
+  watch(timer, () => updateModel())
+
+  onMounted(() => {
+    point.value = props.value?.point ?? null
+    mode.value = props.value?.mode ?? null
+    guide.value = props.value?.guide ?? null
+    image_url.value = props.value?.image_url ?? null
+    timer.value = props.value?.timer ?? null
+    setValues(props.value)
+
+    if (point.value != null)
+      quickPoint.value = quickValues.includes(point.value)
+        ? point.value
+        : 'custom'
+    if (timer.value != null)
+      quickTimer.value = quickValues.includes(timer.value)
+        ? timer.value
+        : 'custom'
   })
 </script>
 
@@ -88,10 +84,11 @@
     <el-form-item :error="errors.point" label="Point">
       <el-row justify="space-between" style="width: 100%">
         <el-button
-          v-for="(point, i) in quickValues"
+          v-for="point in quickValues"
+          :key="point"
           :type="quickPoint == point ? 'primary' : undefined"
-          :key="`point-${i}`"
           round
+          style="margin: 4px 0 !important"
           @click="quickPoint = point"
           >{{ point }}</el-button
         >
@@ -99,19 +96,20 @@
 
       <el-input
         v-if="quickPoint == 'custom'"
-        v-model.number="values.point"
+        v-model.number="point"
         style="margin-top: 12px"
         placeholder="Input point"
       ></el-input>
     </el-form-item>
 
     <el-form-item :error="errors.mode" label="Question mode">
-      <template v-for="(option, i) in QuestionMode" :key="`option-${i}`">
+      <template v-for="option in QuestionMode" :key="option">
         <el-button
           v-if="!isNaN(option)"
-          :type="values.mode == option ? 'primary' : undefined"
-          @click="values.mode = option"
+          :type="mode == option ? 'primary' : undefined"
           round
+          style="margin: 4px 0 !important"
+          @click="mode = option"
         >
           {{ QuestionMode[option] }}
         </el-button>
@@ -119,25 +117,23 @@
     </el-form-item>
 
     <el-form-item :error="errors.guide" label="Question guide">
-      <el-input v-model="values.guide" type="textarea"></el-input>
+      <el-input v-model="guide" type="textarea"></el-input>
     </el-form-item>
 
     <el-form-item label="Image guide">
       <el-col>
-        <select-image
-          v-model="values.image_url"
-          style="width: 100%"
-        ></select-image>
+        <select-image v-model="image_url" style="width: 100%"></select-image>
       </el-col>
     </el-form-item>
 
     <el-form-item :error="errors.timer" label="Timer (seconds)">
       <el-row justify="space-between" style="width: 100%">
         <el-button
-          v-for="(point, i) in quickValues"
+          v-for="point in quickValues"
           :type="quickTimer == point ? 'primary' : undefined"
-          :key="`point-${i}`"
+          :key="point"
           round
+          style="margin: 4px 0 !important"
           @click="quickTimer = point"
           >{{ point }}</el-button
         >
@@ -145,22 +141,21 @@
 
       <el-input
         v-if="quickTimer == 'custom'"
-        v-model.number="values.timer"
+        v-model.number="timer"
         placeholder="Input timer"
         style="margin-top: 12px"
       >
       </el-input>
     </el-form-item>
 
-    <template v-if="values.mode != undefined">
+    <template v-if="mode != undefined">
       <hr
         style="border: 1px solid var(--el-border-color); margin-bottom: 0.5rem"
       />
-
       <question-choices-form
-        v-if="values.mode == QuestionMode.Choices"
-        v-model:value="values"
-        :errors="errors"
+        v-if="mode == QuestionMode.Choices"
+        :value="value"
+        @update:value="updateModel($event)"
       ></question-choices-form>
     </template>
   </el-form>

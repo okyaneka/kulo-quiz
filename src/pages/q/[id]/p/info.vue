@@ -8,7 +8,7 @@ meta:
 <script setup lang="ts">
   import { useAuthStore } from '~/apps/auth/auth.repository'
   import { getQuiz } from '~/apps/quiz/quiz.repositories'
-  import { QuizLevel, QuizStatus } from '~/apps/quiz/quiz.schemes'
+  import { QuizLevel, QuizStatus } from '~/apps/quiz/quiz.types'
   import { QuestionMode, Units } from '~/apps/config/config.types'
 
   const route = useRoute()
@@ -82,14 +82,12 @@ meta:
     :spesification="tableData"
   >
     <template #footer>
-      <el-col style="position: sticky; bottom: 56px; z-index: 10">
-        <el-card shadow="never" :bodyStyle="{ padding: '8px' }">
-          <router-link :to="{ name: 'q-id-p' }">
-            <el-button type="primary" style="width: 100%"
-              >START PREVIEW QUIZ</el-button
-            >
-          </router-link>
-        </el-card>
+      <el-col style="position: sticky; bottom: 56px; z-index: 10; padding: 8px">
+        <router-link :to="{ name: 'q-id-p' }">
+          <el-button type="primary" style="width: 100%"
+            >START PREVIEW QUIZ</el-button
+          >
+        </router-link>
       </el-col>
     </template>
   </quiz-preview>

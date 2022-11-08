@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z, ZodType, type ZodObjectDef } from 'zod'
 import {
   QuestionMode,
   type QuestionPayload,
@@ -20,22 +20,21 @@ const QuestionPayloadShape = z.object({
 
 const QuestionPayloadScheme: z.ZodType<
   QuestionPayload,
-  z.ZodObjectDef<typeof QuestionPayloadShape.shape>
+  typeof QuestionPayloadShape._def
 > = QuestionPayloadShape
 
-const ChoiceShape = z.object({
+const ChoiceShape = {
   text: z.string().min(1),
   key: z.number(),
   image_url: z.string().nullable(),
-})
+}
 
-const ChoiceScheme: z.ZodType<
+const ChoiceScheme: ZodType<
   Choice,
-  z.ZodObjectDef<typeof ChoiceShape.shape>
-> = ChoiceShape
+  ZodObjectDef<typeof ChoiceShape>
+> = z.object(ChoiceShape)
 
 const ChoicesQuestionPayloadShape = z.object({
-  ...QuestionPayloadScheme._def.shape(),
   question: z.string().min(1),
   choices: z.preprocess((arg) => {
     if (!arg) return false
@@ -43,13 +42,13 @@ const ChoicesQuestionPayloadShape = z.object({
     const keys = choices.map((v) => v.key)
     if (new Set(keys).size != choices.length) return false
     return choices
-  }, z.array(z.object(ChoiceScheme._def.shape()), { invalid_type_error: 'key_must_no_duplicate' }).min(1)),
+  }, z.array(z.object(ChoiceShape), { invalid_type_error: 'key_must_no_duplicate' }).min(1)),
   correct_answer: z.number().array().min(1, 'Correct answer is required'),
 })
 
-const ChoicesQuestionPayloadScheme: z.ZodType<
-  ChoicesQuestionPayload,
-  z.ZodObjectDef<typeof ChoicesQuestionPayloadShape.shape>
+const ChoicesQuestionPayloadScheme: ZodType<
+  Omit<ChoicesQuestionPayload, keyof QuestionPayload>,
+  typeof ChoicesQuestionPayloadShape._def
 > = ChoicesQuestionPayloadShape
 
 const QuestionPayloadSchemes = z.array(ChoicesQuestionPayloadScheme)

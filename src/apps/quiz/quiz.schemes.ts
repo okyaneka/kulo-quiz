@@ -1,27 +1,10 @@
-import * as z from 'zod'
-import type { QuizPayload } from './quiz.types'
-
-export enum QuizGrade {
-  'Novice',
-  'Elementary',
-  'Junior High',
-  'Senior High',
-  'College',
-  'Master',
-}
-
-export enum QuizLevel {
-  'Very Easy',
-  'Easy',
-  'Medium',
-  'Hard',
-  'Very Hard',
-}
-
-export enum QuizStatus {
-  'Draft',
-  'Publish',
-}
+import type { ZodObjectDef, ZodType } from 'zod'
+import {
+  QuizGrade,
+  QuizLevel,
+  QuizStatus,
+  type QuizPayload,
+} from './quiz.types'
 
 export const quizShape = {
   title: z.string(),
@@ -31,9 +14,9 @@ export const quizShape = {
   status: z.nativeEnum(QuizStatus),
 }
 
-export const QuizScheme: z.ZodType<
+export const QuizScheme: ZodType<
   QuizPayload,
-  z.ZodObjectDef<typeof quizShape>
+  ZodObjectDef<typeof quizShape>
 > = z.object(quizShape)
 
 export const QuizValidator = toFormValidator(z.object(quizShape))
