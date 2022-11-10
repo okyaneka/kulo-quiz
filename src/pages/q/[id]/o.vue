@@ -124,17 +124,12 @@ meta:
           ElMessage.error('quiz_is_not_valid')
         }
       } else if (current == 'q-id-o-questions') {
-        parsed = () => parseQuestions()
-        successCallback = async (data: unknown) => {
-          await handleSetQuestions(data as Questions[])
-          router.push({ name: 'q-id-o-config' })
-          active.value = 'q-id-o-config'
-        }
-        failedCallback = (error: ZodError) => {
+        const parsed = parseQuestions()
+        if (!parsed.success) {
           const children = [
             h('p', null, h('strong', null, 'Some question is not valid')),
           ]
-          const e = error as ZodError<QuestionPayloads[]>
+          const e = parsed.error
 
           e.errors.forEach((v) => {
             children.push(
@@ -149,7 +144,12 @@ meta:
           ElMessage.error({
             message: el,
           })
+        } else {
+          await handleSetQuestions(questions.value)
+          router.push({ name: 'q-id-o-config' })
+          active.value = 'q-id-o-config'
         }
+        return
       } else if (current == 'q-id-o-config') {
         parsed = () => parseConfig()
         successCallback = async (data: unknown) => {
@@ -173,7 +173,7 @@ meta:
       const data = parsed()
 
       if (data.success) return await successCallback(data.data)
-      return failedCallback(data.error)
+      return failedCallback()
     },
   })
 

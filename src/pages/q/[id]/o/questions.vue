@@ -107,7 +107,11 @@ meta:
                 </el-icon>
               </el-button>
 
-              <h5>Question {{ index + 1 }}</h5>
+              <h5>
+                Question {{ index + 1 }} ({{
+                  questions[index].id?.slice(0, 4).toUpperCase()
+                }})
+              </h5>
               <el-popover v-if="questionsValid[index] == false">
                 <template #reference>
                   <el-icon

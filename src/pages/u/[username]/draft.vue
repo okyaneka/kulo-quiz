@@ -17,7 +17,7 @@
     return wrapper.value?.$el ?? null
   })
 
-  const { isFetching } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ['draft-list', cursor, user],
     queryFn: () => {
       if (user.value != null) {
@@ -60,13 +60,12 @@
   )
 
   function loadMore() {
-    if (cursor.value + 1 <= total.value) cursor.value += 1
+    if (cursor.value + 4 <= total.value) cursor.value += 4 - (total.value % 4)
   }
 </script>
 
 <template>
   <el-row
-    v-loading="isFetching"
     v-infinite-scroll="loadMore"
     ref="wrapper"
     :style="{ minHeight: cardHeight + 'px' }"
@@ -82,13 +81,13 @@
           :loading="quiz.loading"
           :height="cardHeight"
           :quiz="quiz.data"
-          :to="{ name: 'o-id', params: { id: quiz.id } }"
+          :to="{ name: 'q-id-o', params: { id: quiz.id } }"
           draft
         >
         </quiz-thumbnail>
       </el-col>
     </template>
-    <el-col v-else-if="!isFetching">
+    <el-col v-else-if="!isLoading">
       <el-card shadow="never">
         <el-space style="width: 100%" direction="vertical">
           <p>Tidak ada quiz dalam draft.</p>
