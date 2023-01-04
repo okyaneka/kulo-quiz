@@ -104,8 +104,8 @@
           </router-link>
 
           <!-- Search -->
-          <router-link to="/q">
-            <el-menu-item index="q">
+          <router-link to="/qs">
+            <el-menu-item index="qs">
               <span>
                 <el-space
                   :size="4"

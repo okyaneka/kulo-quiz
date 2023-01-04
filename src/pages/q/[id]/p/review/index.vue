@@ -38,8 +38,6 @@ meta:
   })
 
   function handleDetail(resultId: string) {
-    console.log('q-id-p-review-resultId')
-
     router.push({
       name: 'q-id-p-review-resultId',
       params: { resultId },

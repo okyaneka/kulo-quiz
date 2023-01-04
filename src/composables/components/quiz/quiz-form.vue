@@ -1,12 +1,11 @@
 <script setup lang="ts">
   import type { OptionType } from 'element-plus/es/components/select-v2/src/select.types'
+  import { QuizScheme, QuizValidator } from '~/apps/quiz/quiz.schemes'
   import {
+    type QuizPayload,
     QuizGrade,
     QuizLevel,
-    QuizScheme,
-    QuizValidator,
-  } from '~/apps/quiz/quiz.schemes'
-  import type { QuizPayload } from '~/apps/quiz/quiz.types'
+  } from '~/apps/quiz/quiz.types'
   import { getTopicList } from '~/apps/topic/topic.repository'
   import { TopicStatus } from '~/apps/topic/topic.scheme'
   import type { Topic } from '~/apps/topic/topic.types'

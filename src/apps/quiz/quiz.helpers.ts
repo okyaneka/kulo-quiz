@@ -1,5 +1,5 @@
 import type { Topic } from '../topic/topic.types'
-import type { QuizGrade, QuizStatus, QuizLevel } from './quiz.schemes'
+import type { QuizGrade, QuizStatus, QuizLevel } from './quiz.types'
 
 export function getLabel(topic: Topic, __options: Topic[]): string {
   if (topic.parent != null) {

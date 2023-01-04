@@ -1,8 +1,8 @@
 <script setup lang="ts">
   const props = withDefaults(
     defineProps<{
-      collection: string
-      modelValue: string
+      collection?: string
+      modelValue?: string
       maxSize?: number
     }>(),
     {
@@ -16,7 +16,9 @@
 
   const model = computed({
     get: () => props.modelValue,
-    set: (value) => emit('update:modelValue', value),
+    set: (value) => {
+      if (value) emit('update:modelValue', value)
+    },
   })
 
   const inputFile = ref<HTMLInputElement>()
@@ -70,6 +72,14 @@
     @dragexit="isDragActive = false"
     @drop.prevent="handleDrop"
   >
+    <input
+      ref="inputFile"
+      type="file"
+      style="display: none"
+      accept="image/*"
+      @change="handleFileChanged"
+    />
+
     <el-row
       :align="model ? 'bottom' : 'middle'"
       justify="center"
@@ -122,14 +132,6 @@
       </el-space>
     </el-row>
   </el-card>
-
-  <input
-    ref="inputFile"
-    type="file"
-    style="display: none"
-    accept="image/*"
-    @change="handleFileChanged"
-  />
 </template>
 
 <style scoped>

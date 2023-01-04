@@ -3,10 +3,12 @@
   import { Close, QuestionFilled } from '@element-plus/icons-vue'
   import type {
     Choice,
+    ChoicesQuestion,
     ChoicesQuestionPayload,
+    QuestionPayload,
+    Questions,
   } from '~/apps/question/question.types'
-
-  type PayloadData = Partial<ChoicesQuestionPayload>
+  import { ChoicesQuestionPayloadScheme } from '~/apps/question/question.schemes'
 
   const blankChoice: Choice = {
     key: 0,
@@ -15,20 +17,27 @@
   }
 
   const props = defineProps<{
-    value: PayloadData
+    value: Partial<ChoicesQuestion>
     errors?: { [key: string]: string }
   }>()
 
-  defineEmits<{
-    (e: 'update:value', value: PayloadData): void
+  const emit = defineEmits<{
+    (e: 'update:value', value: Partial<ChoicesQuestion>): void
   }>()
 
   const choiceInput = ref()
+  const correctAnswerValue = ref<{ [key: number]: boolean }>({})
 
-  const { value: question } = useField<PayloadData['question']>('question')
-  const { value: choices } = useField<PayloadData['choices']>('choices')
-  const { value: correct_answer } =
-    useField<PayloadData['correct_answer']>('correct_answer')
+  const { values, errors, validate } = useForm<
+    Omit<ChoicesQuestionPayload, keyof QuestionPayload>
+  >({
+    validationSchema: toFormValidator(
+      z.object(ChoicesQuestionPayloadScheme._def.shape())
+    ),
+  })
+  const { value: question } = useField<string | null>('question')
+  const { value: choices } = useField<Choice[] | null>('choices')
+  const { value: correct_answer } = useField<number[] | null>('correct_answer')
 
   function handleAddOption() {
     if (choices.value)
@@ -48,14 +57,22 @@
     }
   }
 
-  const correctAnswerValue = ref<boolean[]>([])
-
   function setCorrectAnswer() {
-    correct_answer.value = correctAnswerValue.value
-      .map((v, i) => ({ value: i, selected: v }))
-      .filter((v) => v.selected)
-      .map((v) => v.value)
+    correct_answer.value = Object.entries(correctAnswerValue.value)
+      .filter((v) => v[1])
+      .map((v) => parseInt(v[0]))
   }
+
+  function updateModel() {
+    validate()
+    const value = Object.assign({}, props.value, values)
+    emit('update:value', value)
+  }
+
+  watch(correctAnswerValue, () => setCorrectAnswer(), { deep: true })
+  watch(question, () => updateModel())
+  watch(choices, () => updateModel(), { deep: true })
+  watch(correct_answer, () => updateModel())
 
   onMounted(() => {
     question.value = props.value?.question ?? ''
@@ -72,29 +89,23 @@
     <el-input v-model="question" type="textarea"></el-input>
   </el-form-item>
 
-  <template v-if="errors?.choices || errors?.correct_answer">
-    <p
-      style="
-        color: var(--el-color-error);
-        font-size: var(--el-font-size-extra-small);
-      "
-    >
-      {{ errors?.choices || errors?.correct_answer }}
-    </p>
-  </template>
-
-  <el-form-item label="Options" style="margin-bottom: 4px"></el-form-item>
+  <el-form-item
+    label="Options"
+    :error="errors?.choices || errors?.correct_answer"
+  >
+  </el-form-item>
   <draggable
     v-if="choices != undefined"
     v-model="choices"
-    handle=".el-input-group__prepend"
-    tag="transition-group"
+    item-key="key"
     :animation="200"
+    handle=".el-input-group__prepend"
   >
     <template #item="{ index }">
       <el-form-item
         :key="choices[index].key"
         :error="errors ? errors[`choices[${index}].text`] : ''"
+        style="margin-bottom: 18px"
       >
         <el-row align="middle" style="width: 100%; flex-wrap: nowrap">
           <el-input
@@ -109,7 +120,6 @@
               <el-space>
                 <el-checkbox
                   v-model="correctAnswerValue[choices[index].key]"
-                  @change="setCorrectAnswer"
                 ></el-checkbox>
                 <el-tooltip effect="dark" content="Choose the correct answer!">
                   <el-icon>

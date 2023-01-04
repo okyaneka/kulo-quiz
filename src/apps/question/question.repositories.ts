@@ -2,10 +2,11 @@ import { runTransaction } from 'firebase/firestore'
 import type { ResponseRowsPayload } from '~/composables/types/interfaces'
 import { useColRef, useDocRef, useFirestore } from '~/plugins/firebase'
 import { getQuiz, useQuizDocRef, useQuizStore } from '../quiz/quiz.repositories'
-import type { Quiz } from '../quiz/quiz.types'
+import type { Quiz, useQuiz } from '../quiz/quiz.types'
 import type {
   QuestionFilterable,
   QuestionOrderable,
+  QuestionPayloads,
   Questions,
 } from './question.types'
 
@@ -62,6 +63,18 @@ export async function getQuestionList(
   })
 }
 
+export async function addQuestion(
+  quiz: useQuiz,
+  payload: Partial<QuestionPayloads>
+) {
+  const data = Object.assign({}, { quiz }, payload)
+  return addDocument(useQuestionColRef(), data)
+}
+
+export async function setQuestion(id: string, payload: Partial<Questions>) {
+  return setDocument(useQuestionDocRef(id), payload)
+}
+
 export async function setQuestions(
   quiz_id: string,
   payload: Partial<Questions>[]
@@ -102,7 +115,7 @@ export async function setQuestions(
 
       transaction.set(
         useQuestionDocRef(question.id),
-        { ...Object.assign({}, question), updated_at: Timestamp.now() },
+        Object.assign({}, question, { updated_at: Timestamp.now() }),
         { merge: true }
       )
       rows.push({ ...question, updated_at: Timestamp.now() })

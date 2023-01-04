@@ -19,6 +19,7 @@ meta:
   const { user: user } = storeToRefs(useAuthStore())
 
   const isUsername = ref(true)
+  const isError = ref(false)
 
   const { errors, values, setValues, setFieldError, validate } =
     useForm<EditProfilePayload>({
@@ -36,9 +37,11 @@ meta:
     queryKey: ['username', username],
     queryFn: () => checkUsername(username.value),
     onSuccess: (value) => {
+      isError.value = false
       if (!value) {
         isUsername.value = false
         setFieldError('username', 'Username is unavailable')
+        isError.value = true
       } else isUsername.value = true
     },
     enabled: false,
@@ -65,8 +68,8 @@ meta:
       await handleUpdateProfile(values)
       ElMessage.success('Profile updated successfully 😄')
       router.push({
-        name: 'username',
-        params: { username: user.value?.username },
+        name: 'u-username',
+        params: { username: username.value },
       })
     }
   }
@@ -137,15 +140,18 @@ meta:
           </el-form-item>
 
           <el-space style="margin-top: 8px">
-            <el-button v-if="loading" disabled>Back</el-button>
-            <router-link
-              v-else
-              :to="{ name: 'username', params: { username: user?.username } }"
-            >
-              <el-button>Back</el-button>
-            </router-link>
+            <span>
+              <router-link
+                :to="{
+                  name: 'u-username',
+                  params: { username: user?.username },
+                }"
+              >
+                <el-button :disabled="loading">Back</el-button>
+              </router-link>
+            </span>
             <el-button
-              :disabled="isLoading"
+              :disabled="isLoading || isError"
               :loading="loading"
               type="primary"
               native-type="submit"

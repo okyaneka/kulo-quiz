@@ -7,8 +7,7 @@ meta:
 
 <script setup lang="ts">
   import { addQuiz } from '~/apps/quiz/quiz.repositories'
-  import { QuizStatus } from '~/apps/quiz/quiz.schemes'
-  import type { QuizPayload } from '~/apps/quiz/quiz.types'
+  import { type QuizPayload, QuizStatus } from '~/apps/quiz/quiz.types'
 
   const router = useRouter()
 

@@ -26,6 +26,7 @@
       padding: 0,
       height: height + 'px',
       position: 'relative',
+      backgroundColor: '#888',
     }"
   >
     <el-skeleton v-if="loading" animated>
@@ -42,6 +43,8 @@
           position: absolute;
           top: 0;
           left: 0;
+          right: 0;
+          bottom: 0;
           heihgt: 100%;
           width: 100%;
           z-index: 0;

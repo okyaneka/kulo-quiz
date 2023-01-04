@@ -18,5 +18,6 @@
 </script>
 
 <template>
-  <el-image :src="imageUrl" v-bind="$attrs" lazy> </el-image>
+  <el-image :src="imageUrl" v-bind="$attrs" lazy class="img-firestore">
+  </el-image>
 </template>
