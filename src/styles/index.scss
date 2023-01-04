@@ -1,0 +1,108 @@
+// import dark theme
+@use 'element-plus/theme-chalk/src/dark/css-vars.scss' as *;
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap');
+
+:root {
+  --el-select-font-size: var(--el-font-size-base);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+$headings: (
+  'h1': 2em,
+  'h2': 1.75em,
+  'h3': 1.5em,
+  'h4': 1.125em,
+  'h5': 1em,
+  'h6': 0.875em,
+  'p': 1em,
+);
+
+@each $h, $size in $headings {
+  #{$h} {
+    font-size: $size;
+  }
+
+  .text-wrapper #{$h} {
+    margin-bottom: 0.5rem;
+  }
+}
+
+html {
+  // user-select: none;
+}
+
+body {
+  background-color: var(--el-bg-color-page);
+  font-family: 'Lato', sans-serif;
+  color: var(--el-text-color-primary);
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+a {
+  text-decoration: none;
+}
+
+.el-col ~ .el-col,
+.el-row ~ .el-row {
+  margin-top: 20px;
+}
+
+.el-button .el-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.el-drawer__header {
+  margin-bottom: 0 !important;
+}
+
+.el-select-v2,
+.el-select-v2__combobox-input {
+  font-size: var(--el-font-size-base) !important;
+  color: var(--el-input-text-color, var(--el-text-color-regular));
+}
+
+.el-select-v2__wrapper.is-disabled .el-select-v2__placeholder {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+.el-message__content {
+  white-space: pre-line;
+}
+
+.custom-header .el-collapse-item {
+  position: relative;
+}
+
+.custom-header .el-collapse-item__header {
+  padding-right: 1.5rem;
+}
+
+.custom-header .el-icon.el-collapse-item__arrow {
+  position: absolute;
+  right: -0.5rem;
+}
+
+.el-popconfirm__main,
+.el-popconfirm__action {
+  text-align: center !important;
+  word-break: initial !important;
+}
+
+.no-margin-tabs .el-tabs__header {
+  margin-bottom: 0 !important;
+}
+
+.el-drawer {
+  --el-drawer-bg-color: #ffffff !important;
+}
+
+.img-firestore img {
+  object-position: top;
+}

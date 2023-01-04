@@ -1,0 +1,51 @@
+$--colors: (
+  'primary': (
+    'base': #803399,
+  ),
+  'success': (
+    'base': #21ba45,
+  ),
+  'warning': (
+    'base': #f2711c,
+  ),
+  'danger': (
+    'base': #db2828,
+  ),
+  'error': (
+    'base': #db2828,
+  ),
+  'info': (
+    'base': #909399,
+  ),
+  'saya': (
+    'base': #f0f124,
+  ),
+);
+
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $bg-color: (
+    '': #fbf8fc,
+    'page': #ffffff,
+    'overlay': #ffffff,
+  ),
+  $font-size: (
+    'extra-large': 24px,
+    'large': 20px,
+    'medium': 18px,
+    'base': 16px,
+    'small': 14px,
+  ),
+  $colors: $--colors,
+  $footer: (
+    'height': 56px,
+  ),
+  $main: (
+    'padding': 0,
+  ),
+  $collapse: (
+    'header-font-size': 16px,
+    'content-font-size': 16px,
+  )
+);
+
+@use './dark.scss';
