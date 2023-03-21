@@ -11,6 +11,7 @@ meta:
     unfollowUser,
     getUserWithMeta,
   } from '~/apps/user-inter/user-inter.repositories'
+  import type { UserWithMeta } from '~/apps/user-inter/user-inter.types'
 
   enum Tabs {
     index,
@@ -31,27 +32,43 @@ meta:
   const followLoading = computed(
     () => followingLoading.value || unfollowingLoading.value
   )
+  const user = ref<UserWithMeta>()
+  const isLoading = ref(false)
+  // const {
+  //   data: user,
+  //   isLoading,
+  //   refetch: handleGetUserWithMeta,
+  // } = useQuery({
+  //   // queryKey: ['user-' + route.params.username],
+  //   queryFn: () =>
+  //     getUserWithMeta(route.params.username as string).then((res) => {
+  //       const name = res.displayName
+  //       setDocTitle(name ? `${name} Profiles` : undefined)
+  //       return res
+  //     }),
+  // })
 
-  const {
-    data: user,
-    isLoading,
-    refetch: handleGetUserWithMeta,
-  } = useQuery({
-    queryKey: ['user'],
-    queryFn: () =>
-      getUserWithMeta(route.params.username as string).then((res) => {
+  async function handleGetUserWithMeta() {
+    isLoading.value = true
+    await getUserWithMeta(route.params.username as string)
+      .then((res) => {
         const name = res.displayName
         setDocTitle(name ? `${name} Profiles` : undefined)
-        return res
-      }),
-  })
+        user.value = res
+        // return res
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+    isLoading.value = false
+  }
 
   // follow
   const { isLoading: followingLoading, mutateAsync: handleFollow } =
     useMutation({
       mutationFn: async () => {
         if (user.value) await followUser(user.value.id)
-        await handleGetUserWithMeta.value()
+        await handleGetUserWithMeta()
       },
     })
 
@@ -60,7 +77,7 @@ meta:
     useMutation({
       mutationFn: async () => {
         if (user.value) await unfollowUser(user.value.id)
-        await handleGetUserWithMeta.value()
+        await handleGetUserWithMeta()
       },
     })
 
@@ -92,6 +109,10 @@ meta:
   provide('user', user)
 
   watch(active, () => goToActive())
+  watch(
+    () => route.params.username,
+    () => handleGetUserWithMeta()
+  )
 
   onMounted(() => {
     const path = route.path.split('/').pop()
@@ -108,6 +129,7 @@ meta:
 
     window.addEventListener('resize', setAvatarWidth)
     setAvatarWidth()
+    handleGetUserWithMeta()
   })
 
   onUnmounted(() => {
