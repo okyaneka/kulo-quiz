@@ -128,17 +128,17 @@
         </div>
 
         <el-row justify="space-between" style="margin-bottom: 8px">
-          <p align="center">
+          <p align="center" style="color: var(--el-text-color-primary)">
             <strong>{{ user.quiz_count }}</strong>
             <br />
             <span style="font-size: var(--el-font-size-small)">Quizs</span>
           </p>
-          <p align="center">
+          <p align="center" style="color: var(--el-text-color-primary)">
             <strong>{{ user.follower_count }}</strong>
             <br />
             <span style="font-size: var(--el-font-size-small)">Followers</span>
           </p>
-          <p align="center">
+          <p align="center" style="color: var(--el-text-color-primary)">
             <strong>{{ user.following_count }}</strong>
             <br />
             <span style="font-size: var(--el-font-size-small)">Following</span>

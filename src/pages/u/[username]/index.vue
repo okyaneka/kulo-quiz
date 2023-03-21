@@ -5,11 +5,13 @@
   import { getQuizList, getQuizWithMeta } from '~/apps/quiz/quiz.repositories'
   import { QuizStatus } from '~/apps/quiz/quiz.types'
   import type { UserWithMeta } from '~/apps/user-inter/user-inter.types'
+  import { useAuthStore } from '~/apps/auth/auth.repository'
 
   const user = inject<Ref<UserWithMeta | null>>('user', ref(null))
   const quizData = ref<
     { id: string; loading?: boolean; data?: QuizWithMeta }[]
   >([])
+  const { user: authUser } = storeToRefs(useAuthStore())
   const cursor = ref(6)
   const total = ref(0)
   const wrapper = ref<InstanceType<typeof ElRow> | null>(null)
@@ -65,12 +67,7 @@
 </script>
 
 <template>
-  <el-row
-    v-loading="isLoading"
-    v-infinite-scroll="loadMore"
-    ref="wrapper"
-    :style="{ minHeight: cardHeight + 'px' }"
-  >
+  <el-row ref="wrapper" :style="{ minHeight: cardHeight + 'px' }">
     <template v-if="quizData.length > 0">
       <el-col
         v-for="quiz in quizData"
@@ -90,8 +87,11 @@
     <el-col v-else-if="!isLoading">
       <el-card shadow="never">
         <el-space style="width: 100%" direction="vertical">
-          <p>Tidak ada quiz dalam draft.</p>
-          <router-link :to="{ name: 'q-add' }">
+          <p>Quiz kosong.</p>
+          <router-link
+            v-if="$route.params.username == authUser?.username"
+            :to="{ name: 'q-add' }"
+          >
             <el-button type="primary">Tambah quiz</el-button>
           </router-link>
         </el-space>

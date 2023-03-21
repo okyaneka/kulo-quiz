@@ -43,7 +43,7 @@ export async function register(payload: RegisterPayload) {
   return await sendSignInLinkToEmail(useAuth(), payload.email, {
     url:
       import.meta.env.VITE_APP_BASE_URL +
-      '/auth-processing?_id=' +
+      'auth-processing?_id=' +
       payload.email,
     handleCodeInApp: true,
     dynamicLinkDomain: 'quiz.kulooky.my.id',
